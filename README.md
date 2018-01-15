@@ -1,41 +1,51 @@
 ## About
-This is riichi mahjong Golang package
+This is riichi mahjong Golang package.
+Package supports calculation for:
+1. Shanten value
+2. Effectivity drops
+3. Tempai
+4. Hand yaku
+4. Han/Fu hand value based on yaku
+5. Scroing base on han/fu value
 
-## Index
+The game itself is NOT the purpose of this particular package.
 
-### base
-Contents basic object need for other packages: Opponent, Wind, Round
+This package is extracted from a larger repo(private) of my code and it is been quite tested. 
+I've found a good number of corner-cases to include in my tests.
+You can see the example of effetivity calculator, based on this package here: https://tempai.net/en/eff .
 
-### tile
-Tile representation and string in tenhou format parser-generator
-
-### compact
-bit-based representation for tile collections
-
-### meld
-Chi, Pon, Kan objects
-
-### shanten
-Calculators for shanten and tempai
-
-### yaku
-Calculate yaku, based on calculated forms and context
-
-### score
-Score calculation and scoring rules
-
-### examples
-Here you can find short usage examples
+I've also validated my code against more than 1 million tenhou Phoenix replays, downloaded from tenhou.net server.
+So it seems that the results of calculation could be trusted.
 
 ## Installation
 
 `go get bitbucket.org/dnovikoff/tempai-core/...`
 
-## Quick Start
+## Quick Start by exmaples
 
-All examples could be found in example folder
+All examples could be found in `example` folder.
+Note that provided examples are simple and do not cover all possible package functionality.
+You can also explore `*_test.go` test files to search for more usage examples.
 
-Calculate shanten number
+All example hand inputs provided in tenhou-style string format:
+1. `123456789s` for Sou
+2. `123456789m` for Man
+3. `123456789p` for Pin
+4. `1234z` for East, South, West, North
+5. `567z` for White, Green, Red
+
+### Calculate shanten number
+
+Shanten, Tempai and effectivity calculators support different forms separatly or all-together:
+1. Regular hand
+2. Seven pairs
+3. Kokushi
+
+You can also take into considiration any number of visible tiles to affect results.
+Calculating hands with opened melds is also supported.
+
+`go run ./examples/shanten/main.go`
+
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("3567m5677p268s277z")
@@ -45,7 +55,19 @@ fmt.Printf("Shanten value is: %v\n", results.Value)
 fmt.Printf("Regular hand improves: %s (%v)\n", results.RegularImproves.Tiles(), results.RegularImproves.Count())
 ```
 
-Calculate tempai
+Output:
+```
+Hand is 3567m5677p268s277z
+Shanten value is: 2
+Regular hand improves: 123458m456789p12347s27z (19)
+```
+
+### Calculate tempai
+
+Tempai results could be transformed into yaku results -> han/fu value -> score values
+
+`go run ./examples/tempai/main.go`
+
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("789m4466678p234s")
@@ -54,7 +76,18 @@ fmt.Printf("Hand is %s\n", tiles.Instances())
 fmt.Printf("Waits are %s\n", results.Waits().Tiles())
 ```
 
-Calculate tile effectivity
+Output:
+```
+Hand is 789m4466678p234s
+Waits are 469p
+```
+
+### Calculate tile effectivity
+
+Calculating Uke-Ure value for hand.
+
+`go run ./examples/effective/main.go`
+
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("5677m4456899p25s3z")
@@ -65,7 +98,28 @@ fmt.Printf("Best tiles is %v\n", best.Tile)
 fmt.Printf("Best shanten: %v\n", best.Shanten.Value)
 ```
 
-Calculate han+fu value
+Output:
+```
+Hand is 5677m4456899p25s3z
+Best tiles is 3z
+Best shanten: 3
+```
+
+### Calculate han+fu value
+
+Package supports configuration of different rulesets.
+Configuration options includes:
+1. Mangan round (4.30/3.60 could be rounded to mangan)
+2. Yakuman summ option
+3. Double yakuman option
+4. Kazoe Yakuman/Sanbaiman
+5. Changing hoba value
+
+Included rulesets for: EMA, JPML-A, JPLML-B, Tenhou.
+You can also configure your own ruleset
+
+`go run ./examples/score/main.go`
+
 ```go
 rules := score.RulesEMA
 s := rules.GetScore(4, 22, 0)
@@ -78,7 +132,32 @@ changes := s.GetChanges(base.WindEast, base.WindEast, 0)
 fmt.Printf("Total for dealer tsumo is %v\n", changes.TotalWin())
 ```
 
-Calculate yaku for hand
+Output:
+```
+Hand value is 4.22 (30)
+Dealer ron: 11600
+Dealer tsumo: 3900 all
+Ron: 7700
+Tsumo: 3900/2000
+Total for dealer tsumo is 11700
+```
+
+### Calculate yaku for hand
+
+Package supports configuration of different rulesets.
+Configuration options includes:
+1. Setting any number of akkadors (not limited by red fives)
+2. Renhou could be configured as yakuman or mangan
+3. Uradoras could be disabled (for JPML-A)
+4. Ipatsu could be disabled (for JPML-A)
+5. Haitei could be combined with Rinshan
+6. Enabling/Disabling open Tanyao
+
+Included rulesets for: EMA, JPML-A, JPLML-B, Tenhou with red fives.
+You can also configure your own ruleset
+
+`go run ./examples/yaku/main.go`
+
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("33z123m456p66778s")
@@ -94,4 +173,34 @@ ctx := &yaku.Context{
 yakuResult := yaku.Win(results, ctx)
 fmt.Printf("%v\n", yakuResult.Yaku.String())
 fmt.Printf("Value: %v.%v\n", yakuResult.Sum(), yakuResult.Fus.Sum())
+```
+
+Output:
+```
+YakuChankan: 1, YakuPinfu: 1, YakuTsumo: 1
+Value: 3.20
+```
+
+### Perfomance
+There is an `examples/perfomance` folder with some mesaurement program.
+I've already made some code improvements, based on profiling for simular test code.
+Although there could be more space for improve, the results on my machine seems quite fine to start with.
+
+` go run ./examples/perfomance/main.go`
+
+Output:
+```
+================== Test shanten
+Repeat: 10000
+Elapsed: 314.020077ms
+Estemated speed: 31845.097598648128 per second
+================== Test tempai
+Repeat: 10000
+Elapsed: 160.506287ms
+Estemated speed: 62302.855463848595 per second
+Tempai hand count: 4910
+================== Test effectivity
+Repeat: 1000
+Elapsed: 362.67061ms
+Estemated speed: 2757.322960357885 per second
 ```
