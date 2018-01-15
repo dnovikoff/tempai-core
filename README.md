@@ -1,6 +1,7 @@
 ## About
 This is riichi mahjong Golang package.
 Package supports calculation for:
+
 1. Shanten value
 2. Effectivity drops
 3. Tempai
@@ -28,6 +29,7 @@ Note that provided examples are simple and do not cover all possible package fun
 You can also explore `*_test.go` test files to search for more usage examples.
 
 All example hand inputs provided in tenhou-style string format:
+
 1. `123456789s` for Sou
 2. `123456789m` for Man
 3. `123456789p` for Pin
@@ -37,6 +39,7 @@ All example hand inputs provided in tenhou-style string format:
 ### Calculate shanten number
 
 Shanten, Tempai and effectivity calculators support different forms separatly or all-together:
+
 1. Regular hand
 2. Seven pairs
 3. Kokushi
@@ -109,6 +112,7 @@ Best shanten: 3
 
 Package supports configuration of different rulesets.
 Configuration options includes:
+
 1. Mangan round (4.30/3.60 could be rounded to mangan)
 2. Yakuman summ option
 3. Double yakuman option
@@ -146,6 +150,7 @@ Total for dealer tsumo is 11700
 
 Package supports configuration of different rulesets.
 Configuration options includes:
+
 1. Setting any number of akkadors (not limited by red fives)
 2. Renhou could be configured as yakuman or mangan
 3. Uradoras could be disabled (for JPML-A)
