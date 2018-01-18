@@ -21,29 +21,46 @@
 			"revisionTime": "2017-01-30T12:31:45+01:00"
 		},
 		{
-			"checksumSHA1": "/kKwYqD04AkkDZFQhGwklKw3RFA=",
+			"checksumSHA1": "/E4XATohw5Yv9uxIyg5skOfOQWY=",
+			"path": "github.com/stretchr/objx",
+			"revision": "bc43df392909781b3b7b1912fcf414b6e088936e",
+			"revisionTime": "2018-01-10T15:16:45Z"
+		},
+		{
+			"checksumSHA1": "Lo9QpTOil7/YV9K2IdHgK1nfFGc=",
 			"path": "github.com/stretchr/testify",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T12:31:45+01:00"
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
+			"revisionTime": "2017-12-31T12:27:32Z"
 		},
 		{
-			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
+			"checksumSHA1": "uyVU5fRfEK17QZuODRjeZX8zDqg=",
 			"path": "github.com/stretchr/testify/assert",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T12:31:45+01:00"
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
+			"revisionTime": "2017-12-31T12:27:32Z"
 		},
 		{
-			"checksumSHA1": "2PpOCNkWnshDrXeCVH2kp3VHhIM=",
-			"origin": "bitbucket.org/dnovikoff/tempai-core/vendor/github.com/stretchr/testify/require",
+			"checksumSHA1": "fg3TzS9/QK3wZbzei3Z6O8XPLHg=",
+			"path": "github.com/stretchr/testify/http",
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
+			"revisionTime": "2017-12-31T12:27:32Z"
+		},
+		{
+			"checksumSHA1": "haazOUDtMbWrcmqagDwx8xG2Fus=",
+			"path": "github.com/stretchr/testify/mock",
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
+			"revisionTime": "2017-12-31T12:27:32Z"
+		},
+		{
+			"checksumSHA1": "c4nlsCmnaKoKaV62lzYk6wt8QY0=",
 			"path": "github.com/stretchr/testify/require",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T12:31:45+01:00"
+			"revision": "87b1dfb5b2fa649f52695dd9eae19abe404a4308",
+			"revisionTime": "2017-12-31T12:27:32Z"
 		},
 		{
-			"origin": "bitbucket.org/dnovikoff/tempai-core/vendor/github.com/stretchr/testify/require",
 			"path": "github.com/stretchr/testify/require",
 			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
 			"revisionTime": "2017-01-30T12:31:45+01:00"
 		}
-	]
+	],
+	"rootPath": "bitbucket.org/dnovikoff/tempai-core"
 }
