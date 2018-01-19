@@ -260,6 +260,14 @@ func (this Seq) Rebase(in compact.Instances) Meld {
 	return meld.setCopies(mask).Meld()
 }
 
+func (this Seq) Instances() (ret tile.Instances) {
+	this.each(func(i tile.Instance) bool {
+		ret = append(ret, i)
+		return true
+	})
+	return
+}
+
 func (this Seq) AddTo(in compact.Instances) {
 	this.each(func(i tile.Instance) bool {
 		in.Set(i)
