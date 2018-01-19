@@ -141,6 +141,14 @@ func (this Same) Upgrade() Same {
 	return newSame(this.Base(), sameUpgraded, this.c1(), this.c2(), op)
 }
 
+func (this Same) OpenedCopy() tile.CopyId {
+	return this.c1()
+}
+
+func (this Same) NotInPonCopy() tile.CopyId {
+	return this.c2()
+}
+
 func (this Same) Open(t tile.Instance, opponent base.Opponent) Meld {
 	if !this.OpenedBy().Check(t.Tile()) {
 		return 0
