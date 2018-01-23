@@ -19,7 +19,7 @@ import (
 // samePonOpened3
 
 func TestSameKan(t *testing.T) {
-	m := NewKan(tile.Sou9)
+	m := NewKan(tile.Sou9, 1)
 	require.Equal(t, TypeSame, m.Meld().Type())
 	assert.True(t, 0 != m)
 	assert.True(t, m.IsComplete())
@@ -38,6 +38,22 @@ func TestSameKan(t *testing.T) {
 	}, i)
 	assert.EqualValues(t, 0, m.Open(tile.Sou9.Instance(0), base.Left))
 	assert.EqualValues(t, 0, m.Upgrade())
+}
+
+func TestSameKanO(t *testing.T) {
+	kans := []Same{
+		NewKan(tile.Green, 0),
+		NewKan(tile.Green, 1),
+		NewKan(tile.Green, 2),
+		NewKan(tile.Green, 3),
+	}
+	mp := map[Same]bool{}
+	for k, v := range kans {
+		mp[v] = true
+		assert.False(t, v.IsOpened())
+		assert.EqualValues(t, k, v.OpenedCopy())
+	}
+	assert.Equal(t, 4, len(mp))
 }
 
 func TestSamePon(t *testing.T) {

@@ -63,10 +63,6 @@ func basePonPart(t tile.Tile) Meld {
 	return NewPonPart(t, 2, 3).Meld()
 }
 
-func baseKan(t tile.Tile) Meld {
-	return NewKan(t).Meld()
-}
-
 var AllPonMelds = createAllBase(basePon)
 var AllTempaiMelds = createAllBase(baseChi, basePon)
 
