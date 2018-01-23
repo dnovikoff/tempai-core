@@ -205,8 +205,11 @@ func (this Same) OriginalWaits() compact.Tiles {
 	return 0
 }
 
-func NewKan(t tile.Tile) Same {
-	return newSame(t, sameKan, 0, 0, base.Self)
+// Closed kan does not need to have opened param
+// You can use 0 in any case
+// Still it is required for full compat with tenhou kans
+func NewKan(t tile.Tile, opened tile.CopyId) Same {
+	return newSame(t, sameKan, opened, 0, base.Self)
 }
 
 func NewKanOpened(t tile.Tile, opened tile.CopyId, opponent base.Opponent) Same {
