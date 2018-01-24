@@ -1,6 +1,6 @@
 package compact
 
-import "bitbucket.org/dnovikoff/tempai-core/tile"
+import "github.com/dnovikoff/tempai-core/tile"
 
 // Using 32 implementation, because gopherjs supports only 53 bits
 type PackedMasks uint32

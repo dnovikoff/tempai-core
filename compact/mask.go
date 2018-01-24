@@ -1,6 +1,6 @@
 package compact
 
-import "bitbucket.org/dnovikoff/tempai-core/tile"
+import "github.com/dnovikoff/tempai-core/tile"
 
 type Mask uint
 

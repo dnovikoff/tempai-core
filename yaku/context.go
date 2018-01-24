@@ -1,8 +1,8 @@
 package yaku
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 // Context is createed to avoid using other game objects in calculations

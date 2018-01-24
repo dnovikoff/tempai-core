@@ -3,9 +3,9 @@ package meld
 import (
 	"strings"
 
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 // 2 - Type

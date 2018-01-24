@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"bitbucket.org/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/compact"
 )
 
 func testUkeIre(t *testing.T, in string) string {

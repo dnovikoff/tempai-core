@@ -1,9 +1,9 @@
 package meld
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 // Type - 2 | Base - 6 | subtype -2 | c1 - 2 | c2 - 2

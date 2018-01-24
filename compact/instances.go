@@ -1,7 +1,7 @@
 package compact
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 // Not more than 4 tiles per type by implementation

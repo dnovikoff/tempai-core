@@ -1,7 +1,7 @@
 package compact
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/tile"
 	"github.com/stretchr/testify/require"
 )
 
