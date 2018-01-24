@@ -1,6 +1,6 @@
 package shanten
 
-import "bitbucket.org/dnovikoff/tempai-core/meld"
+import "github.com/dnovikoff/tempai-core/meld"
 
 type meldStack struct {
 	melds meld.Melds

@@ -3,7 +3,7 @@ package compact
 import (
 	"errors"
 
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type Generator struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func TestYakumanDaisangen(t *testing.T) {

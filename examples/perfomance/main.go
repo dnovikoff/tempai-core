@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"time"
 
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/shanten"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func testShanten() {

@@ -1,7 +1,7 @@
 package base
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 //go:generate stringer -type=Wind

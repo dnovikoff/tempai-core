@@ -5,11 +5,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/meld"
-	"bitbucket.org/dnovikoff/tempai-core/shanten"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type YakuTester struct {

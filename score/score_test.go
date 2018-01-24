@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/yaku"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/yaku"
 )
 
 func testScoreBase(rules Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (ret string) {

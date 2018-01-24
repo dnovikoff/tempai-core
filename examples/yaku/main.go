@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/shanten"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
-	"bitbucket.org/dnovikoff/tempai-core/yaku"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/yaku"
 )
 
 func main() {

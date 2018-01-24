@@ -20,7 +20,7 @@ So it seems that the results of calculation could be trusted.
 
 ## Installation
 
-`go get bitbucket.org/dnovikoff/tempai-core/...`
+`go get github.com/dnovikoff/tempai-core/...`
 
 ## Quick Start by exmaples
 

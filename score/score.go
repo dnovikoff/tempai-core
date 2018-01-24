@@ -3,8 +3,8 @@ package score
 import (
 	"math"
 
-	"bitbucket.org/dnovikoff/tempai-core/base"
-	"bitbucket.org/dnovikoff/tempai-core/yaku"
+	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/yaku"
 )
 
 type Honba int

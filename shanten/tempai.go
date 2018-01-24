@@ -1,9 +1,9 @@
 package shanten
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/compact"
-	"bitbucket.org/dnovikoff/tempai-core/meld"
-	"bitbucket.org/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type TempaiMelds []meld.Melds

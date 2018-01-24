@@ -1,8 +1,8 @@
 package yaku
 
 import (
-	"bitbucket.org/dnovikoff/tempai-core/meld"
-	"bitbucket.org/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/shanten"
 )
 
 func Win(tempai shanten.IndexedTempaiResult, ctx *Context) (ret *YakuResult) {
