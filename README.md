@@ -1,4 +1,7 @@
 ## About
+
+[![Build Status](https://travis-ci.org/dnovikoff/tempai-core.svg?branch=master)](https://travis-ci.org/dnovikoff/tempai-core)
+
 This is riichi mahjong Golang package.
 Package supports calculation for:
 
