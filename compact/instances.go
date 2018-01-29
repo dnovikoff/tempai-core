@@ -108,6 +108,10 @@ func (this Instances) GetFull() Tiles {
 	return result
 }
 
+func (this Instances) Invert() Instances {
+	return this.CopyFree(AllTiles)
+}
+
 func (this Instances) CopyFree(in Tiles) Instances {
 	result := NewInstances()
 	count := 0

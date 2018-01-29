@@ -1,4 +1,4 @@
-package shanten
+package calculator
 
 import "github.com/dnovikoff/tempai-core/meld"
 
@@ -13,27 +13,27 @@ func newMeldStack(capacity int) *meldStack {
 	return this
 }
 
-func (this *meldStack) Size() int {
+func (this *meldStack) size() int {
 	return this.index
 }
 
-func (this *meldStack) Reset() {
+func (this *meldStack) reset() {
 	this.index = 0
 }
 
-func (this *meldStack) Push(meld meld.Meld) {
+func (this *meldStack) push(meld meld.Meld) {
 	this.melds[this.index] = meld
 	this.index++
 }
 
-func (this *meldStack) Melds() meld.Melds {
+func (this *meldStack) getMelds() meld.Melds {
 	return this.melds[:this.index]
 }
 
-func (this *meldStack) Back() meld.Meld {
+func (this *meldStack) back() meld.Meld {
 	return this.melds[this.index-1]
 }
 
-func (this *meldStack) Pop() {
+func (this *meldStack) pop() {
 	this.index--
 }

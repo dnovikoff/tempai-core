@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	results := shanten.CalculateTempai(tiles, nil)
+	results := tempai.Calculate(tiles, nil)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
 	fmt.Printf("Waits are %s\n", results.Waits().Tiles())
 }
