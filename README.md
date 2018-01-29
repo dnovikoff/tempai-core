@@ -55,17 +55,28 @@ Calculating hands with opened melds is also supported.
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("3567m5677p268s277z")
-results := shanten.CalculateShanten(tiles, 0, nil)
+res := shanten.Calculate(tiles, 0, nil)
 fmt.Printf("Hand is %s\n", tiles.Instances())
-fmt.Printf("Shanten value is: %v\n", results.Value)
-fmt.Printf("Regular hand improves: %s (%v)\n", results.RegularImproves.Tiles(), results.RegularImproves.Count())
+
+fmt.Printf("Regular shanten value is: %v\n", res.Regular.Value)
+fmt.Printf("Pairs shanten value is: %v\n", res.Pairs.Value)
+fmt.Printf("Kokushi shanten value is: %v\n", res.Kokushi.Value)
+fmt.Printf("Total shanten value is: %v\n", res.Total.Value)
+
+uke := res.Total.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+fmt.Printf("Total uke ire: %v/%v\n", uke.UniqueCount(), uke.Count())
+fmt.Printf("Hand improves: %s\n", res.Total.Improves.Tiles())
 ```
 
 Output:
 ```
 Hand is 3567m5677p268s277z
-Shanten value is: 2
-Regular hand improves: 123458m456789p12347s27z (19)
+Regular shanten value is: 2
+Pairs shanten value is: 4
+Kokushi shanten value is: 10
+Total shanten value is: 2
+Total uke ire: 19/66
+Hand improves: 123458m456789p12347s27z
 ```
 
 ### Calculate tempai
@@ -77,7 +88,7 @@ Tempai results could be transformed into yaku results -> han/fu value -> score v
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("789m4466678p234s")
-results := shanten.CalculateTempai(tiles, nil)
+results := tempai.Calculate(tiles, nil)
 fmt.Printf("Hand is %s\n", tiles.Instances())
 fmt.Printf("Waits are %s\n", results.Waits().Tiles())
 ```
@@ -97,17 +108,17 @@ Calculating Uke-Ure value for hand.
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("5677m4456899p25s3z")
-results := shanten.CalculateEffectivity(tiles, 0, nil)
+results := effective.Calculate(tiles, 0, nil)
 fmt.Printf("Hand is %s\n", tiles.Instances())
-best := results.Best()
-fmt.Printf("Best tiles is %v\n", best.Tile)
-fmt.Printf("Best shanten: %v\n", best.Shanten.Value)
+best := results.Sorted(tiles).Best()
+fmt.Printf("Best to drop is %v\n", best.Tile)
+fmt.Printf("Best shanten: %v\n", best.Shanten.Total.Value)
 ```
 
 Output:
 ```
 Hand is 5677m4456899p25s3z
-Best tiles is 3z
+Best to drop is 3z
 Best shanten: 3
 ```
 
@@ -171,7 +182,7 @@ generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("33z123m456p66778s")
 winTile := generator.Instance(tile.Sou5)
 
-results := shanten.CalculateTempai(tiles, nil).Index()
+results := tempai.Calculate(tiles, nil).Index()
 ctx := &yaku.Context{
     Tile:      winTile,
     Rules:     &yaku.RulesEMA,
@@ -200,15 +211,15 @@ Output:
 ```
 ================== Test shanten
 Repeat: 10000
-Elapsed: 314.020077ms
-Estemated speed: 31845.097598648128 per second
+Elapsed: 293.791605ms
+Estemated speed: 34037.7322898658 per second
 ================== Test tempai
 Repeat: 10000
-Elapsed: 160.506287ms
-Estemated speed: 62302.855463848595 per second
+Elapsed: 149.649275ms
+Estemated speed: 66822.9097668532 per second
 Tempai hand count: 4910
 ================== Test effectivity
 Repeat: 1000
-Elapsed: 362.67061ms
-Estemated speed: 2757.322960357885 per second
+Elapsed: 324.172207ms
+Estemated speed: 3084.780182898283 per second
 ```

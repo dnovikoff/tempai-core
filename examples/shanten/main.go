@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/hand/shanten"
 )
 
 func main() {
@@ -15,8 +15,15 @@ func main() {
 		log.Fatal(err)
 	}
 	// We tell the calculator, that there are 0 opened melds.
-	results := shanten.CalculateShanten(tiles, 0, nil)
+	res := shanten.Calculate(tiles, 0, nil)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
-	fmt.Printf("Shanten value is: %v\n", results.Value)
-	fmt.Printf("Regular hand improves: %s (%v)\n", results.RegularImproves.Tiles(), results.RegularImproves.Count())
+
+	fmt.Printf("Regular shanten value is: %v\n", res.Regular.Value)
+	fmt.Printf("Pairs shanten value is: %v\n", res.Pairs.Value)
+	fmt.Printf("Kokushi shanten value is: %v\n", res.Kokushi.Value)
+	fmt.Printf("Total shanten value is: %v\n", res.Total.Value)
+
+	uke := res.Total.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+	fmt.Printf("Total uke ire: %v/%v\n", uke.UniqueCount(), uke.Count())
+	fmt.Printf("Hand improves: %s\n", res.Total.Improves.Tiles())
 }

@@ -1,4 +1,4 @@
-package shanten
+package tempai
 
 import (
 	"fmt"
@@ -47,7 +47,7 @@ func testTempai(t *testing.T, str string) TempaiMelds {
 	tg := compact.NewTileGenerator()
 	inst, err := tg.CompactFromString(str)
 	require.NoError(t, err, str)
-	return CalculateTempai(inst, nil)
+	return Calculate(inst, nil)
 }
 
 func testAway(t *testing.T, str string) compact.Tiles {
@@ -212,7 +212,7 @@ func TestTempaiCorrectNumbers(t *testing.T) {
 	}
 	compact := compact.NewInstances().Add(instances)
 	require.True(t, validateInstances(compact.Instances()))
-	temp := CalculateTempai(compact, nil)
+	temp := Calculate(compact, nil)
 	require.NotNil(t, temp)
 
 	for k, variant := range temp {

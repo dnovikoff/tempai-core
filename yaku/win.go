@@ -1,11 +1,11 @@
 package yaku
 
 import (
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/meld"
-	"github.com/dnovikoff/tempai-core/shanten"
 )
 
-func Win(tempai shanten.IndexedTempaiResult, ctx *Context) (ret *YakuResult) {
+func Win(tempai tempai.IndexedResult, ctx *Context) (ret *YakuResult) {
 	current := tempai[ctx.Tile.Tile()]
 
 	if len(current) == 0 {
