@@ -15,10 +15,10 @@ func testUkeIre(t *testing.T, in string) string {
 	tiles, err := tg.CompactFromString(in)
 	require.NoError(t, err, in)
 	require.Equal(t, 13, tiles.Count())
-	results := CalculateShanten(tiles, 0, nil)
-	uke := results.UkeIre
+	res := Calculate(tiles, 0, nil).Total
+	uke := res.CalculateUkeIre(compact.NewTotals().Merge(tiles))
 
-	return fmt.Sprintf("%v/%v/%v = %v", results.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
+	return fmt.Sprintf("%v/%v/%v = %v", res.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
 }
 
 func TestUkeIreSimpleOthers(t *testing.T) {

@@ -16,17 +16,16 @@ func testCompact(t *testing.T, str string) compact.Instances {
 	return tiles
 }
 
-func testGetShantent(t *testing.T, str string) *ShantenResults {
+func testGetShantent(t *testing.T, str string) Results {
 	tiles := testCompact(t, str)
 	require.Equal(t, 13, tiles.Count())
-	res := CalculateShanten(tiles, 0, nil)
-	return res
+	return Calculate(tiles, 0, nil)
 }
 
 func TestShantenSimple1(t *testing.T) {
 	tst := func(str string) int {
 		results := testGetShantent(t, str)
-		return results.Value
+		return results.Total.Value
 	}
 	assert.Equal(t, 0, tst("44p456678s44777z"))
 }
@@ -34,7 +33,7 @@ func TestShantenSimple1(t *testing.T) {
 func TestShantenSimple(t *testing.T) {
 	tst := func(str string) int {
 		results := testGetShantent(t, str)
-		return results.Value
+		return results.Total.Value
 	}
 
 	assert.Equal(t, 0, tst("11558899s11223z"))
@@ -58,8 +57,8 @@ func TestShantenBugs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 13, compact.Count())
 
-	res := CalculateShanten(compact, 0, nil)
-	assert.Equal(t, 5, res.Value)
+	res := Calculate(compact, 0, nil)
+	assert.Equal(t, 5, res.Total.Value)
 }
 
 func TestShantenLockEasy(t *testing.T) {
@@ -69,12 +68,12 @@ func TestShantenLockEasy(t *testing.T) {
 	used3 := testCompact(t, "333m")
 	used4 := testCompact(t, "3333m")
 
-	res := CalculateShanten(tiles, 0, nil)
-	assert.Equal(t, 0, res.Value)
-	res = CalculateShanten(tiles, 0, used3)
-	assert.Equal(t, 0, res.Value)
-	res = CalculateShanten(tiles, 0, used4)
-	assert.Equal(t, 1, res.Value)
+	res := Calculate(tiles, 0, nil)
+	assert.Equal(t, 0, res.Total.Value)
+	res = Calculate(tiles, 0, used3)
+	assert.Equal(t, 0, res.Total.Value)
+	res = Calculate(tiles, 0, used4)
+	assert.Equal(t, 1, res.Total.Value)
 }
 
 func TestShantenLock(t *testing.T) {
@@ -84,48 +83,39 @@ func TestShantenLock(t *testing.T) {
 	used3 := testCompact(t, "333m789s")
 	used4 := testCompact(t, "3333m789s")
 
-	res := CalculateShanten(tiles, 1, nil)
-	assert.Equal(t, 0, res.Value)
-	res = CalculateShanten(tiles, 1, used3)
-	assert.Equal(t, 0, res.Value)
-	res = CalculateShanten(tiles, 1, used4)
-	assert.Equal(t, 1, res.Value)
+	res := Calculate(tiles, 1, nil)
+	assert.Equal(t, 0, res.Total.Value)
+	res = Calculate(tiles, 1, used3)
+	assert.Equal(t, 0, res.Total.Value)
+	res = Calculate(tiles, 1, used4)
+	assert.Equal(t, 1, res.Total.Value)
 }
 
 func TestShantenBug0(t *testing.T) {
 	tiles := testCompact(t, "3678m3356p14s256z")
-	res := CalculateShanten(tiles, 0, nil)
-	assert.Equal(t, 4, res.Value)
-	assert.Equal(t, "12345m347p123456s256z", res.UkeIre.UniqueTiles().Tiles().String())
+	res := Calculate(tiles, 0, nil)
+	m := res.Total
+	assert.Equal(t, 4, m.Value)
+	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+	assert.Equal(t, "12345m347p123456s256z", uke.UniqueTiles().Tiles().String())
 }
 
 func TestShantenBug1(t *testing.T) {
 	tiles := testCompact(t, "369m7p1559s13567z")
-	res := CalculateShanten(tiles, 0, nil)
-
-	assert.Equal(t, 5, res.Value)
-	assert.Equal(t, "1369m179p19s1234567z", res.UkeIre.UniqueTiles().Tiles().String())
-}
-
-func TestSortId(t *testing.T) {
-	assert.True(t, NewSortId(12, 11, 2).BetterThan(NewSortId(11, 11, 2)))
-	assert.False(t, NewSortId(10, 11, 2).BetterThan(NewSortId(11, 11, 2)))
-
-	assert.True(t, NewSortId(11, 11, 1).BetterThan(NewSortId(11, 11, 2)))
-	assert.False(t, NewSortId(11, 11, 3).BetterThan(NewSortId(11, 11, 2)))
-
-	assert.True(t, NewSortId(11, 12, 2).BetterThan(NewSortId(11, 11, 2)))
-	assert.False(t, NewSortId(11, 10, 2).BetterThan(NewSortId(11, 11, 2)))
-
-	assert.True(t, NewSortId(80, 1, 2).BetterThan(NewSortId(1, 90, 2)))
+	res := Calculate(tiles, 0, nil)
+	m := res.Total
+	assert.Equal(t, 5, m.Value)
+	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+	assert.Equal(t, "1369m179p19s1234567z", uke.UniqueTiles().Tiles().String())
 }
 
 func TestMonocolorBug(t *testing.T) {
 	tiles := testCompact(t, "1111222235555m")
-	res := CalculateShanten(tiles, 0, nil)
-
-	assert.Equal(t, 1, res.Value)
-	assert.Equal(t, "3467m", res.UkeIre.UniqueTiles().Tiles().String())
+	res := Calculate(tiles, 0, nil)
+	m := res.Total
+	assert.Equal(t, 1, m.Value)
+	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+	assert.Equal(t, "3467m", uke.UniqueTiles().Tiles().String())
 }
 
 // TODO:

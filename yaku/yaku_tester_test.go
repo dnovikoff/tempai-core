@@ -7,8 +7,8 @@ import (
 
 	"github.com/dnovikoff/tempai-core/base"
 	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/meld"
-	"github.com/dnovikoff/tempai-core/shanten"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
@@ -52,10 +52,10 @@ func (this *YakuTester) IUra(str string) *YakuTester {
 	return this
 }
 
-func (this *YakuTester) tempai() shanten.TempaiMelds {
+func (this *YakuTester) tempai() tempai.TempaiMelds {
 	cnt := this.hand.Count() + len(this.declared)*3
 	require.Equal(this.t, 13, cnt, this.hand.Instances().String())
-	t := shanten.CalculateTempai(this.hand, this.declared)
+	t := tempai.Calculate(this.hand, this.declared)
 	require.NotEmpty(this.t, t)
 	return t
 }
