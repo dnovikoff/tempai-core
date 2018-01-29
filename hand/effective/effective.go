@@ -9,24 +9,22 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-type EffectivityResults map[tile.Tile]shanten.Results
+type Results map[tile.Tile]shanten.Results
 
-type EffectivityResult struct {
+type Result struct {
 	Tile    tile.Tile
 	Shanten shanten.Results
 	sortId  sSortId
 }
 
-type EffectivityResultsSorted []*EffectivityResult
-
-func CalculateByMelds(closed compact.Instances, melds meld.Melds) EffectivityResults {
+func CalculateByMelds(closed compact.Instances, melds meld.Melds) Results {
 	used := compact.NewInstances()
 	melds.AddTo(used)
 	return Calculate(closed, len(melds), used)
 }
 
-func Calculate(closed compact.Instances, opened int, used compact.Instances) (results EffectivityResults) {
-	results = make(EffectivityResults)
+func Calculate(closed compact.Instances, opened int, used compact.Instances) (results Results) {
+	results = make(Results)
 	cp := closed.Clone()
 	closed.Each(func(mask compact.Mask) bool {
 		k := mask.Tile()
@@ -36,14 +34,6 @@ func Calculate(closed compact.Instances, opened int, used compact.Instances) (re
 		return true
 	})
 	return
-}
-
-func (this EffectivityResultsSorted) Len() int {
-	return len(this)
-}
-
-func (this EffectivityResultsSorted) Swap(i, j int) {
-	this[i], this[j] = this[j], this[i]
 }
 
 //wd98765
@@ -68,43 +58,14 @@ func tilePriority(t tile.Tile) int {
 	return 7
 }
 
-func tileSortId(t tile.Tile) int {
-	return (tilePriority(t) << 8) | int(t)
-}
-
-func tileLess(l, r tile.Tile) bool {
-	return tileSortId(l) < tileSortId(r)
-}
-
-func effLess(l, r *EffectivityResult) bool {
-	lhs, rhs := l.sortId, r.sortId
-	if lhs.betterThan(rhs) {
-		return true
-	} else if rhs.betterThan(lhs) {
-		return false
-	}
-	return tileLess(l.Tile, r.Tile)
-}
-
-func (this EffectivityResultsSorted) Less(i, j int) bool {
-	return effLess(this[i], this[j])
-}
-
-func (this EffectivityResultsSorted) First() (ret *EffectivityResult) {
-	if len(this) == 0 {
-		return
-	}
-	return this[0]
-}
-
-func (this EffectivityResults) Sorted(used compact.Instances) EffectivityResultsSorted {
-	ret := make(EffectivityResultsSorted, 0, len(this))
+func (this Results) Sorted(used compact.Instances) ResultsSorted {
+	ret := make(ResultsSorted, 0, len(this))
 	uq := used.UniqueTiles().Invert()
 	for k, v := range this {
 		t := (uq & v.Total.Improves).Count()
 		u := used.CountFree(v.Total.Improves)
 		id := newSortId(u, t, v.Total.Value)
-		ret = append(ret, &EffectivityResult{
+		ret = append(ret, &Result{
 			Tile:    k,
 			Shanten: v,
 			sortId:  id,
@@ -113,11 +74,4 @@ func (this EffectivityResults) Sorted(used compact.Instances) EffectivityResults
 
 	sort.Sort(ret)
 	return ret
-}
-
-func (this EffectivityResultsSorted) Best() *EffectivityResult {
-	if len(this) == 0 {
-		return nil
-	}
-	return this[0]
 }
