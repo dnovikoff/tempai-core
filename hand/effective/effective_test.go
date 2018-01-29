@@ -1,4 +1,4 @@
-package shanten
+package effective
 
 import (
 	"fmt"
@@ -16,12 +16,18 @@ func testEffectiveBest(t *testing.T, in string) string {
 	tiles, err := tg.CompactFromString(in)
 	require.NoError(t, err, in)
 	require.Equal(t, 14, tiles.Count())
-	results := CalculateEffectivity(tiles, 0, nil)
+	results := Calculate(tiles, 0, nil)
 	require.NotNil(t, results)
-	result := results.Best()
-	shanten := result.Shanten
-	uke := shanten.UkeIre
-	return fmt.Sprintf("%v -> %v/%v/%v = %v", result.Tile, shanten.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
+	used := compact.NewTotals().Merge(tiles)
+	result := results.Sorted(tiles).Best()
+	s := result.Shanten
+	uke := s.Total.CalculateUkeIre(used)
+	return fmt.Sprintf("%v -> %v/%v/%v = %v",
+		result.Tile,
+		s.Total.Value,
+		uke.UniqueTiles().Count(),
+		uke.Count(),
+		uke.UniqueTiles().Tiles())
 }
 
 func TestEffectiveSimple(t *testing.T) {
@@ -45,12 +51,14 @@ func TestEffectiveBug1(t *testing.T) {
 		tiles, err := tg.CompactFromString(in)
 		require.NoError(t, err, in)
 		require.Equal(t, 0, (tiles.Count()-2)%3)
-		results := CalculateEffectivity(tiles, opened, nil)
+		results := Calculate(tiles, opened, nil)
 		require.NotNil(t, results)
-		result := results.Best()
-		shanten := result.Shanten
-		uke := shanten.UkeIre
-		return fmt.Sprintf("%v -> %v/%v/%v = %v", result.Tile, shanten.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
+		sorted := results.Sorted(tiles)
+		used := compact.NewTotals().Merge(tiles)
+		result := sorted.Best()
+		s := result.Shanten
+		uke := s.Total.CalculateUkeIre(used)
+		return fmt.Sprintf("%v -> %v/%v/%v = %v", result.Tile, s.Total.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
 	}
 	assert.Equal(t, "6p -> 0/2/8 = 69s", test("88m668p23478s7p111z", 0))
 	assert.Equal(t, "6p -> 0/2/8 = 69s", test("88m668p23478s7p", 1))

@@ -1,4 +1,4 @@
-package shanten
+package calculator
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
@@ -6,7 +6,7 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-type CalculateResults interface {
+type Results interface {
 	CheckMinuses(minuses int) bool
 	Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals)
 }
@@ -15,7 +15,7 @@ type Calculator struct {
 	tiles compact.Instances
 	stack *meldStack
 
-	results CalculateResults
+	results Results
 	totals  compact.Totals
 	sets    int
 	opened  int
@@ -36,19 +36,19 @@ func NewCalculator(startMelds meld.BaseMelds, tiles compact.Instances, used comp
 	return this
 }
 
-func (this *Calculator) ResetResult(result CalculateResults) {
+func (this *Calculator) ResetResult(result Results) {
 	this.results = result
 }
 
 func (this *Calculator) record() {
-	this.results.Record(this.stack.Melds(), this.tiles, this.totals)
+	this.results.Record(this.stack.getMelds(), this.tiles, this.totals)
 }
 
 func (this *Calculator) Calculate() {
 	parts := this.baseMelds.Filter(this.tiles, this.totals.FreeTiles())
-	this.stack.Reset()
+	this.stack.reset()
 	this.sets = this.opened
-	this.CalculateImpl(parts)
+	this.calculateImpl(parts)
 
 	this.sets = this.opened - 1
 	this.tiles.Each(func(mask compact.Mask) bool {
@@ -57,7 +57,7 @@ func (this *Calculator) Calculate() {
 		}
 		m := this.push(meld.NewPairFromMask(mask).Meld())
 		if m != 0 {
-			this.CalculateImpl(parts)
+			this.calculateImpl(parts)
 			this.pop(m)
 		}
 		return true
@@ -84,12 +84,12 @@ func (this *Calculator) push(m meld.Meld) meld.Meld {
 	this.sets++
 	this.minuses += missing
 	fixed.ExtractFrom(this.tiles)
-	this.stack.Push(fixed)
+	this.stack.push(fixed)
 	return fixed
 }
 
 func (this *Calculator) pop(m meld.Meld) {
-	this.stack.Pop()
+	this.stack.pop()
 	this.sets--
 	this.minuses -= getMissing(m)
 	m.AddTo(this.tiles)
@@ -102,7 +102,7 @@ func (this *Calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
 	}
 	w := m.Waits()
 	if w.IsEmpty() {
-		this.CalculateImpl(parts)
+		this.calculateImpl(parts)
 	} else {
 		base := m.Base()
 		w.EachRange(base, base+3, func(t tile.Tile) bool {
@@ -110,7 +110,7 @@ func (this *Calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
 				return true
 			}
 			this.totals.Add(t, 1)
-			this.CalculateImpl(parts)
+			this.calculateImpl(parts)
 			this.totals.Add(t, -1)
 			return true
 		})
@@ -119,7 +119,7 @@ func (this *Calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
 	return true
 }
 
-func (this *Calculator) CalculateImpl(parts meld.Melds) {
+func (this *Calculator) calculateImpl(parts meld.Melds) {
 	if this.sets > 3 {
 		this.record()
 		return

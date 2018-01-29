@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/hand/effective"
+	"github.com/dnovikoff/tempai-core/hand/shanten"
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
@@ -23,7 +25,7 @@ func testShanten() {
 	}
 	start := time.Now()
 	for _, v := range data {
-		shanten.CalculateShanten(v, 0, nil)
+		shanten.Calculate(v, 0, nil)
 
 	}
 	elapsed := time.Since(start)
@@ -47,7 +49,7 @@ func testTempai() {
 	cnt := 0
 	start := time.Now()
 	for _, v := range data {
-		r := shanten.CalculateTempai(v, nil)
+		r := tempai.Calculate(v, nil)
 		if r != nil {
 			cnt++
 		}
@@ -73,7 +75,7 @@ func testEffective() {
 	}
 	start := time.Now()
 	for _, v := range data {
-		shanten.CalculateEffectivity(v, 0, nil)
+		effective.Calculate(v, 0, nil)
 
 	}
 	elapsed := time.Since(start)

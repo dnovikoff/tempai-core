@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/tile"
 	"github.com/dnovikoff/tempai-core/yaku"
 )
@@ -18,7 +18,7 @@ func main() {
 	}
 	winTile := generator.Instance(tile.Sou5)
 
-	results := shanten.CalculateTempai(tiles, nil).Index()
+	results := tempai.Calculate(tiles, nil).Index()
 	ctx := &yaku.Context{
 		Tile:      winTile,
 		Rules:     &yaku.RulesEMA,

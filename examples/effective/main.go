@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/shanten"
+	"github.com/dnovikoff/tempai-core/hand/effective"
 )
 
 func main() {
@@ -15,9 +15,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	results := shanten.CalculateEffectivity(tiles, 0, nil)
+	results := effective.Calculate(tiles, 0, nil)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
-	best := results.Best()
-	fmt.Printf("Best tiles is %v\n", best.Tile)
-	fmt.Printf("Best shanten: %v\n", best.Shanten.Value)
+	best := results.Sorted(tiles).Best()
+	fmt.Printf("Best to drop is %v\n", best.Tile)
+	fmt.Printf("Best shanten: %v\n", best.Shanten.Total.Value)
 }
