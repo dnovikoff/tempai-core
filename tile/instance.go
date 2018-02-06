@@ -45,7 +45,7 @@ func (this Instance) Less(rhs Instance) bool {
 }
 
 const (
-	InstanceNull = -1
+	InstanceNull Instance = -1
 )
 
 func (this Instance) IsNull() bool {
