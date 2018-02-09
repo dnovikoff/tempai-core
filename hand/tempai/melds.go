@@ -21,6 +21,9 @@ func (this TempaiMelds) UsedTiles() compact.Tiles {
 }
 
 func (this TempaiMelds) Index() IndexedResult {
+	if len(this) == 0 {
+		return nil
+	}
 	ret := make(IndexedResult)
 	for _, m := range this {
 		meldsWaits(m).Each(func(k tile.Tile) bool {
