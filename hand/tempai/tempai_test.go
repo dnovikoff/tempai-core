@@ -225,3 +225,8 @@ func TestTempaiT1(t *testing.T) {
 	assert.Equal(t, 1, len(temp))
 	assert.Equal(t, "2p", temp.Waits().Tiles().String())
 }
+
+func TestNilIndex(t *testing.T) {
+	var x TempaiMelds
+	assert.Nil(t, x.Index())
+}

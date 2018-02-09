@@ -85,18 +85,21 @@ func CalculateRegular(closed compact.Instances, declared meld.Melds) (ret Tempai
 }
 
 func Calculate(closed compact.Instances, declared meld.Melds) (ret TempaiMelds) {
-	ret = CalculateRegular(closed, declared)
+	x := CalculateRegular(closed, declared)
+	if len(x) > 0 {
+		ret = x
+	}
 	if len(declared) > 0 {
 		return
 	}
 	// Pairs should be calcluated after regular hand
 	// because of ryanpeiko
 	melds := CalculatePairs(closed)
-	if melds != nil {
+	if len(melds) > 0 {
 		return append(ret, melds)
 	}
 	melds = CalculateKokushi(closed)
-	if melds != nil {
+	if len(melds) > 0 {
 		return TempaiMelds{melds}
 	}
 	return
