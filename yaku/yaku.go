@@ -4,7 +4,8 @@ type Yakuman int
 
 //go:generate stringer -type=Yakuman
 const (
-	YakumanKokushi Yakuman = iota
+	YakumanNone Yakuman = iota
+	YakumanKokushi
 	YakumanKokushi13
 	YakumanSuukantsu
 	YakumanSuuankou
@@ -89,7 +90,8 @@ type Fu int
 
 //go:generate stringer -type=Fu
 const (
-	FuBase Fu = iota
+	FuNone Fu = iota
+	FuBase
 	FuBaseClosedRon
 	FuBase7
 	FuSet
