@@ -4,9 +4,9 @@ package yaku
 
 import "strconv"
 
-const _Yakuman_name = "YakumanKokushiYakumanKokushi13YakumanSuukantsuYakumanSuuankouYakumanSuuankouTankiYakumanDaisangenYakumanShousuushiYakumanDaisuushiYakumanRyuuiisouYakumanTsuiisouYakumanChinroutoYakumanChuurenpootoYakumanChuurenpooto9YakumanTenhouYakumanChihouYakumanRenhou"
+const _Yakuman_name = "YakumanNoneYakumanKokushiYakumanKokushi13YakumanSuukantsuYakumanSuuankouYakumanSuuankouTankiYakumanDaisangenYakumanShousuushiYakumanDaisuushiYakumanRyuuiisouYakumanTsuiisouYakumanChinroutoYakumanChuurenpootoYakumanChuurenpooto9YakumanTenhouYakumanChihouYakumanRenhou"
 
-var _Yakuman_index = [...]uint8{0, 14, 30, 46, 61, 81, 97, 114, 130, 146, 161, 177, 196, 216, 229, 242, 255}
+var _Yakuman_index = [...]uint16{0, 11, 25, 41, 57, 72, 92, 108, 125, 141, 157, 172, 188, 207, 227, 240, 253, 266}
 
 func (i Yakuman) String() string {
 	if i < 0 || i >= Yakuman(len(_Yakuman_index)-1) {

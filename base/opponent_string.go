@@ -4,9 +4,9 @@ package base
 
 import "strconv"
 
-const _Opponent_name = "SelfRightFrontLeft"
+const _Opponent_name = "SelfRightFrontLeftOpponentCount"
 
-var _Opponent_index = [...]uint8{0, 4, 9, 14, 18}
+var _Opponent_index = [...]uint8{0, 4, 9, 14, 18, 31}
 
 func (i Opponent) String() string {
 	if i < 0 || i >= Opponent(len(_Opponent_index)-1) {
