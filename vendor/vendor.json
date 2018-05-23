@@ -60,6 +60,12 @@
 			"path": "github.com/stretchr/testify/require",
 			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
 			"revisionTime": "2017-01-30T12:31:45+01:00"
+		},
+		{
+			"checksumSHA1": "sSGc4i8lMb+dUEMepV7RlidtEEk=",
+			"path": "golang.org/x/tools/cmd/stringer",
+			"revision": "28aef64757f4d432485ab970b094e1af8b301e84",
+			"revisionTime": "2018-05-17T00:14:04Z"
 		}
 	],
 	"rootPath": "github.com/dnovikoff/tempai-core"
