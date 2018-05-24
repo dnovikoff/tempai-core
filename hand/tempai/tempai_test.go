@@ -190,7 +190,7 @@ func TestTempaiWaits(t *testing.T) {
 
 func TestTempaiCorrectNumbers(t *testing.T) {
 	// 555678m56788p678s
-	ints := []int{16, 17, 19, 24, 30, 53, 58, 60, 65, 66, 94, 99, 101}
+	ints := []int{17, 18, 20, 25, 31, 54, 59, 61, 66, 67, 95, 100, 102}
 	require.Equal(t, 13, len(ints))
 
 	validateInstances := func(winInstances tile.Instances) bool {

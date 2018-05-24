@@ -17,7 +17,7 @@ const (
 	counterIndex = instancesInts + iota
 	endIndex
 )
-const _ = uint(tilesPerPack*instancesInts*4 - tile.Count)
+const _ = uint(tilesPerPack*instancesInts*4 - tile.InstanceCount)
 
 const counterInvalid = PackedMasks(1024)
 
@@ -79,8 +79,8 @@ func (this Instances) invalidateCounter() {
 }
 
 func (this Instances) GetMask(t tile.Tile) Mask {
-	block := this[int(t/tilesPerPack)]
-	return block.Get(uint(t)%tilesPerPack, t)
+	block := this[int(shift(t)/tilesPerPack)]
+	return block.Get(shift(t)%tilesPerPack, t)
 }
 
 func (this Instances) CountFree(in Tiles) int {
@@ -168,7 +168,7 @@ func (this Instances) setMaskImpl(index uint, mask Mask) {
 }
 
 func (this Instances) SetMask(mask Mask) {
-	this.setMaskImpl(uint(mask.Tile()), mask)
+	this.setMaskImpl(shift(mask.Tile()), mask)
 	this.invalidateCounter()
 }
 
@@ -234,7 +234,7 @@ func (this Instances) RemoveAll(t tile.Tile) {
 func (this Instances) RemoveTile(t tile.Tile) tile.Instance {
 	mask := this.GetMask(t)
 	first := mask.First()
-	if !first.IsNull() {
+	if first != tile.InstanceNull {
 		this.SetMask(mask.UnsetInstance(first))
 	}
 	return first
