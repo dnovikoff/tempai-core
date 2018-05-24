@@ -1,6 +1,7 @@
 package meld
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -183,7 +184,16 @@ func TestSameBugInstances(t *testing.T) {
 	m := Meld(3462)
 	require.Equal(t, TypeSame, m.Type())
 	s := Same(m)
-	assert.Equal(t, tile.Red, s.Base())
+	require.Equal(t, tile.Green, s.Base())
 	assert.Equal(t, samePon, s.subType())
-	assert.Equal(t, tile.Instances{132, 133, 134}, s.Meld().Instances())
+	for k, v := range s.Meld().Instances() {
+		t.Run("Green"+strconv.Itoa(k), func(t *testing.T) {
+			assert.Equal(t, tile.Green, v.Tile())
+		})
+	}
+	assert.Equal(t, tile.Instances{
+		tile.Green.Instance(0),
+		tile.Green.Instance(1),
+		tile.Green.Instance(2),
+	}, s.Meld().Instances())
 }

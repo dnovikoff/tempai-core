@@ -92,3 +92,7 @@ func TestMaskRemove(t *testing.T) {
 	assert.Equal(t, "0101", tst(mask1.Remove(mask2)))
 	assert.Equal(t, "1111", tst(mask1.Merge(mask2)))
 }
+
+func TestMaskPrinting(t *testing.T) {
+	assert.Equal(t, "6666p", NewMask(15, tile.Pin6).Instances().String())
+}
