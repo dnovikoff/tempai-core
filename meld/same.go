@@ -208,24 +208,24 @@ func (this Same) OriginalWaits() compact.Tiles {
 // Closed kan does not need to have opened param
 // You can use 0 in any case
 // Still it is required for full compat with tenhou kans
-func NewKan(t tile.Tile, opened tile.CopyId) Same {
-	return newSame(t, sameKan, opened, 0, base.Self)
+func NewKan(t tile.Instance) Same {
+	return NewKanOpened(t, base.Self)
 }
 
-func NewKanOpened(t tile.Tile, opened tile.CopyId, opponent base.Opponent) Same {
-	return newSame(t, sameKan, opened, 0, opponent)
+func NewKanOpened(opened tile.Instance, opponent base.Opponent) Same {
+	return newSame(opened.Tile(), sameKan, opened.CopyId(), 0, opponent)
 }
 
-func NewKanUpgraded(t tile.Tile, opened, upgraded tile.CopyId, opponent base.Opponent) Same {
-	return newSame(t, sameUpgraded, opened, upgraded, opponent)
+func NewKanUpgraded(opened tile.Instance, upgraded tile.CopyId, opponent base.Opponent) Same {
+	return newSame(opened.Tile(), sameUpgraded, opened.CopyId(), upgraded, opponent)
 }
 
-func NewPon(t tile.Tile, notInPon tile.CopyId) Same {
-	return newSame(t, samePon, notInPon, 0, base.Self)
+func NewPon(notInPon tile.Instance) Same {
+	return newSame(notInPon.Tile(), samePon, notInPon.CopyId(), 0, base.Self)
 }
 
-func NewPonOpened(t tile.Tile, opened, notInPon tile.CopyId, opponent base.Opponent) Same {
-	return newSame(t, samePart, opened, notInPon, opponent)
+func NewPonOpened(opened tile.Instance, notInPon tile.CopyId, opponent base.Opponent) Same {
+	return newSame(opened.Tile(), samePart, opened.CopyId(), notInPon, opponent)
 }
 
 func NewPonPart(t tile.Tile, c1, c2 tile.CopyId) Same {
@@ -262,14 +262,18 @@ func (this Same) Rebase(in compact.Instances) Meld {
 		if original.Count() < 3 {
 			return 0
 		}
-		notInPon := original.InvertTiles().FirstCopy()
+		// In case of all for in a hand - any will fit
+		notInPon := tile.AnyCopy
+		if !original.IsFull() {
+			notInPon = original.InvertTiles().FirstCopy()
+		}
 		op := this.Opponent()
 		if op == base.Self {
-			return NewPon(this.Base(), notInPon).Meld()
+			return NewPon(this.Base().Instance(notInPon)).Meld()
 		}
 		// Not enough information to choose one
 		opened := original.FirstCopy()
-		return NewPonOpened(this.Base(), opened, notInPon, op).Meld()
+		return NewPonOpened(this.Base().Instance(opened), notInPon, op).Meld()
 	}
 	return 0
 }

@@ -7,6 +7,7 @@ const (
 	InstanceNull  Instance = 0
 	InstanceCount          = TileCount * 4
 	NullCopy      CopyId   = -1
+	AnyCopy       CopyId   = 0
 )
 
 type CopyId int

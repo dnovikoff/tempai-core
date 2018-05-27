@@ -2,6 +2,7 @@ package tile
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -30,6 +31,18 @@ func TestOneTile(t *testing.T) {
 	assert.Equal(t, "1 1 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.NumberInSequence()))
 	tile = White
 	assert.Equal(t, "32 32 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.NumberInSequence()))
+}
+
+func TestConvert(t *testing.T) {
+	for k := Begin; k < End; k++ {
+		for c := CopyId(0); c < 4; c++ {
+			t.Run(k.String()+"_"+strconv.Itoa(int(c)), func(t *testing.T) {
+				i := k.Instance(c)
+				assert.Equal(t, k, i.Tile())
+				assert.Equal(t, c, i.CopyId())
+			})
+		}
+	}
 }
 
 func TestAllTiles(t *testing.T) {

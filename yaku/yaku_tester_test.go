@@ -83,7 +83,7 @@ func (this *YakuTester) Tsumo(t tile.Tile) *YakuResult {
 
 func (this *YakuTester) Kan(t tile.Tile) {
 	require.Equal(this.t, 4, this.hand.GetCount(t))
-	kan := meld.NewKan(t, 0)
+	kan := meld.NewKan(t.Instance(0))
 	kan.ExtractFrom(this.hand)
 	this.declared = append(this.declared, kan.Meld())
 }

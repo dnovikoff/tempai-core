@@ -21,7 +21,7 @@ func TestYakuNoOtherFuHand(t *testing.T) {
 
 func TestYakuFuOpenKanTerminal16(t *testing.T) {
 	tester := NewYakuTester(t, "111s23p456789m22z")
-	tester.Declare(meld.NewPon(tile.Sou1, 0), tile.Sou1, base.Left)
+	tester.Declare(meld.NewPon(tile.Sou1.Instance(0)), tile.Sou1, base.Left)
 	assert.Equal(t, "14p", tester.TempaiTiles())
 	// At least on han
 	tester.ctx.IsRinshan = true
@@ -32,14 +32,14 @@ func TestYakuFuOpenKanTerminal16(t *testing.T) {
 
 func TestYakuFuOpenKanDragon16(t *testing.T) {
 	tester := NewYakuTester(t, "22555z23p456789m")
-	tester.Declare(meld.NewPon(tile.White, 0), tile.White, base.Left)
+	tester.Declare(meld.NewPon(tile.White.Instance(0)), tile.White, base.Left)
 	win := tester.Tsumo(tile.Pin1)
 	assert.Equal(t, "38 = 20(FuBase) + 2(FuTsumo) + 16(FuOther)[5555z+]", win.Fus.String())
 }
 
 func TestYakuFuOpenKanWind16(t *testing.T) {
 	tester := NewYakuTester(t, "11122z23p456789m")
-	tester.Declare(meld.NewPon(tile.East, 0), tile.East, base.Left)
+	tester.Declare(meld.NewPon(tile.East.Instance(0)), tile.East, base.Left)
 	win := tester.Tsumo(tile.Pin1)
 	assert.Equal(t, "38 = 20(FuBase) + 2(FuTsumo) + 16(FuOther)[1111z+]", win.Fus.String())
 }
@@ -53,7 +53,7 @@ func TestYakuFuClosedKanMiddle16(t *testing.T) {
 
 func TestYakuFuOpenKanMiddle8(t *testing.T) {
 	tester := NewYakuTester(t, "222s23p456789m22z")
-	tester.Declare(meld.NewPon(tile.Sou2, 0), tile.Sou2, base.Left)
+	tester.Declare(meld.NewPon(tile.Sou2.Instance(0)), tile.Sou2, base.Left)
 	tester.ctx.IsRinshan = true
 	win := tester.Tsumo(tile.Pin1)
 	assert.Equal(t, "30 = 20(FuBase) + 2(FuTsumo) + 8(FuOther)[2222s+]", win.Fus.String())
