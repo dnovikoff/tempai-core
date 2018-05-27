@@ -1,6 +1,7 @@
 package meld
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ import (
 // samePonOpened3
 
 func TestSameKan(t *testing.T) {
-	m := NewKan(tile.Sou9, 1)
+	m := NewKan(tile.Sou9.Instance(1))
 	require.Equal(t, TypeSame, m.Meld().Type())
 	assert.True(t, 0 != m)
 	assert.True(t, m.IsComplete())
@@ -42,10 +43,10 @@ func TestSameKan(t *testing.T) {
 
 func TestSameKanO(t *testing.T) {
 	kans := []Same{
-		NewKan(tile.Green, 0),
-		NewKan(tile.Green, 1),
-		NewKan(tile.Green, 2),
-		NewKan(tile.Green, 3),
+		NewKan(tile.Green.Instance(0)),
+		NewKan(tile.Green.Instance(1)),
+		NewKan(tile.Green.Instance(2)),
+		NewKan(tile.Green.Instance(3)),
 	}
 	mp := map[Same]bool{}
 	for k, v := range kans {
@@ -57,7 +58,7 @@ func TestSameKanO(t *testing.T) {
 }
 
 func TestSamePon(t *testing.T) {
-	m := NewPon(tile.Sou8, 2)
+	m := NewPon(tile.Sou8.Instance(2))
 	require.Equal(t, TypeSame, m.Meld().Type())
 	assert.True(t, 0 != m)
 	assert.True(t, m.IsComplete())
@@ -78,7 +79,7 @@ func TestSamePon(t *testing.T) {
 
 	assert.EqualValues(t, 0, m.Open(tile.Sou8.Instance(0), base.Right))
 	m = Same(m.Open(tile.Sou8.Instance(2), base.Right))
-	require.Equal(t, NewKanOpened(tile.Sou8, 2, base.Right), m)
+	require.Equal(t, NewKanOpened(tile.Sou8.Instance(2), base.Right), m)
 	require.Equal(t, TypeSame, m.Meld().Type())
 	require.NotEqual(t, 0, m)
 	assert.True(t, m.IsComplete())
@@ -119,7 +120,7 @@ func TestSamePart(t *testing.T) {
 
 	assert.EqualValues(t, 0, m.Open(tile.West.Instance(0), base.Front))
 	m = Same(m.Open(tile.West.Instance(2), base.Front))
-	require.Equal(t, NewPonOpened(tile.West, 2, 3, base.Front), m)
+	require.Equal(t, NewPonOpened(tile.West.Instance(2), 3, base.Front), m)
 	require.Equal(t, TypeSame, m.Meld().Type())
 	require.True(t, 0 != m)
 	assert.True(t, m.IsComplete())
@@ -137,7 +138,7 @@ func TestSamePart(t *testing.T) {
 	}, i)
 
 	m = m.Upgrade()
-	require.Equal(t, NewKanUpgraded(tile.West, 2, 3, base.Front), m)
+	require.Equal(t, NewKanUpgraded(tile.West.Instance(2), 3, base.Front), m)
 	require.Equal(t, TypeSame, m.Meld().Type())
 	require.True(t, 0 != m)
 	assert.True(t, m.IsComplete())
@@ -183,7 +184,16 @@ func TestSameBugInstances(t *testing.T) {
 	m := Meld(3462)
 	require.Equal(t, TypeSame, m.Type())
 	s := Same(m)
-	assert.Equal(t, tile.Red, s.Base())
+	require.Equal(t, tile.Green, s.Base())
 	assert.Equal(t, samePon, s.subType())
-	assert.Equal(t, tile.Instances{132, 133, 134}, s.Meld().Instances())
+	for k, v := range s.Meld().Instances() {
+		t.Run("Green"+strconv.Itoa(k), func(t *testing.T) {
+			assert.Equal(t, tile.Green, v.Tile())
+		})
+	}
+	assert.Equal(t, tile.Instances{
+		tile.Green.Instance(0),
+		tile.Green.Instance(1),
+		tile.Green.Instance(2),
+	}, s.Meld().Instances())
 }

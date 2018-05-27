@@ -10,6 +10,11 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
+func TestPairSimple(t *testing.T) {
+	assert.Equal(t, tile.Green, NewPair(tile.Green, 0, 1).Base())
+	assert.Equal(t, "66z", NewPair(tile.Green, 0, 1).Meld().Instances().String())
+}
+
 func TestPair(t *testing.T) {
 	assert.EqualValues(t, 0, NewPair(tile.Green, 1, 1))
 
@@ -20,7 +25,10 @@ func TestPair(t *testing.T) {
 	assert.True(t, meld.IsComplete())
 	assert.EqualValues(t, 0, meld.c1())
 	assert.EqualValues(t, 1, meld.c2())
-	assert.Equal(t, tile.Instances{128, 129}, meld.Meld().Instances())
+	assert.Equal(t, tile.Instances{
+		tile.Green.Instance(0),
+		tile.Green.Instance(1),
+	}, meld.Meld().Instances())
 }
 
 func TestPairTanki(t *testing.T) {
@@ -31,7 +39,9 @@ func TestPairTanki(t *testing.T) {
 	assert.False(t, meld.IsComplete())
 	assert.EqualValues(t, 2, meld.c1())
 	assert.EqualValues(t, 0, meld.c2())
-	assert.Equal(t, tile.Instances{38}, meld.Meld().Instances())
+	assert.Equal(t, tile.Instances{
+		tile.Pin1.Instance(2),
+	}, meld.Meld().Instances())
 }
 
 func TestPairOne(t *testing.T) {
@@ -42,7 +52,9 @@ func TestPairOne(t *testing.T) {
 	assert.True(t, meld.IsComplete())
 	assert.EqualValues(t, 2, meld.c1())
 	assert.EqualValues(t, 0, meld.c2())
-	assert.Equal(t, tile.Instances{38}, meld.Meld().Instances())
+	assert.Equal(t, tile.Instances{
+		tile.Pin1.Instance(2),
+	}, meld.Meld().Instances())
 }
 
 func TestPairHole(t *testing.T) {

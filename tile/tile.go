@@ -3,8 +3,10 @@ package tile
 type Tile int
 type Type int
 
+// Tile numberation starts from 1
 const (
-	Man1 Tile = iota
+	TileNull Tile = iota
+	Man1
 	Man2
 	Man3
 	Man4
@@ -53,13 +55,13 @@ const (
 	TypeWind    Type = Type(East)
 	TypeDragon  Type = Type(White)
 	TypeEnd     Type = Type(End)
-	Count            = int(End) * 4
+	TileCount        = int(End - Begin)
 	SequenceEnd      = East
 	Begin            = Man1
 )
 
 func createKokushTiles() Tiles {
-	result := make(Tiles, 0, 13)
+	result := make(Tiles, 0, End-Begin)
 	for t := Begin; t < End; t++ {
 		if !t.IsTerminalOrHonor() {
 			continue
