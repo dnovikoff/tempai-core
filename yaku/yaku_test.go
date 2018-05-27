@@ -14,7 +14,7 @@ import (
 func TestYakuRinshanWin(t *testing.T) {
 	tester := NewYakuTester(t, "123p345999s2255z")
 	tester.ctx.SelfWind = base.WindSouth
-	tester.Declare(meld.NewPon(tile.Sou9, 0), tile.Sou9, base.Left)
+	tester.Declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Left)
 	tester.ctx.IsRinshan = true
 	win := tester.Tsumo(tile.South)
 	// assert.Equal(t, "999s(OpponentRight:9s) 55z 123p 345s 22z(OpponentSelf:2z:WIN) (2z)", win.Melds.String())
@@ -29,7 +29,7 @@ func TestYakuRinshanWin(t *testing.T) {
 
 func TestYakuHoiteiWin(t *testing.T) {
 	tester := NewYakuTester(t, "123p345999s2255z")
-	tester.Declare(meld.NewPon(tile.Sou9, 0), tile.Sou9, base.Right)
+	tester.Declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Right)
 	tester.ctx.IsLastTile = true
 	assert.Equal(t, "1 = YakuHoutei: 1", tester.Ron(tile.South).String())
 	assert.Equal(t, "1 = YakuHaitei: 1", tester.Tsumo(tile.South).String())
@@ -41,7 +41,7 @@ func TestYakuRinshanIsNotHoitei(t *testing.T) {
 	tester.ctx.IsRinshan = true
 	rules := tester.ctx.Rules
 	rules.HaiteiIsFromLiveOnly = true
-	tester.Declare(meld.NewPon(tile.Sou9, 0), tile.Sou9, base.Right)
+	tester.Declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Right)
 
 	win := tester.Tsumo(tile.South)
 	assert.Equal(t, "1 = YakuRinshan: 1", win.String())

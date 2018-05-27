@@ -24,12 +24,16 @@ func NewFromTiles(tiles ...tile.Tile) Tiles {
 	return x
 }
 
+func shift(t tile.Tile) uint {
+	return uint(t - tile.Begin)
+}
+
 func (this Tiles) Check(t tile.Tile) bool {
-	return ((1 << uint(t)) & this) != 0
+	return ((1 << shift(t)) & this) != 0
 }
 
 func (this Tiles) Set(t tile.Tile) Tiles {
-	return ((1 << uint(t)) | this)
+	return ((1 << shift(t)) | this)
 }
 
 func (this Tiles) Sub(other Tiles) Tiles {
@@ -37,7 +41,7 @@ func (this Tiles) Sub(other Tiles) Tiles {
 }
 
 func (this Tiles) Unset(t tile.Tile) Tiles {
-	mask := Tiles(1 << uint(t))
+	mask := Tiles(1 << shift(t))
 	return this &^ mask
 }
 
@@ -64,11 +68,11 @@ func (this Tiles) Invert() Tiles {
 }
 
 func (this Tiles) Normalize() Tiles {
-	return ((1 << uint(tile.End)) - 1) & this
+	return ((1 << shift(tile.End)) - 1) & this
 }
 
 func (this Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
-	this >>= uint(begin)
+	this >>= shift(begin)
 
 	for i := begin; i < end; i++ {
 		if this&1 == 1 {
