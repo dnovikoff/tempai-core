@@ -56,7 +56,7 @@ func baseKanchan(t tile.Tile) Meld {
 }
 
 func basePon(t tile.Tile) Meld {
-	return NewPon(t, 3).Meld()
+	return NewPon(t.Instance(3)).Meld()
 }
 
 func basePonPart(t tile.Tile) Meld {
