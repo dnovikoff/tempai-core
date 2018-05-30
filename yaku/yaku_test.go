@@ -39,21 +39,20 @@ func TestYakuRinshanIsNotHoitei(t *testing.T) {
 	tester := NewYakuTester(t, "123p555999s2255z")
 	tester.ctx.IsLastTile = true
 	tester.ctx.IsRinshan = true
-	rules := tester.ctx.Rules
-	rules.HaiteiIsFromLiveOnly = true
+	tester.rules.IsHaiteiFromLiveOnly = true
 	tester.Declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Right)
 
 	win := tester.Tsumo(tile.South)
 	assert.Equal(t, "1 = YakuRinshan: 1", win.String())
 
-	rules.HaiteiIsFromLiveOnly = false
+	tester.rules.IsHaiteiFromLiveOnly = false
 	win = tester.Tsumo(tile.South)
 	assert.Equal(t, "2 = YakuHaitei: 1, YakuRinshan: 1", win.String())
 }
 
 func TestYakuKuitan(t *testing.T) {
 	tester := NewYakuTester(t, "234567p34s3388m")
-	tester.ctx.Rules.OpenTanyao = true
+	tester.rules.IsOpenTanyao = true
 	tester.Declare(meld.NewSeq(tile.Sou3, 0, 0, meld.HoleCopy), tile.Sou2, base.Left)
 	win := tester.Tsumo(tile.Man3)
 	assert.Equal(t, "1 = YakuTanyao: 1", win.String())

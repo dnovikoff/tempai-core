@@ -139,8 +139,7 @@ You can also configure your own ruleset
 `go run ./examples/score/main.go`
 
 ```go
-rules := score.RulesEMA
-s := rules.GetScore(4, 22, 0)
+s := score.GetScore(score.RulesEMA(), 4, 22, 0)
 fmt.Printf("Hand value is %v.%v (%v)\n", s.Han, s.Fu, s.Fu.Round())
 fmt.Printf("Dealer ron: %v\n", s.PayRonDealer)
 fmt.Printf("Dealer tsumo: %v all\n", s.PayTsumoDealer)
@@ -185,7 +184,7 @@ winTile := generator.Instance(tile.Sou5)
 results := tempai.Calculate(tiles, nil).Index()
 ctx := &yaku.Context{
     Tile:      winTile,
-    Rules:     &yaku.RulesEMA,
+    Rules:     yaku.RulesEMA(),
     IsTsumo:   true,
     IsChankan: true,
 }
