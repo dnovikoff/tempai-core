@@ -12,6 +12,8 @@ func RulesTenhouRed() *RulesStruct {
 		AkaDoras:             []tile.Instance{tile.Man5.Instance(0), tile.Pin5.Instance(0), tile.Sou5.Instance(0)},
 		IsIpatsu:             true,
 		IsUra:                true,
+		IsGreenRequired:      false,
+		IsRinshanFu:          true,
 	}
 }
 
@@ -22,6 +24,8 @@ func RulesEMA() *RulesStruct {
 		RenhouLimit:          LimitMangan,
 		IsIpatsu:             true,
 		IsUra:                true,
+		IsGreenRequired:      false,
+		IsRinshanFu:          true,
 	}
 }
 
@@ -32,6 +36,8 @@ func RulesJPMPLA() *RulesStruct {
 		RenhouLimit:          LimitMangan,
 		IsIpatsu:             false,
 		IsUra:                false,
+		IsGreenRequired:      true,
+		IsRinshanFu:          false,
 	}
 }
 

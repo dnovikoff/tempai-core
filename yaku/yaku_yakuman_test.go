@@ -127,3 +127,30 @@ func TestYakumanTTError(t *testing.T) {
 	assert.Equal(t, "YakumanSuuankou:1", win.String())
 	// assert.Equal(t, "22m 333p 555z 777z 88s(OpponentSelf:8s:WIN) (8s)", win.Melds.String())
 }
+
+func TestYakumanGreenRules(t *testing.T) {
+	tester := NewYakuTester(t, "2223344466688s")
+	t.Run("no green not required", func(t *testing.T) {
+		tester.rules.IsGreenRequired = false
+		win := tester.Ron(tile.Sou3)
+		assert.Equal(t, "YakumanRyuuiisou:1", win.String())
+	})
+	t.Run("no green not required", func(t *testing.T) {
+		tester := NewYakuTester(t, "2223344466688s")
+		tester.rules.IsGreenRequired = true
+		win := tester.Ron(tile.Sou3)
+		assert.Equal(t, "11 = YakuChinitsu: 6, YakuSanankou: 2, YakuTanyao: 1, YakuToitoi: 2", win.String())
+	})
+
+	tester = NewYakuTester(t, "22233444666s66z")
+	t.Run("green not required", func(t *testing.T) {
+		tester.rules.IsGreenRequired = false
+		win := tester.Ron(tile.Sou3)
+		assert.Equal(t, "YakumanRyuuiisou:1", win.String())
+	})
+	t.Run("green required", func(t *testing.T) {
+		tester.rules.IsGreenRequired = true
+		win := tester.Ron(tile.Sou3)
+		assert.Equal(t, "YakumanRyuuiisou:1", win.String())
+	})
+}

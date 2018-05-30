@@ -7,6 +7,7 @@ type Rules interface {
 	KazoeYakuman() bool
 	YakumanDouble() bool
 	YakumanSum() bool
+
 	Honba() Money
 }
 
@@ -15,7 +16,8 @@ type RulesStruct struct {
 	IsKazoeYakuman  bool
 	IsYakumanDouble bool
 	IsYakumanSum    bool
-	HonbaValue      Money
+
+	HonbaValue Money
 }
 
 var _ Rules = &RulesStruct{}

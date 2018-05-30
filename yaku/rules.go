@@ -11,6 +11,8 @@ type Rules interface {
 	HaiteiFromLiveOnly() bool
 	Ura() bool
 	Ipatsu() bool
+	GreenRequired() bool
+	RinshanFu() bool
 }
 
 type RulesStruct struct {
@@ -20,9 +22,19 @@ type RulesStruct struct {
 	IsHaiteiFromLiveOnly bool
 	IsUra                bool
 	IsIpatsu             bool
+	IsGreenRequired      bool
+	IsRinshanFu          bool
 }
 
 var _ Rules = &RulesStruct{}
+
+func (r *RulesStruct) GreenRequired() bool {
+	return r.IsGreenRequired
+}
+
+func (r *RulesStruct) RinshanFu() bool {
+	return r.IsRinshanFu
+}
 
 func (r *RulesStruct) OpenTanyao() bool {
 	return r.IsOpenTanyao
