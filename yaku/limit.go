@@ -3,13 +3,14 @@ package yaku
 type Limit int
 
 //go:generate stringer -type=Limit
+// Limit numbers are now fixed and should not be changed
 const (
-	LimitNone Limit = iota
-	LimitMangan
-	LimitHaneman
-	LimitBaiman
-	LimitSanbaiman
-	LimitYakuman
+	LimitNone      Limit = 0
+	LimitMangan    Limit = 1
+	LimitHaneman   Limit = 2
+	LimitBaiman    Limit = 3
+	LimitSanbaiman Limit = 4
+	LimitYakuman   Limit = 5
 )
 
 func (this Limit) ShortString() string {
