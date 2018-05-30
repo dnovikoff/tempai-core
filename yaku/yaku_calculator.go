@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/dnovikoff/tempai-core/compact"
+
 	"github.com/dnovikoff/tempai-core/base"
 	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
@@ -484,6 +486,23 @@ func (this *YakuCalculator) allInstances() tile.Instances {
 	return x
 }
 
+var greenTiles = compact.Tiles(0).
+	Set(tile.Sou2).
+	Set(tile.Sou3).
+	Set(tile.Sou4).
+	Set(tile.Sou6).
+	Set(tile.Sou8).
+	Set(tile.Green)
+
+func (this *YakuCalculator) tryGreenYakuman() {
+	for _, v := range this.allInstances() {
+		if !greenTiles.Check(v.Tile()) {
+			return
+		}
+	}
+	this.addYakuman(YakumanRyuuiisou)
+}
+
 func (this *YakuCalculator) tryGates() {
 	// already checked for color
 	tst := [9]int{-3, -1, -1, -1, -1, -1, -1, -1, -3}
@@ -547,7 +566,9 @@ func (this *YakuCalculator) tryDora() {
 
 func (this *YakuCalculator) tryFu() {
 	if this.ctx.IsTsumo {
-		this.addFu(FuTsumo, 2)
+		if this.ctx.Rules.RinshanFu() || this.result.Yaku[YakuRinshan] == 0 {
+			this.addFu(FuTsumo, 2)
+		}
 	}
 	if this.win.Interface().IsBadWait() {
 		this.addFuMeld(this.win, FuBadWait, 2)
@@ -722,6 +743,10 @@ func (this *YakuCalculator) Calculate() *YakuResult {
 	colorYaku := this.tryColor()
 	if !isChitoi && (colorYaku == YakuChinitsu) && this.isClosed {
 		this.tryGates()
+	}
+	if colorYaku == YakuHonitsu ||
+		(colorYaku == YakuChinitsu && !this.ctx.Rules.GreenRequired()) {
+		this.tryGreenYakuman()
 	}
 
 	this.tryDora()

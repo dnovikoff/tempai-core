@@ -79,3 +79,17 @@ func TestYakuFuClosedKanWind32(t *testing.T) {
 	win := tester.Tsumo(tile.Pin1)
 	assert.Equal(t, "54 = 20(FuBase) + 2(FuTsumo) + 32(FuOther)[1111z]", win.Fus.String())
 }
+
+func TestYakuRinshanRules(t *testing.T) {
+	tester := NewYakuTester(t, "111122z23p456789m")
+	tester.Kan(tile.East)
+	tester.ctx.IsRinshan = true
+
+	tester.rules.IsRinshanFu = true
+	win := tester.Tsumo(tile.Pin1)
+	assert.Equal(t, "54 = 20(FuBase) + 2(FuTsumo) + 32(FuOther)[1111z]", win.Fus.String())
+
+	tester.rules.IsRinshanFu = false
+	win = tester.Tsumo(tile.Pin1)
+	assert.Equal(t, "52 = 20(FuBase) + 32(FuOther)[1111z]", win.Fus.String())
+}
