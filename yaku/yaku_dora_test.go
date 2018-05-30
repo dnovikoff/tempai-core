@@ -10,7 +10,7 @@ import (
 
 func NewRedYakuTester(t *testing.T, in string) *YakuTester {
 	tester := NewYakuTester(t, in)
-	tester.ctx.Rules = &RulesTenhouRed
+	tester.ctx.Rules = RulesTenhouRed()
 	return tester
 }
 

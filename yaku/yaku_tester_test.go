@@ -18,6 +18,7 @@ type YakuTester struct {
 	ctx      *Context
 	tg       *compact.Generator
 	t        *testing.T
+	rules    *RulesStruct
 }
 
 func NewYakuTester(t *testing.T, in string) (this *YakuTester) {
@@ -26,8 +27,9 @@ func NewYakuTester(t *testing.T, in string) (this *YakuTester) {
 	hand, err := tg.CompactFromString(in)
 	require.NoError(t, err)
 	this.hand = hand
+	this.rules = RulesEMA()
 	this.ctx = &Context{
-		Rules: &RulesEMA,
+		Rules: this.rules,
 	}
 	this.tg = tg
 	return

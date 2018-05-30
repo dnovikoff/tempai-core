@@ -10,8 +10,8 @@ import (
 	"github.com/dnovikoff/tempai-core/yaku"
 )
 
-func testScoreBase(rules Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (ret string) {
-	score := rules.GetScore(han, fu, honba)
+func testScoreBase(r Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (ret string) {
+	score := GetScore(r, han, fu, honba)
 	ret = fmt.Sprintf("ron = %v/%v, tsumo = %v/%v", score.PayRon, score.PayRonDealer, score.PayTsumo, score.PayTsumoDealer)
 	if score.Special != yaku.LimitNone {
 		ret += " " + score.Special.String()
@@ -20,7 +20,7 @@ func testScoreBase(rules Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honb
 }
 
 func testScore(han yaku.HanPoints, fu yaku.FuPoints, honba Honba) string {
-	return testScoreBase(RulesTenhou, han, fu, honba)
+	return testScoreBase(RulesTenhou(), han, fu, honba)
 }
 
 func TestAlltestScore(t *testing.T) {
@@ -69,12 +69,12 @@ func TestAlltestScore(t *testing.T) {
 }
 
 func TestAlltestScoreOtherRules(t *testing.T) {
-	rule := RulesTenhou
-	rule.ManganRound = true
-	rule.KazoeYakuman = false
+	r := RulesTenhou()
+	r.IsManganRound = true
+	r.IsKazoeYakuman = false
 
 	tst := func(han yaku.HanPoints, fu yaku.FuPoints, honba Honba) string {
-		return testScoreBase(rule, han, fu, honba)
+		return testScoreBase(r, han, fu, honba)
 	}
 	assert.Equal(t, "ron = 1000/1500, tsumo = 300/500", tst(1, 30, 0))
 	assert.Equal(t, "ron = 1300/2000, tsumo = 400/700", tst(1, 40, 0))
@@ -133,7 +133,7 @@ func TestRenchan(t *testing.T) {
 }
 
 func TestOtherHonbaRule(t *testing.T) {
-	r := RulesTenhou
+	r := RulesTenhou()
 	r.HonbaValue = 500
 	assert.Equal(t, "ron = 2500/3000, tsumo = 800/1000", testScoreBase(r, 1, 30, 1))
 }
@@ -152,7 +152,7 @@ func TestFuRound(t *testing.T) {
 }
 
 func TestResultCounting(t *testing.T) {
-	rule := RulesEMA
+	r := RulesEMA()
 	result := &yaku.YakuResult{
 		Yaku: yaku.YakuSet{
 			yaku.YakuChanta: 1,
@@ -168,13 +168,13 @@ func TestResultCounting(t *testing.T) {
 		Special:        yaku.LimitHaneman,
 		Han:            6,
 		Fu:             0,
-	}, rule.GetScoreByResult(result, 0))
+	}, GetScoreByResult(r, result, 0))
 }
 
 func TestResultCountingYakuman(t *testing.T) {
-	rule := RulesEMA
-	rule.YakumanSum = false
-	rule.DoubleYakuman = false
+	r := RulesEMA()
+	r.IsYakumanSum = false
+	r.IsYakumanDouble = false
 	result := &yaku.YakuResult{
 		Yakuman: yaku.YakumanSet{
 			yaku.YakumanDaisangen: 1,
@@ -189,37 +189,37 @@ func TestResultCountingYakuman(t *testing.T) {
 		PayTsumo:       8000,
 		PayTsumoDealer: 16000,
 		Special:        yaku.LimitYakuman,
-	}, rule.GetScoreByResult(result, 0))
+	}, GetScoreByResult(r, result, 0))
 
-	rule.YakumanSum = true
-	rule.DoubleYakuman = false
+	r.IsYakumanSum = true
+	r.IsYakumanDouble = false
 	assert.Equal(t, Score{
 		PayRon:         32000 * 3,
 		PayRonDealer:   48000 * 3,
 		PayTsumo:       8000 * 3,
 		PayTsumoDealer: 16000 * 3,
 		Special:        yaku.LimitYakuman,
-	}, rule.GetScoreByResult(result, 0))
+	}, GetScoreByResult(r, result, 0))
 
-	rule.YakumanSum = true
-	rule.DoubleYakuman = true
+	r.IsYakumanSum = true
+	r.IsYakumanDouble = true
 	assert.Equal(t, Score{
 		PayRon:         32000 * 4,
 		PayRonDealer:   48000 * 4,
 		PayTsumo:       8000 * 4,
 		PayTsumoDealer: 16000 * 4,
 		Special:        yaku.LimitYakuman,
-	}, rule.GetScoreByResult(result, 0))
+	}, GetScoreByResult(r, result, 0))
 
-	rule.YakumanSum = false
-	rule.DoubleYakuman = true
+	r.IsYakumanSum = false
+	r.IsYakumanDouble = true
 	assert.Equal(t, Score{
 		PayRon:         32000 * 2,
 		PayRonDealer:   48000 * 2,
 		PayTsumo:       8000 * 2,
 		PayTsumoDealer: 16000 * 2,
 		Special:        yaku.LimitYakuman,
-	}, rule.GetScoreByResult(result, 0))
+	}, GetScoreByResult(r, result, 0))
 }
 
 func TestChangesArray(t *testing.T) {

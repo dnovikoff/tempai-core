@@ -593,7 +593,7 @@ func (this *YakuCalculator) calculateResult() *YakuResult {
 	rule := this.ctx.Rules
 	result.SetValues(YakuTsumo, 0, 1)
 
-	if !rule.OpenTanyao {
+	if !rule.OpenTanyao() {
 		result.SetValues(YakuTanyao, 0, 1)
 	}
 
@@ -628,14 +628,14 @@ func (this *YakuCalculator) calculateResult() *YakuResult {
 	}
 
 	if result.Yaku[YakuRenhou] > 0 {
-		switch rule.Renhou {
+		switch rule.Renhou() {
 		case LimitNone:
 			delete(result.Yaku, YakuRenhou)
 		case LimitYakuman:
 			this.addYakuman(YakumanRenhou)
 			delete(result.Yaku, YakuRenhou)
 		default:
-			hans := rule.Renhou.BaseHans()
+			hans := rule.Renhou().BaseHans()
 			delete(result.Yaku, YakuRenhou)
 			sum := this.result.Yaku.Sum()
 			if sum < hans {
@@ -662,10 +662,10 @@ func (this *YakuCalculator) Calculate() *YakuResult {
 		this.addYaku(YakuRinshan)
 	}
 
-	if (!this.ctx.IsRinshan || !this.ctx.Rules.HaiteiIsFromLiveOnly) && this.ctx.IsLastTile {
+	if (!this.ctx.IsRinshan || !this.ctx.Rules.HaiteiFromLiveOnly()) && this.ctx.IsLastTile {
 		if this.ctx.IsTsumo {
 			this.addYaku(YakuHaitei)
-		} else if !this.ctx.Rules.HaiteiIsFromLiveOnly || !this.ctx.IsRinshan {
+		} else if !this.ctx.Rules.HaiteiFromLiveOnly() || !this.ctx.IsRinshan {
 			this.addYaku(YakuHoutei)
 		}
 	}

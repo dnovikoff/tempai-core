@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	rules := score.RulesEMA
-	s := rules.GetScore(4, 22, 0)
+	s := score.GetScore(score.RulesEMA(), 4, 22, 0)
 	fmt.Printf("Hand value is %v.%v (%v)\n", s.Han, s.Fu, s.Fu.Round())
 	fmt.Printf("Dealer ron: %v\n", s.PayRonDealer)
 	fmt.Printf("Dealer tsumo: %v all\n", s.PayTsumoDealer)

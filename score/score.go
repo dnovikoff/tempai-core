@@ -119,14 +119,14 @@ func (this MoneyBase) Round100(mul int) Money {
 }
 
 func (this MoneyBase) Money(rules Rules, mul int, honba Honba) Money {
-	return this.Round100(mul) + rules.GetHonbaMoney(honba)
+	return this.Round100(mul) + GetHonbaMoney(rules, honba)
 }
 
-func (this Rules) calculateScoreBase(han yaku.HanPoints, fu yaku.FuPoints) (MoneyBase, yaku.Limit) {
+func calculateScoreBase(r Rules, han yaku.HanPoints, fu yaku.FuPoints) (MoneyBase, yaku.Limit) {
 	switch {
 	case han < 5:
 		score := MoneyBase(fu.Round()) * MoneyBase(math.Pow(2.0, 2.0+float64(han)))
-		if score > 2000 || (this.ManganRound && score > 1900) {
+		if score > 2000 || (r.ManganRound() && score > 1900) {
 			return 2000, yaku.LimitMangan
 		}
 		return score, yaku.LimitNone
@@ -138,23 +138,23 @@ func (this Rules) calculateScoreBase(han yaku.HanPoints, fu yaku.FuPoints) (Mone
 		return 4000, yaku.LimitBaiman
 	case han < 13:
 		return 6000, yaku.LimitSanbaiman
-	case this.KazoeYakuman:
+	case r.KazoeYakuman():
 		return 8000, yaku.LimitYakuman
 	}
 	return 6000, yaku.LimitSanbaiman
 }
 
 // TODO: yakuman split for pao?
-func (this Rules) GetScoreByResult(res *yaku.YakuResult, honba Honba) Score {
+func GetScoreByResult(r Rules, res *yaku.YakuResult, honba Honba) Score {
 	if len(res.Yakuman) > 0 {
 		mul := 1
-		if this.YakumanSum {
+		if r.YakumanSum() {
 			mul = len(res.Yakuman)
 		}
-		if this.DoubleYakuman {
+		if r.YakumanDouble() {
 			for _, v := range res.Yakuman {
 				if v > 1 {
-					if this.YakumanSum {
+					if r.YakumanSum() {
 						mul++
 					} else {
 						mul = 2
@@ -163,27 +163,27 @@ func (this Rules) GetScoreByResult(res *yaku.YakuResult, honba Honba) Score {
 				}
 			}
 		}
-		return this.GetYakumanScore(mul, honba)
+		return GetYakumanScore(r, mul, honba)
 	}
-	return this.GetScore(res.Sum(), res.Fus.Sum(), honba)
+	return GetScore(r, res.Sum(), res.Fus.Sum(), honba)
 }
 
-func (this Rules) GetScoreByBase(base MoneyBase, special yaku.Limit, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (score Score) {
+func GetScoreByBase(r Rules, base MoneyBase, special yaku.Limit, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (score Score) {
 	score.Special = special
-	score.PayTsumo = base.Money(this, 1, honba)
-	score.PayTsumoDealer = base.Money(this, 2, honba)
-	score.PayRon = base.Money(this, 4, honba*3)
-	score.PayRonDealer = base.Money(this, 6, honba*3)
+	score.PayTsumo = base.Money(r, 1, honba)
+	score.PayTsumoDealer = base.Money(r, 2, honba)
+	score.PayRon = base.Money(r, 4, honba*3)
+	score.PayRonDealer = base.Money(r, 6, honba*3)
 	score.Han = han
 	score.Fu = fu
 	return score
 }
 
-func (this Rules) GetYakumanScore(mul int, honba Honba) (score Score) {
-	return this.GetScoreByBase(MoneyBase(mul)*8000, yaku.LimitYakuman, 0, 0, honba)
+func GetYakumanScore(r Rules, mul int, honba Honba) (score Score) {
+	return GetScoreByBase(r, MoneyBase(mul)*8000, yaku.LimitYakuman, 0, 0, honba)
 }
 
-func (this Rules) GetScore(han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (score Score) {
-	base, special := this.calculateScoreBase(han, fu)
-	return this.GetScoreByBase(base, special, han, fu, honba)
+func GetScore(r Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (score Score) {
+	base, special := calculateScoreBase(r, han, fu)
+	return GetScoreByBase(r, base, special, han, fu, honba)
 }

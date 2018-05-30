@@ -4,20 +4,51 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-type Rules struct {
-	OpenTanyao           bool            `json:"open-tanyao"`
-	AkaDoras             []tile.Instance `json:"akas"`
-	Renhou               Limit           `json:"renhou"`
-	HaiteiIsFromLiveOnly bool            `json:"haitei-is-from-live-only"`
-	Ura                  bool            `json:"ura"`
-	Ipatsu               bool            `json:"ipatsu"`
+type Rules interface {
+	OpenTanyao() bool
+	CheckAka(i tile.Instance) bool
+	Renhou() Limit
+	HaiteiFromLiveOnly() bool
+	Ura() bool
+	Ipatsu() bool
 }
 
-func (this Rules) CheckAka(i tile.Instance) bool {
-	if len(this.AkaDoras) == 0 {
+type RulesStruct struct {
+	IsOpenTanyao         bool
+	AkaDoras             []tile.Instance
+	RenhouLimit          Limit
+	IsHaiteiFromLiveOnly bool
+	IsUra                bool
+	IsIpatsu             bool
+}
+
+var _ Rules = &RulesStruct{}
+
+func (r *RulesStruct) OpenTanyao() bool {
+	return r.IsOpenTanyao
+}
+
+func (r *RulesStruct) Renhou() Limit {
+	return r.RenhouLimit
+}
+
+func (r *RulesStruct) HaiteiFromLiveOnly() bool {
+	return r.IsHaiteiFromLiveOnly
+}
+
+func (r *RulesStruct) Ura() bool {
+	return r.IsUra
+}
+
+func (r *RulesStruct) Ipatsu() bool {
+	return r.IsIpatsu
+}
+
+func (r *RulesStruct) CheckAka(i tile.Instance) bool {
+	if len(r.AkaDoras) == 0 {
 		return false
 	}
-	for _, v := range this.AkaDoras {
+	for _, v := range r.AkaDoras {
 		if v == i {
 			return true
 		}

@@ -12,7 +12,7 @@ type Context struct {
 	RoundWind   base.Wind
 	DoraTiles   tile.Tiles
 	UraTiles    tile.Tiles
-	Rules       *Rules
+	Rules       Rules
 	IsTsumo     bool
 	IsRiichi    bool
 	IsIpatsu    bool
@@ -24,11 +24,11 @@ type Context struct {
 }
 
 func (this Context) ShouldAddUras() bool {
-	return this.IsRiichi && this.Rules.Ura
+	return this.IsRiichi && this.Rules.Ura()
 }
 
 func (this Context) ShouldAddIpatsu() bool {
-	return this.IsIpatsu && this.Rules.Ipatsu
+	return this.IsIpatsu && this.Rules.Ipatsu()
 }
 
 func (this Context) IsRon() bool {

@@ -21,7 +21,7 @@ func main() {
 	results := tempai.Calculate(tiles, nil).Index()
 	ctx := &yaku.Context{
 		Tile:      winTile,
-		Rules:     &yaku.RulesEMA,
+		Rules:     yaku.RulesEMA(),
 		IsTsumo:   true,
 		IsChankan: true,
 	}
