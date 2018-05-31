@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
@@ -16,7 +17,7 @@ func testEffectiveBest(t *testing.T, in string) string {
 	tiles, err := tg.CompactFromString(in)
 	require.NoError(t, err, in)
 	require.Equal(t, 14, tiles.Count())
-	results := Calculate(tiles, 0, nil)
+	results := Calculate(tiles)
 	require.NotNil(t, results)
 	used := compact.NewTotals().Merge(tiles)
 	result := results.Sorted(tiles).Best()
@@ -51,7 +52,7 @@ func TestEffectiveBug1(t *testing.T) {
 		tiles, err := tg.CompactFromString(in)
 		require.NoError(t, err, in)
 		require.Equal(t, 0, (tiles.Count()-2)%3)
-		results := Calculate(tiles, opened, nil)
+		results := Calculate(tiles, calc.Opened(opened))
 		require.NotNil(t, results)
 		sorted := results.Sorted(tiles)
 		used := compact.NewTotals().Merge(tiles)

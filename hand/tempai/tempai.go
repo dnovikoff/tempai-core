@@ -2,7 +2,7 @@ package tempai
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/hand/calculator"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
@@ -64,32 +64,40 @@ func CalculateKokushi(tiles compact.Instances) meld.Melds {
 	return append(melds, pair, hole)
 }
 
-func NewTempai(closed compact.Instances, declared meld.Melds) *calculator.Calculator {
-	opened := len(declared)
-	if opened*3+closed.Count() != 13 {
+func NewTempai(closed compact.Instances, opts *calc.Options) *calc.Calculator {
+	if opts.Opened*3+closed.Count() != 13 {
 		return nil
 	}
-
-	return calculator.NewCalculator(meld.AllTempaiMelds, closed, getMeldsInstances(declared), len(declared))
+	return calc.NewCalculator(meld.AllTempaiMelds, closed, opts)
 }
 
-func CalculateRegular(closed compact.Instances, declared meld.Melds) (ret TempaiMelds) {
-	x := &result{declared: declared}
-	t := NewTempai(closed, declared)
+func CalculateRegular(closed compact.Instances, options ...calc.Option) (ret TempaiMelds) {
+	opts := calc.GetOptions(options...)
+	return calculateRegular(closed, opts)
+}
+
+func calculateRegular(closed compact.Instances, opts *calc.Options) (ret TempaiMelds) {
+	x := &result{declared: opts.Melds}
+	opts.Results = x
+	t := NewTempai(closed, opts)
 	if t == nil {
 		return nil
 	}
-	t.ResetResult(x)
 	t.Calculate()
 	return x.Melds
 }
 
-func Calculate(closed compact.Instances, declared meld.Melds) (ret TempaiMelds) {
-	x := CalculateRegular(closed, declared)
+func Calculate(closed compact.Instances, options ...calc.Option) (ret TempaiMelds) {
+	opts := calc.GetOptions(options...)
+	return calculate(closed, opts)
+}
+
+func calculate(closed compact.Instances, opts *calc.Options) (ret TempaiMelds) {
+	x := calculateRegular(closed, opts)
 	if len(x) > 0 {
 		ret = x
 	}
-	if len(declared) > 0 {
+	if len(opts.Melds) > 0 {
 		return
 	}
 	// Pairs should be calcluated after regular hand
@@ -105,22 +113,28 @@ func Calculate(closed compact.Instances, declared meld.Melds) (ret TempaiMelds) 
 	return
 }
 
-func CheckTempai(closed compact.Instances, declared meld.Melds) bool {
+func CheckTempai(closed compact.Instances, options ...calc.Option) bool {
+	opts := calc.GetOptions(options...)
+	return checkTempai(closed, opts)
+}
+
+func checkTempai(closed compact.Instances, opts *calc.Options) bool {
 	// TODO: optimize
-	x := Calculate(closed, declared)
+	x := calculate(closed, opts)
 	return len(x) > 0
 }
 
 // TODO: solve with effectivity
-func GetTempaiTiles(closed compact.Instances, declared meld.Melds) compact.Tiles {
-	if len(declared)*3+closed.Count() != 14 {
+func GetTempaiTiles(closed compact.Instances, options ...calc.Option) compact.Tiles {
+	opts := calc.GetOptions(options...)
+	if len(opts.Melds)*3+closed.Count() != 14 {
 		return 0
 	}
 	result := compact.Tiles(0)
 
 	closed.EachTile(func(t tile.Tile) bool {
 		i := closed.RemoveTile(t)
-		if CheckTempai(closed, declared) {
+		if checkTempai(closed, opts) {
 			result = result.Set(t)
 		}
 		closed.Set(i)

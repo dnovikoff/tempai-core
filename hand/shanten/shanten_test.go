@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 )
 
 func testCompact(t *testing.T, str string) compact.Instances {
@@ -19,7 +20,7 @@ func testCompact(t *testing.T, str string) compact.Instances {
 func testGetShantent(t *testing.T, str string) Results {
 	tiles := testCompact(t, str)
 	require.Equal(t, 13, tiles.Count())
-	return Calculate(tiles, 0, nil)
+	return Calculate(tiles)
 }
 
 func TestShantenSimple1(t *testing.T) {
@@ -57,7 +58,7 @@ func TestShantenBugs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 13, compact.Count())
 
-	res := Calculate(compact, 0, nil)
+	res := Calculate(compact)
 	assert.Equal(t, 5, res.Total.Value)
 }
 
@@ -68,11 +69,11 @@ func TestShantenLockEasy(t *testing.T) {
 	used3 := testCompact(t, "333m")
 	used4 := testCompact(t, "3333m")
 
-	res := Calculate(tiles, 0, nil)
+	res := Calculate(tiles)
 	assert.Equal(t, 0, res.Total.Value)
-	res = Calculate(tiles, 0, used3)
+	res = Calculate(tiles, calc.Used(used3))
 	assert.Equal(t, 0, res.Total.Value)
-	res = Calculate(tiles, 0, used4)
+	res = Calculate(tiles, calc.Used(used4))
 	assert.Equal(t, 1, res.Total.Value)
 }
 
@@ -83,17 +84,25 @@ func TestShantenLock(t *testing.T) {
 	used3 := testCompact(t, "333m789s")
 	used4 := testCompact(t, "3333m789s")
 
-	res := Calculate(tiles, 1, nil)
+	res := Calculate(tiles,
+		calc.Opened(1),
+	)
 	assert.Equal(t, 0, res.Total.Value)
-	res = Calculate(tiles, 1, used3)
+	res = Calculate(tiles,
+		calc.Opened(1),
+		calc.Used(used3),
+	)
 	assert.Equal(t, 0, res.Total.Value)
-	res = Calculate(tiles, 1, used4)
+	res = Calculate(tiles,
+		calc.Opened(1),
+		calc.Used(used4),
+	)
 	assert.Equal(t, 1, res.Total.Value)
 }
 
 func TestShantenBug0(t *testing.T) {
 	tiles := testCompact(t, "3678m3356p14s256z")
-	res := Calculate(tiles, 0, nil)
+	res := Calculate(tiles)
 	m := res.Total
 	assert.Equal(t, 4, m.Value)
 	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
@@ -102,7 +111,7 @@ func TestShantenBug0(t *testing.T) {
 
 func TestShantenBug1(t *testing.T) {
 	tiles := testCompact(t, "369m7p1559s13567z")
-	res := Calculate(tiles, 0, nil)
+	res := Calculate(tiles)
 	m := res.Total
 	assert.Equal(t, 5, m.Value)
 	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
@@ -111,7 +120,7 @@ func TestShantenBug1(t *testing.T) {
 
 func TestMonocolorBug(t *testing.T) {
 	tiles := testCompact(t, "1111222235555m")
-	res := Calculate(tiles, 0, nil)
+	res := Calculate(tiles)
 	m := res.Total
 	assert.Equal(t, 1, m.Value)
 	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))

@@ -12,10 +12,10 @@ type Result struct {
 }
 
 type Results struct {
-	Regular Result
-	Pairs   Result
-	Kokushi Result
-	Total   Result
+	Regular *Result
+	Pairs   *Result
+	Kokushi *Result
+	Total   *Result
 }
 
 type calcResult struct {
@@ -24,14 +24,23 @@ type calcResult struct {
 	opened  int
 }
 
-func (this Result) merge(other Result) Result {
+func (this *Result) clone() *Result {
+	x := *this
+	return &x
+}
+
+func (this *Result) merge(other *Result) *Result {
+	if other == nil {
+		return this
+	}
 	if this.Value < other.Value {
 		return this
 	}
 	if this.Value > other.Value {
 		return other
 	}
-	return Result{this.Value, this.Improves | other.Improves}
+	this.Improves = this.Improves | other.Improves
+	return this
 }
 
 func (this Result) CalculateUkeIre(total compact.Totals) compact.Totals {

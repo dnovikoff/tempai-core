@@ -1,4 +1,4 @@
-package calculator
+package calc
 
 import "github.com/dnovikoff/tempai-core/meld"
 

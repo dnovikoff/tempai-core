@@ -1,4 +1,4 @@
-package calculator
+package calc
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
@@ -12,45 +12,48 @@ type Results interface {
 }
 
 type Calculator struct {
-	tiles compact.Instances
-	stack *meldStack
+	tiles   compact.Instances
+	stack   *meldStack
+	options *Options
 
-	results Results
 	totals  compact.Totals
 	sets    int
-	opened  int
 	minuses int
 
 	baseMelds meld.BaseMelds
 }
 
-func NewCalculator(startMelds meld.BaseMelds, tiles compact.Instances, used compact.Instances, opened int) *Calculator {
+func NewCalculator(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) *Calculator {
 	this := &Calculator{}
 	this.tiles = tiles
 	this.baseMelds = startMelds
-	this.opened = opened
 	this.stack = newMeldStack(7)
-	totals := compact.NewTotals().Merge(used).Merge(tiles)
+	this.options = opts
+	totals := compact.NewTotals().Merge(this.options.Used).Merge(tiles)
 	this.totals = totals
 
 	return this
 }
 
-func (this *Calculator) ResetResult(result Results) {
-	this.results = result
+func (this *Calculator) res() Results {
+	return this.options.Results
+}
+
+func (this *Calculator) opened() int {
+	return this.options.Opened
 }
 
 func (this *Calculator) record() {
-	this.results.Record(this.stack.getMelds(), this.tiles, this.totals)
+	this.res().Record(this.stack.getMelds(), this.tiles, this.totals)
 }
 
 func (this *Calculator) Calculate() {
 	parts := this.baseMelds.Filter(this.tiles, this.totals.FreeTiles())
 	this.stack.reset()
-	this.sets = this.opened
+	this.sets = this.opened()
 	this.calculateImpl(parts)
 
-	this.sets = this.opened - 1
+	this.sets = this.opened() - 1
 	this.tiles.Each(func(mask compact.Mask) bool {
 		if mask.Count() < 2 {
 			return true
@@ -73,7 +76,7 @@ func getMissing(m meld.Meld) int {
 
 func (this *Calculator) push(m meld.Meld) meld.Meld {
 	missing := getMissing(m)
-	if missing > 0 && !this.results.CheckMinuses(missing+this.minuses) {
+	if missing > 0 && !this.res().CheckMinuses(missing+this.minuses) {
 		return 0
 	}
 	fixed := m.Rebase(this.tiles)

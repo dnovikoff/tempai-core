@@ -18,7 +18,7 @@ func main() {
 	}
 	winTile := generator.Instance(tile.Sou5)
 
-	results := tempai.Calculate(tiles, nil).Index()
+	results := tempai.Calculate(tiles).Index()
 	ctx := &yaku.Context{
 		Tile:      winTile,
 		Rules:     yaku.RulesEMA(),

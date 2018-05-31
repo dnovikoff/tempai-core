@@ -13,7 +13,7 @@ import (
 )
 
 func testShanten() {
-	const repeat = 10000
+	const repeat = 100000
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -25,7 +25,7 @@ func testShanten() {
 	}
 	start := time.Now()
 	for _, v := range data {
-		shanten.Calculate(v, 0, nil)
+		shanten.Calculate(v)
 
 	}
 	elapsed := time.Since(start)
@@ -36,7 +36,7 @@ func testShanten() {
 }
 
 func testTempai() {
-	const repeat = 10000
+	const repeat = 100000
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -49,7 +49,7 @@ func testTempai() {
 	cnt := 0
 	start := time.Now()
 	for _, v := range data {
-		r := tempai.Calculate(v, nil)
+		r := tempai.Calculate(v)
 		if r != nil {
 			cnt++
 		}
@@ -63,7 +63,7 @@ func testTempai() {
 }
 
 func testEffective() {
-	const repeat = 1000
+	const repeat = 10000
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -75,7 +75,7 @@ func testEffective() {
 	}
 	start := time.Now()
 	for _, v := range data {
-		effective.Calculate(v, 0, nil)
+		effective.Calculate(v)
 
 	}
 	elapsed := time.Since(start)
