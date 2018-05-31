@@ -7,6 +7,7 @@ import (
 
 	"github.com/dnovikoff/tempai-core/base"
 	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
@@ -57,7 +58,7 @@ func (this *YakuTester) IUra(str string) *YakuTester {
 func (this *YakuTester) tempai() tempai.TempaiMelds {
 	cnt := this.hand.Count() + len(this.declared)*3
 	require.Equal(this.t, 13, cnt, this.hand.Instances().String())
-	t := tempai.Calculate(this.hand, this.declared)
+	t := tempai.Calculate(this.hand, calc.Melds(this.declared))
 	require.NotEmpty(this.t, t)
 	return t
 }

@@ -15,7 +15,7 @@ func main() {
 		log.Fatal(err)
 	}
 	// We tell the calculator, that there are 0 opened melds.
-	res := shanten.Calculate(tiles, 0, nil)
+	res := shanten.Calculate(tiles)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
 
 	fmt.Printf("Regular shanten value is: %v\n", res.Regular.Value)
