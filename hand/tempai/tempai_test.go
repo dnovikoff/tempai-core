@@ -47,14 +47,14 @@ func testTempai(t *testing.T, str string) TempaiMelds {
 	tg := compact.NewTileGenerator()
 	inst, err := tg.CompactFromString(str)
 	require.NoError(t, err, str)
-	return Calculate(inst, nil)
+	return Calculate(inst)
 }
 
 func testAway(t *testing.T, str string) compact.Tiles {
 	tg := compact.NewTileGenerator()
 	inst, err := tg.CompactFromString(str)
 	require.NoError(t, err)
-	return GetTempaiTiles(inst, nil)
+	return GetTempaiTiles(inst)
 }
 
 func testAwayString(t *testing.T, str string) string {
@@ -212,7 +212,7 @@ func TestTempaiCorrectNumbers(t *testing.T) {
 	}
 	compact := compact.NewInstances().Add(instances)
 	require.True(t, validateInstances(compact.Instances()))
-	temp := Calculate(compact, nil)
+	temp := Calculate(compact)
 	require.NotNil(t, temp)
 
 	for k, variant := range temp {

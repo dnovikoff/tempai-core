@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	results := tempai.Calculate(tiles, nil)
+	results := tempai.Calculate(tiles)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
 	fmt.Printf("Waits are %s\n", results.Waits().Tiles())
 }

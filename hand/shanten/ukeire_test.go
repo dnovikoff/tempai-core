@@ -15,7 +15,7 @@ func testUkeIre(t *testing.T, in string) string {
 	tiles, err := tg.CompactFromString(in)
 	require.NoError(t, err, in)
 	require.Equal(t, 13, tiles.Count())
-	res := Calculate(tiles, 0, nil).Total
+	res := Calculate(tiles).Total
 	uke := res.CalculateUkeIre(compact.NewTotals().Merge(tiles))
 
 	return fmt.Sprintf("%v/%v/%v = %v", res.Value, uke.UniqueTiles().Count(), uke.Count(), uke.UniqueTiles().Tiles())
