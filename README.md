@@ -55,7 +55,7 @@ Calculating hands with opened melds is also supported.
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("3567m5677p268s277z")
-res := shanten.Calculate(tiles, 0, nil)
+res := shanten.Calculate(tiles)
 fmt.Printf("Hand is %s\n", tiles.Instances())
 
 fmt.Printf("Regular shanten value is: %v\n", res.Regular.Value)
@@ -88,7 +88,7 @@ Tempai results could be transformed into yaku results -> han/fu value -> score v
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("789m4466678p234s")
-results := tempai.Calculate(tiles, nil)
+results := tempai.Calculate(tiles)
 fmt.Printf("Hand is %s\n", tiles.Instances())
 fmt.Printf("Waits are %s\n", results.Waits().Tiles())
 ```
@@ -108,7 +108,7 @@ Calculating Uke-Ure value for hand.
 ```go
 generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("5677m4456899p25s3z")
-results := effective.Calculate(tiles, 0, nil)
+results := effective.Calculate(tiles)
 fmt.Printf("Hand is %s\n", tiles.Instances())
 best := results.Sorted(tiles).Best()
 fmt.Printf("Best to drop is %v\n", best.Tile)
@@ -181,7 +181,7 @@ generator := compact.NewTileGenerator()
 tiles, _ := generator.CompactFromString("33z123m456p66778s")
 winTile := generator.Instance(tile.Sou5)
 
-results := tempai.Calculate(tiles, nil).Index()
+results := tempai.Calculate(tiles).Index()
 ctx := &yaku.Context{
     Tile:      winTile,
     Rules:     yaku.RulesEMA(),

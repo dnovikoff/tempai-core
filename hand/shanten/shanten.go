@@ -2,42 +2,43 @@ package shanten
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/hand/calculator"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-func NewCalculator(tiles compact.Instances, used compact.Instances, opened int) *calculator.Calculator {
-	return calculator.NewCalculator(meld.AllShantenMelds, tiles, used, opened)
+func newCalculator(tiles compact.Instances, opts *calc.Options) *calc.Calculator {
+	return calc.NewCalculator(meld.AllShantenMelds, tiles, opts)
 }
 
-func CalculateByMelds(tiles compact.Instances, melds meld.Melds) Results {
-	used := compact.NewInstances()
-	melds.AddTo(used)
-	return Calculate(tiles, len(melds), used)
-}
-
-func Calculate(tiles compact.Instances, opened int, used compact.Instances) (ret Results) {
-	ret.Regular = CalculateRegular(tiles, opened, used)
-	if opened == 0 {
+func Calculate(tiles compact.Instances, options ...calc.Option) (ret Results) {
+	opts := calc.GetOptions(options...)
+	ret.Regular = calculateRegular(tiles, opts)
+	if opts.Opened == 0 {
 		ret.Pairs = CalculatePairs(tiles)
 		ret.Kokushi = CalculateKokushi(tiles)
-		ret.Total = ret.Regular.merge(ret.Pairs).merge(ret.Kokushi)
-	} else {
-		ret.Total = ret.Regular
 	}
+	ret.Total = ret.Regular.clone().merge(ret.Pairs).merge(ret.Kokushi)
 	return
 }
 
-func CalculateRegular(tiles compact.Instances, opened int, used compact.Instances) Result {
-	calc := NewCalculator(tiles, used, opened)
-	results := calcResult{opened: opened, Result: Result{Value: 8}}
-	calc.ResetResult(&results)
-	calc.Calculate()
-	return results.Result
+func CalculateRegular(tiles compact.Instances, options ...calc.Option) *Result {
+	opts := calc.GetOptions(options...)
+	return calculateRegular(tiles, opts)
 }
 
-func CalculateKokushi(tiles compact.Instances) Result {
+func calculateRegular(tiles compact.Instances, opts *calc.Options) *Result {
+	results := calcResult{
+		opened: opts.Opened,
+		Result: Result{Value: 8},
+	}
+	opts.Results = &results
+	calc := newCalculator(tiles, opts)
+	calc.Calculate()
+	return &results.Result
+}
+
+func CalculateKokushi(tiles compact.Instances) *Result {
 	havePair := false
 	count := 0
 	missing := compact.Tiles(0)
@@ -58,13 +59,13 @@ func CalculateKokushi(tiles compact.Instances) Result {
 	} else {
 		count++
 	}
-	return Result{
+	return &Result{
 		Value:    13 - count,
 		Improves: missing,
 	}
 }
 
-func CalculatePairs(tiles compact.Instances) Result {
+func CalculatePairs(tiles compact.Instances) *Result {
 	value := 6
 	improves := compact.Tiles(0)
 	tiles.Each(func(m compact.Mask) bool {
@@ -76,7 +77,7 @@ func CalculatePairs(tiles compact.Instances) Result {
 		}
 		return true
 	})
-	return Result{
+	return &Result{
 		Value:    value,
 		Improves: improves,
 	}

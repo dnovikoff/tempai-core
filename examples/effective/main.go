@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	results := effective.Calculate(tiles, 0, nil)
+	results := effective.Calculate(tiles)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
 	best := results.Sorted(tiles).Best()
 	fmt.Printf("Best to drop is %v\n", best.Tile)
