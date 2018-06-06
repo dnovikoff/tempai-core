@@ -8,6 +8,18 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/facebookgo/stack"
+  packages = ["."]
+  revision = "751773369052141c013c6e827a71e8f35c07879c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/facebookgo/stackerr"
+  packages = ["."]
+  revision = "c2fcf88613f4fc155efcb81619424db6cbb5bce0"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -15,13 +27,16 @@
 
 [[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
-  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
-  version = "v1.2.0"
+  packages = [
+    "assert",
+    "require"
+  ]
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "50e2495ec1af6e2f7ffb2f3551e4300d30357d7c7fe38ff6056469fa9cfb3673"
+  inputs-digest = "20d179bf08bda9d4ac52e30369102ca9e7717a9cf3864ee228fef57a9e623392"
   solver-name = "gps-cdcl"
   solver-version = 1

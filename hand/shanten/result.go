@@ -46,7 +46,6 @@ func (this *Result) merge(other *Result) *Result {
 func (this Result) CalculateUkeIre(total compact.Totals) compact.Totals {
 	uke := compact.NewTotals()
 	uCount := 0
-	tCount := 0
 	this.Improves.Each(func(t tile.Tile) bool {
 		c := 4 - total.Get(t)
 		if c <= 0 {
@@ -54,7 +53,6 @@ func (this Result) CalculateUkeIre(total compact.Totals) compact.Totals {
 		}
 		uke.Set(t, c)
 		uCount++
-		tCount += c
 		return true
 	})
 	return uke

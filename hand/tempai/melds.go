@@ -45,7 +45,7 @@ func (this TempaiMelds) Waits() compact.Tiles {
 
 func (this IndexedResult) Waits() compact.Tiles {
 	ret := compact.Tiles(0)
-	for k, _ := range this {
+	for k := range this {
 		ret = ret.Set(k)
 	}
 	return ret
