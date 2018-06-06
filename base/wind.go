@@ -15,7 +15,7 @@ const (
 	WindEnd
 )
 
-func (this Wind) Tile() tile.Tile {
+func (this Wind) tile() tile.Tile {
 	return tile.Tile(this) + tile.East
 }
 
@@ -28,11 +28,7 @@ func (this Wind) Opponent(other Wind) Opponent {
 }
 
 func (this Wind) CheckTile(t tile.Tile) bool {
-	return this.Tile() == t
-}
-
-func (this Wind) Next() Wind {
-	return (this + 1).fix()
+	return this.tile() == t
 }
 
 func (this Wind) fix() Wind {
@@ -44,8 +40,4 @@ func (this Wind) fix() Wind {
 
 func (this Wind) Advance(num int) Wind {
 	return (this + Wind(num)).fix()
-}
-
-func (this Wind) Index() int {
-	return int(this - WindEast)
 }
