@@ -34,9 +34,15 @@
   revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
   version = "v1.2.1"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/tools"
+  packages = ["cmd/stringer"]
+  revision = "a5b4c53f6e8bdcafa95a94671bf2d1203365858b"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "20d179bf08bda9d4ac52e30369102ca9e7717a9cf3864ee228fef57a9e623392"
+  inputs-digest = "5a9d5869254a7695499ca9fdb8ab7fbb36ebe0c918c4bb64e71fa277efa77f18"
   solver-name = "gps-cdcl"
   solver-version = 1

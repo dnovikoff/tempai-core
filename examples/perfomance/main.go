@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"time"
 
 	"github.com/dnovikoff/tempai-core/compact"
@@ -12,6 +13,10 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
+func shuffle(r *rand.Rand, x sort.Interface) {
+	r.Shuffle(x.Len(), func(i, j int) { x.Swap(i, j) })
+}
+
 func testShanten() {
 	const repeat = 100000
 	data := make([]compact.Instances, repeat)
@@ -20,7 +25,7 @@ func testShanten() {
 	rnd := rand.New(source)
 	instances := compact.NewAllInstances().Instances()
 	for k := range data {
-		tile.Shuffle(instances, rnd)
+		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:13])
 	}
 	start := time.Now()
@@ -43,7 +48,7 @@ func testTempai() {
 	rnd := rand.New(source)
 	instances := compact.NewAllInstancesFromTo(tile.Sou1, tile.Sou9+1).Instances()
 	for k := range data {
-		tile.Shuffle(instances, rnd)
+		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:13])
 	}
 	cnt := 0
@@ -70,7 +75,7 @@ func testEffective() {
 	rnd := rand.New(source)
 	instances := compact.NewAllInstances().Instances()
 	for k := range data {
-		tile.Shuffle(instances, rnd)
+		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:14])
 	}
 	start := time.Now()

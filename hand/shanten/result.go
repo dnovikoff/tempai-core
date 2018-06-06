@@ -108,7 +108,7 @@ func (this *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals
 			}
 			improves = improves.Set(improve)
 		}
-		toCheck.EachRange(tile.Begin, tile.SequenceEnd, func(t tile.Tile) bool {
+		toCheck.EachRange(tile.TileBegin, tile.SequenceEnd, func(t tile.Tile) bool {
 			try(t, t-2, t-1)
 			try(t, t-1, t-2)
 			try(t, t-1, t+1)

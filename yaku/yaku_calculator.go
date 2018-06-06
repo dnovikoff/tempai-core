@@ -5,9 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dnovikoff/tempai-core/compact"
-
 	"github.com/dnovikoff/tempai-core/base"
+	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
@@ -257,7 +256,7 @@ func (this *YakuCalculator) tryFat() {
 		i := v.Interface()
 		start := i.Base()
 		if start.IsSequence() {
-			numbers[start.NumberInSequence()]++
+			numbers[start.Number()]++
 		}
 		count++
 		if this.checkClosed(v) {
@@ -338,15 +337,15 @@ func (this *YakuCalculator) tryYakuhai() {
 
 		switch start.Type() {
 		case tile.TypeDragon:
-			this.addYaku(YakuHaku + Yaku(start.NumberInSequence()-1))
+			this.addYaku(YakuHaku + Yaku(start.Number()-1))
 			dragons += ponValue
 		case tile.TypeWind:
 			winds += ponValue
 			if this.ctx.SelfWind.CheckTile(start) {
-				this.addYaku(YakuTonSelf + Yaku(start.NumberInSequence()-1))
+				this.addYaku(YakuTonSelf + Yaku(start.Number()-1))
 			}
 			if this.ctx.RoundWind.CheckTile(start) {
-				this.addYaku(YakuTonRound + Yaku(start.NumberInSequence()-1))
+				this.addYaku(YakuTonRound + Yaku(start.Number()-1))
 			}
 		}
 	}
@@ -410,7 +409,7 @@ func (this *YakuCalculator) tryTileTypes() {
 		case meld.TypeSeq:
 			t := this.finalMeld(v).Base()
 			tmp |= maskChi
-			if t.NumberInSequence() == 1 || t.NumberInSequence() == 7 {
+			if t.Number() == 1 || t.Number() == 7 {
 				tmp |= maskTerminal
 			} else {
 				tmp |= maskMiddle
@@ -443,7 +442,7 @@ func (this *YakuCalculator) trySeq() {
 	for _, v := range this.seq {
 		first := v.Base()
 		typ := first.Type()
-		number := first.NumberInSequence()
+		number := first.Number()
 		switch typ {
 		case tile.TypeMan:
 			forSanshoku[number] |= 1
@@ -507,10 +506,10 @@ func (this *YakuCalculator) tryGates() {
 	// already checked for color
 	tst := [9]int{-3, -1, -1, -1, -1, -1, -1, -1, -3}
 
-	winIndex := this.ctx.Tile.Tile().NumberInSequence() - 1
+	winIndex := this.ctx.Tile.Tile().Number() - 1
 
 	addTst := func(m meld.Meld, shift, val int) {
-		tst[m.Base().NumberInSequence()-1+shift] += val
+		tst[m.Base().Number()-1+shift] += val
 	}
 
 	for _, m := range this.same {

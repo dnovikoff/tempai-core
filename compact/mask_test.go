@@ -24,21 +24,21 @@ func TestMask(t *testing.T) {
 	assert.False(t, mask.IsFull())
 	assert.Equal(t, 0, mask.Count())
 
-	mask.SetCopyBit(tile.CopyId(0))
+	mask.SetCopyBit(tile.CopyID(0))
 	// original does not change
 	assert.True(t, mask.IsEmpty())
 
-	mask = mask.SetCopyBit(tile.CopyId(0))
+	mask = mask.SetCopyBit(tile.CopyID(0))
 	assert.False(t, mask.IsEmpty())
 	assert.False(t, mask.IsFull())
 	assert.Equal(t, 1, mask.Count())
 
-	mask = mask.SetCopyBit(tile.CopyId(0))
+	mask = mask.SetCopyBit(tile.CopyID(0))
 	assert.False(t, mask.IsEmpty())
 	assert.False(t, mask.IsFull())
 	assert.Equal(t, 1, mask.Count())
 
-	mask = mask.SetCopyBit(tile.CopyId(1)).SetCopyBit(2).SetCopyBit(3)
+	mask = mask.SetCopyBit(tile.CopyID(1)).SetCopyBit(2).SetCopyBit(3)
 	assert.False(t, mask.IsEmpty())
 	assert.True(t, mask.IsFull())
 	assert.Equal(t, 4, mask.Count())
@@ -46,14 +46,14 @@ func TestMask(t *testing.T) {
 	assert.Equal(t, "6p", mask.Tile().String())
 
 	// Still 4
-	mask = mask.SetCopyBit(tile.CopyId(5))
+	mask = mask.SetCopyBit(tile.CopyID(5))
 	assert.False(t, mask.IsEmpty())
 	assert.True(t, mask.IsFull())
 	assert.Equal(t, 4, mask.Count())
 
 	assert.Equal(t, "6p", mask.Tile().String())
 
-	mask = mask.UnsetCopyBit(tile.CopyId(2))
+	mask = mask.UnsetCopyBit(tile.CopyID(2))
 
 	assert.False(t, mask.IsEmpty())
 	assert.False(t, mask.IsFull())

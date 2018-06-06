@@ -29,7 +29,7 @@ func createAllBase(args ...func(i tile.Tile) Meld) (ret BaseMelds) {
 		ret = append(ret, meld)
 	}
 	for _, f := range args {
-		for i := tile.Begin; i < tile.End; i++ {
+		for i := tile.TileBegin; i < tile.TileEnd; i++ {
 			push(f(i))
 		}
 	}

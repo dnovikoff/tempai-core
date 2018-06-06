@@ -9,97 +9,80 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func runeBool(l rune, in bool) string {
-	if in {
-		return strings.ToUpper(string(l))
-	}
-	return string(l)
-}
-
-func tileStatus(t Tile) (ret string) {
-	ret += runeBool('s', t.IsSequence())
-	ret += runeBool('m', t.IsMiddle())
-	ret += runeBool('t', t.IsTerminal())
-	ret += runeBool('h', t.IsHonor())
-	ret += runeBool('o', t.IsTerminalOrHonor())
-	ret += runeBool('g', t.IsGreen())
-	return
-}
-
 func TestOneTile(t *testing.T) {
 	tile := Man1
-	assert.Equal(t, "1 1 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.NumberInSequence()))
+	assert.Equal(t, "1 1 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.Number()))
 	tile = White
-	assert.Equal(t, "32 32 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.NumberInSequence()))
+	assert.Equal(t, "32 32 1", fmt.Sprintf("%d %d %v", tile, tile.Type(), tile.Number()))
 }
 
 func TestConvert(t *testing.T) {
-	for k := Begin; k < End; k++ {
-		for c := CopyId(0); c < 4; c++ {
+	for k := TileBegin; k < TileEnd; k++ {
+		for c := CopyID(0); c < 4; c++ {
 			t.Run(k.String()+"_"+strconv.Itoa(int(c)), func(t *testing.T) {
 				i := k.Instance(c)
 				assert.Equal(t, k, i.Tile())
-				assert.Equal(t, c, i.CopyId())
+				assert.Equal(t, c, i.CopyID())
 			})
 		}
 	}
 }
 
 func TestAllTiles(t *testing.T) {
-	tile := Begin
+	tile := TileBegin
 	next := func() (ret string) {
 		ret = fmt.Sprintf("[%d] %v=%v", tile, tile, tileStatus(tile))
 		tile++
 		return
 	}
-	assert.Equal(t, "[1] 1m=SmThOg", next())
-	assert.Equal(t, "[2] 2m=SMthog", next())
-	assert.Equal(t, "[3] 3m=SMthog", next())
-	assert.Equal(t, "[4] 4m=SMthog", next())
-	assert.Equal(t, "[5] 5m=SMthog", next())
-	assert.Equal(t, "[6] 6m=SMthog", next())
-	assert.Equal(t, "[7] 7m=SMthog", next())
-	assert.Equal(t, "[8] 8m=SMthog", next())
-	assert.Equal(t, "[9] 9m=SmThOg", next())
+	assert.Equal(t, "[1] 1m=SmThO", next())
+	assert.Equal(t, "[2] 2m=SMtho", next())
+	assert.Equal(t, "[3] 3m=SMtho", next())
+	assert.Equal(t, "[4] 4m=SMtho", next())
+	assert.Equal(t, "[5] 5m=SMtho", next())
+	assert.Equal(t, "[6] 6m=SMtho", next())
+	assert.Equal(t, "[7] 7m=SMtho", next())
+	assert.Equal(t, "[8] 8m=SMtho", next())
+	assert.Equal(t, "[9] 9m=SmThO", next())
 
 	// pin
-	assert.Equal(t, "[10] 1p=SmThOg", next())
-	assert.Equal(t, "[11] 2p=SMthog", next())
-	assert.Equal(t, "[12] 3p=SMthog", next())
-	assert.Equal(t, "[13] 4p=SMthog", next())
-	assert.Equal(t, "[14] 5p=SMthog", next())
-	assert.Equal(t, "[15] 6p=SMthog", next())
-	assert.Equal(t, "[16] 7p=SMthog", next())
-	assert.Equal(t, "[17] 8p=SMthog", next())
-	assert.Equal(t, "[18] 9p=SmThOg", next())
+	assert.Equal(t, "[10] 1p=SmThO", next())
+	assert.Equal(t, "[11] 2p=SMtho", next())
+	assert.Equal(t, "[12] 3p=SMtho", next())
+	assert.Equal(t, "[13] 4p=SMtho", next())
+	assert.Equal(t, "[14] 5p=SMtho", next())
+	assert.Equal(t, "[15] 6p=SMtho", next())
+	assert.Equal(t, "[16] 7p=SMtho", next())
+	assert.Equal(t, "[17] 8p=SMtho", next())
+	assert.Equal(t, "[18] 9p=SmThO", next())
 
 	// sou
-	assert.Equal(t, "[19] 1s=SmThOg", next())
-	assert.Equal(t, "[20] 2s=SMthoG", next())
-	assert.Equal(t, "[21] 3s=SMthoG", next())
-	assert.Equal(t, "[22] 4s=SMthoG", next())
-	assert.Equal(t, "[23] 5s=SMthog", next())
-	assert.Equal(t, "[24] 6s=SMthoG", next())
-	assert.Equal(t, "[25] 7s=SMthog", next())
-	assert.Equal(t, "[26] 8s=SMthoG", next())
-	assert.Equal(t, "[27] 9s=SmThOg", next())
+	assert.Equal(t, "[19] 1s=SmThO", next())
+	assert.Equal(t, "[20] 2s=SMtho", next())
+	assert.Equal(t, "[21] 3s=SMtho", next())
+	assert.Equal(t, "[22] 4s=SMtho", next())
+	assert.Equal(t, "[23] 5s=SMtho", next())
+	assert.Equal(t, "[24] 6s=SMtho", next())
+	assert.Equal(t, "[25] 7s=SMtho", next())
+	assert.Equal(t, "[26] 8s=SMtho", next())
+	assert.Equal(t, "[27] 9s=SmThO", next())
 
 	// wind
-	assert.Equal(t, "[28] 1z=smtHOg", next())
-	assert.Equal(t, "[29] 2z=smtHOg", next())
-	assert.Equal(t, "[30] 3z=smtHOg", next())
-	assert.Equal(t, "[31] 4z=smtHOg", next())
+	assert.Equal(t, "[28] 1z=smtHO", next())
+	assert.Equal(t, "[29] 2z=smtHO", next())
+	assert.Equal(t, "[30] 3z=smtHO", next())
+	assert.Equal(t, "[31] 4z=smtHO", next())
 
 	// dragon
-	assert.Equal(t, "[32] 5z=smtHOg", next())
-	assert.Equal(t, "[33] 6z=smtHOG", next())
-	assert.Equal(t, "[34] 7z=smtHOg", next())
+	assert.Equal(t, "[32] 5z=smtHO", next())
+	assert.Equal(t, "[33] 6z=smtHO", next())
+	assert.Equal(t, "[34] 7z=smtHO", next())
 }
 
 func TestTileStatic(t *testing.T) {
 	assert.Equal(t, 34, TileCount)
 	assert.Equal(t, 136, InstanceCount)
-	assert.Equal(t, Type(35), TypeEnd)
+	assert.EqualValues(t, 0, TypeNull)
 }
 
 func TestInstanceToTile(t *testing.T) {
@@ -147,4 +130,32 @@ func TestTileIndicates(t *testing.T) {
 	assert.Equal(t, Green, White.Indicates())
 	assert.Equal(t, Red, Green.Indicates())
 	assert.Equal(t, White, Red.Indicates())
+}
+
+func TestTilesContains(t *testing.T) {
+	ts := Tiles{Pin4, White, Sou3}
+	assert.True(t, ts.Contains(Pin4))
+	assert.True(t, ts.Contains(White))
+
+	assert.False(t, ts.Contains(Pin3))
+	assert.False(t, ts.Contains(Pin5))
+}
+
+func TestTileImproves(t *testing.T) {
+}
+
+func runeBool(l rune, in bool) string {
+	if in {
+		return strings.ToUpper(string(l))
+	}
+	return string(l)
+}
+
+func tileStatus(t Tile) (ret string) {
+	ret += runeBool('s', t.IsSequence())
+	ret += runeBool('m', t.IsMiddle())
+	ret += runeBool('t', t.IsTerminal())
+	ret += runeBool('h', t.IsHonor())
+	ret += runeBool('o', t.IsTerminalOrHonor())
+	return
 }

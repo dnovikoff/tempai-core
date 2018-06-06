@@ -178,11 +178,11 @@ func ExtractLastMeld(t compact.Instances) Meld {
 		t2 := i2.Tile()
 		switch t2 - t1 {
 		case 0:
-			return NewPonPartFromExisting(t1, i1.CopyId(), i2.CopyId()).Meld()
+			return NewPonPartFromExisting(t1, i1.CopyID(), i2.CopyID()).Meld()
 		case 1:
-			return NewSeq(t1, i1.CopyId(), i2.CopyId(), HoleCopy).Meld()
+			return NewSeq(t1, i1.CopyID(), i2.CopyID(), HoleCopy).Meld()
 		case 2:
-			return NewSeq(t1, i1.CopyId(), HoleCopy, i2.CopyId()).Meld()
+			return NewSeq(t1, i1.CopyID(), HoleCopy, i2.CopyID()).Meld()
 		}
 
 	}

@@ -5,7 +5,7 @@ import "github.com/dnovikoff/tempai-core/tile"
 type Totals []int
 
 func NewTotals() Totals {
-	t := make(Totals, int(tile.End))
+	t := make(Totals, int(tile.TileEnd))
 	return t
 }
 

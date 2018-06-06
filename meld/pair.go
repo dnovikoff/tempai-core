@@ -24,14 +24,14 @@ const (
 )
 
 func NewTanki(t1 tile.Instance) Pair {
-	return newPair(t1.Tile(), pairSubtypeTanki, t1.CopyId(), 0)
+	return newPair(t1.Tile(), pairSubtypeTanki, t1.CopyID(), 0)
 }
 
 func NewOne(t1 tile.Instance) Pair {
-	return newPair(t1.Tile(), pairSubtypeOne, t1.CopyId(), 0)
+	return newPair(t1.Tile(), pairSubtypeOne, t1.CopyID(), 0)
 }
 
-func NewPair(t tile.Tile, c1, c2 tile.CopyId) Pair {
+func NewPair(t tile.Tile, c1, c2 tile.CopyID) Pair {
 	if c1 > c2 {
 		c1, c2 = c2, c1
 	} else if c1 == c2 {
@@ -53,7 +53,7 @@ func NewHole(base tile.Tile) Pair {
 	return newPair(base, pairSubtypeHole, 0, 0)
 }
 
-func newPair(base tile.Tile, sub pairSubtype, c1, c2 tile.CopyId) Pair {
+func newPair(base tile.Tile, sub pairSubtype, c1, c2 tile.CopyID) Pair {
 	x := int(c2) & 3
 	x = (x << 2) | (int(c1) & 3)
 	x = (x << 2) | (int(sub) & 3)
@@ -74,12 +74,12 @@ func (this Pair) subType() pairSubtype {
 	return pairSubtype((this >> (2 + 6)) & 3)
 }
 
-func (this Pair) c1() tile.CopyId {
-	return tile.CopyId((this >> (2 + 6 + 2)) & 3)
+func (this Pair) c1() tile.CopyID {
+	return tile.CopyID((this >> (2 + 6 + 2)) & 3)
 }
 
-func (this Pair) c2() tile.CopyId {
-	return tile.CopyId((this >> (2 + 6 + 4)) & 3)
+func (this Pair) c2() tile.CopyID {
+	return tile.CopyID((this >> (2 + 6 + 4)) & 3)
 }
 
 func (this Pair) IsComplete() bool {

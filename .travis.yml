@@ -1,7 +1,8 @@
 language: go
 
 go:
-  - "1.10.x" # must be quoted in order to work correctly
+  # must be quoted in order to work correctly
+  - "1.10.x"
   - master
 
 before_install:
@@ -9,6 +10,11 @@ before_install:
 
 script:
   - go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - make clean
+  - make build
+  # validate for correct generation
+  - make generate 
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  # Report test cover status
+  - bash <(curl -s https://codecov.io/bash) 

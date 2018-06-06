@@ -10,20 +10,21 @@ func TenhoTypeToString(t Type) (ret string) {
 	if t >= TypeWind {
 		return "z"
 	}
-	return string(t.Rune())
+	return string(TypeRune(t))
 }
 
-func TilesToTenhouString(tiles Tiles) (ret string) {
+func TilesToTenhouString(tiles Tiles) string {
 	if len(tiles) == 0 {
-		return
+		return ""
 	}
 	prevT := tiles[0].Type()
 	if prevT == TypeDragon {
 		prevT = TypeWind
 	}
+	ret := ""
 	for _, v := range tiles {
 		t := v.Type()
-		n := v.NumberInSequence()
+		n := v.Number()
 		if t == TypeDragon {
 			t = TypeWind
 			n += 4
@@ -36,16 +37,16 @@ func TilesToTenhouString(tiles Tiles) (ret string) {
 		ret += fmt.Sprintf("%v", n)
 	}
 	ret += TenhoTypeToString(prevT)
-	return
+	return ret
 }
 
-func NewTilesFromString(str string) (ret Tiles, err error) {
+func NewTilesFromString(str string) (Tiles, error) {
 	tmp := make(Tiles, 0, len(str))
 	if len(str) == 0 {
-		return Tiles{}, nil
+		return nil, nil
 	}
 	index := 0
-	t := End
+	t := TileEnd
 	max := '0'
 	for k, v := range str {
 		r := rune(v)
@@ -59,36 +60,30 @@ func NewTilesFromString(str string) (ret Tiles, err error) {
 		case 'z':
 			t = East
 			if max > '7' {
-				err = stackerr.Newf("Unexpected value %v for type %v", string(max), string(v))
-				return
+				return nil, stackerr.Newf("Unexpected value %v for type %v", string(max), string(v))
 			}
 		default:
 			if r < '1' || r > '9' {
-				err = stackerr.Newf("Unexpected symbol %v at position %v", string(v), k)
-				return
+				return nil, stackerr.Newf("Unexpected symbol %v at position %v", string(v), k)
 			}
 			if r > max {
 				max = r
 			}
 		}
-		if t != End {
+		if t != TileEnd {
 			if index == k {
-				err = stackerr.Newf("Empty range at %v", index)
-				return
+				return nil, stackerr.Newf("Empty range at %v", index)
 			}
 			for _, val := range str[index:k] {
 				tmp = append(tmp, Tile(int(rune(val)-'1'))+t)
 			}
 			index = k + 1
 			max = '0'
-			t = End
+			t = TileEnd
 		}
 	}
-
 	if index != len(str) {
-		err = stackerr.Newf("Expected to end with a letter")
-		return
+		return nil, stackerr.Newf("Expected to end with a letter")
 	}
-	ret = tmp
-	return
+	return tmp, nil
 }

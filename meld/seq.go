@@ -6,6 +6,7 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
+// Seq is used to represent Chi
 // Opponent for Seq is always Left
 // Type - 2 | Chibase -5 | TileCopies - 2-2-2 | Complete -1 | Opened - 2 |
 // TilesCopies - values 0-3
@@ -13,38 +14,37 @@ import (
 // Complete. 0 - means Opened will be treated as 'Hole' Tile
 // Opened - opened tile or hole
 // 16 In Total
-
 type Seq Meld
 
 var _ Interface = Seq(0)
 
 const (
-	HoleCopy      tile.CopyId = -5
+	HoleCopy      tile.CopyID = -5
 	seqCopiesMask             = 63 << 7
 )
 
 type seqCopies int
 
-func OpenCopy(c tile.CopyId) tile.CopyId {
+func OpenCopy(c tile.CopyID) tile.CopyID {
 	return -(c + 1)
 }
 
-func getCopy(c tile.CopyId) tile.CopyId {
+func getCopy(c tile.CopyID) tile.CopyID {
 	if c < 0 {
 		return -(c + 1)
 	}
 	return c
 }
 
-func newSeqCopies(c1, c2, c3 tile.CopyId) seqCopies {
+func newSeqCopies(c1, c2, c3 tile.CopyID) seqCopies {
 	x := seqCopies(c3)
 	x = (x << 2) | (seqCopies(c2) & 3)
 	x = (x << 2) | (seqCopies(c1) & 3)
 	return x
 }
 
-func (this seqCopies) at(idx int) tile.CopyId {
-	return tile.CopyId((this >> (uint(idx) * 2)) & 3)
+func (this seqCopies) at(idx int) tile.CopyID {
+	return tile.CopyID((this >> (uint(idx) * 2)) & 3)
 }
 
 func newSeq(base tile.Tile, copies seqCopies, complete int, opened int) Seq {
@@ -56,15 +56,15 @@ func newSeq(base tile.Tile, copies seqCopies, complete int, opened int) Seq {
 	return Seq(x)
 }
 
-func newSeq2(base tile.Tile, c1, c2, c3 tile.CopyId, complete int, opened int) Seq {
+func newSeq2(base tile.Tile, c1, c2, c3 tile.CopyID, complete int, opened int) Seq {
 	return newSeq(base, newSeqCopies(c1, c2, c3), complete, opened)
 }
 
-func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyId) Seq {
+func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyID) Seq {
 	if !base.IsSequence() {
 		return 0
 	}
-	switch base.NumberInSequence() {
+	switch base.Number() {
 	case 8:
 		// special case
 		if t3 != HoleCopy {
@@ -77,7 +77,7 @@ func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyId) Seq {
 
 	c := 0
 	isOpened := false
-	check := func(t tile.CopyId) {
+	check := func(t tile.CopyID) {
 		if t < 0 {
 			if t != HoleCopy {
 				t = getCopy(t)
@@ -96,7 +96,7 @@ func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyId) Seq {
 	case 1:
 		if !isOpened {
 			if t1 == HoleCopy {
-				if base.NumberInSequence() == 7 {
+				if base.Number() == 7 {
 					return newSeq2(base, 0, t2, t3, 0, 1)
 				}
 				return NewSeq(base+1, t2, t3, HoleCopy)
@@ -125,7 +125,7 @@ func (this Seq) each(f func(i tile.Instance) bool) bool {
 	openedTile := tile.Tile(idx-1) + base
 	end := base + 3
 	for base < end {
-		c := tile.CopyId(copies & 3)
+		c := tile.CopyID(copies & 3)
 		copies >>= 2
 		if isComplete || openedTile != base {
 			if !f(base.Instance(c)) {
@@ -153,15 +153,15 @@ func (this Seq) Open(t tile.Instance, opponent base.Opponent) Meld {
 	mask := this.copies()
 	switch ot {
 	case base - 1:
-		mask = (mask << 2) | seqCopies(t.CopyId())
+		mask = (mask << 2) | seqCopies(t.CopyID())
 		return newSeq(base-1, mask, 1, 1).Meld()
 	case base:
-		mask = (mask & (^3)) | seqCopies(t.CopyId())
+		mask = (mask & (^3)) | seqCopies(t.CopyID())
 		return newSeq(base, mask, 1, 1).Meld()
 	case base + 1:
-		return newSeq2(base, mask.at(0), t.CopyId(), mask.at(2), 1, 2).Meld()
+		return newSeq2(base, mask.at(0), t.CopyID(), mask.at(2), 1, 2).Meld()
 	case base + 2:
-		mask = (mask & ^(3 << 4)) | (seqCopies(t.CopyId()) << 4)
+		mask = (mask & ^(3 << 4)) | (seqCopies(t.CopyID()) << 4)
 		return newSeq(base, mask, 1, 3).Meld()
 	}
 	return 0
@@ -210,12 +210,12 @@ func (this Seq) OriginalWaits() compact.Tiles {
 		// hole waits
 		return compact.NewFromTile(base + 1)
 	case 1:
-		if base.NumberInSequence() == 7 {
+		if base.Number() == 7 {
 			return compact.NewFromTile(base)
 		}
 		return compact.NewFromTiles(base, base+3)
 	case 3:
-		if base.NumberInSequence() == 1 {
+		if base.Number() == 1 {
 			return compact.NewFromTile(base + 2)
 		}
 		return compact.NewFromTiles(base-1, base+2)

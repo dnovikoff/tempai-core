@@ -42,7 +42,7 @@ const (
 	sameUpgraded
 )
 
-func newSame(base tile.Tile, subType sameSubtype, c1, c2 tile.CopyId, op base.Opponent) Same {
+func newSame(base tile.Tile, subType sameSubtype, c1, c2 tile.CopyID, op base.Opponent) Same {
 	x := int(op) & 3
 	x = (x << 2) | (int(c2) & 3)
 	x = (x << 2) | (int(c1) & 3)
@@ -60,12 +60,12 @@ func (this Same) subType() sameSubtype {
 	return sameSubtype((this >> (2 + 6)) & 3)
 }
 
-func (this Same) c1() tile.CopyId {
-	return tile.CopyId((this >> (2 + 6 + 2)) & 3)
+func (this Same) c1() tile.CopyID {
+	return tile.CopyID((this >> (2 + 6 + 2)) & 3)
 }
 
-func (this Same) c2() tile.CopyId {
-	return tile.CopyId((this >> (2 + 6 + 2 + 2)) & 3)
+func (this Same) c2() tile.CopyID {
+	return tile.CopyID((this >> (2 + 6 + 2 + 2)) & 3)
 }
 
 func (this Same) Opponent() base.Opponent {
@@ -141,11 +141,11 @@ func (this Same) Upgrade() Same {
 	return newSame(this.Base(), sameUpgraded, this.c1(), this.c2(), op)
 }
 
-func (this Same) OpenedCopy() tile.CopyId {
+func (this Same) OpenedCopy() tile.CopyID {
 	return this.c1()
 }
 
-func (this Same) NotInPonCopy() tile.CopyId {
+func (this Same) NotInPonCopy() tile.CopyID {
 	return this.c2()
 }
 
@@ -153,7 +153,7 @@ func (this Same) Open(t tile.Instance, opponent base.Opponent) Meld {
 	if !this.OpenedBy().Check(t.Tile()) {
 		return 0
 	}
-	c := t.CopyId()
+	c := t.CopyID()
 	base := this.Base()
 	c1 := this.c1()
 	c2 := this.c2()
@@ -213,29 +213,29 @@ func NewKan(t tile.Instance) Same {
 }
 
 func NewKanOpened(opened tile.Instance, opponent base.Opponent) Same {
-	return newSame(opened.Tile(), sameKan, opened.CopyId(), 0, opponent)
+	return newSame(opened.Tile(), sameKan, opened.CopyID(), 0, opponent)
 }
 
-func NewKanUpgraded(opened tile.Instance, upgraded tile.CopyId, opponent base.Opponent) Same {
-	return newSame(opened.Tile(), sameUpgraded, opened.CopyId(), upgraded, opponent)
+func NewKanUpgraded(opened tile.Instance, upgraded tile.CopyID, opponent base.Opponent) Same {
+	return newSame(opened.Tile(), sameUpgraded, opened.CopyID(), upgraded, opponent)
 }
 
 func NewPon(notInPon tile.Instance) Same {
-	return newSame(notInPon.Tile(), samePon, notInPon.CopyId(), 0, base.Self)
+	return newSame(notInPon.Tile(), samePon, notInPon.CopyID(), 0, base.Self)
 }
 
-func NewPonOpened(opened tile.Instance, notInPon tile.CopyId, opponent base.Opponent) Same {
-	return newSame(opened.Tile(), samePart, opened.CopyId(), notInPon, opponent)
+func NewPonOpened(opened tile.Instance, notInPon tile.CopyID, opponent base.Opponent) Same {
+	return newSame(opened.Tile(), samePart, opened.CopyID(), notInPon, opponent)
 }
 
-func NewPonPart(t tile.Tile, c1, c2 tile.CopyId) Same {
+func NewPonPart(t tile.Tile, c1, c2 tile.CopyID) Same {
 	if c1 > c2 {
 		c1, c2 = c2, c1
 	}
 	return newSame(t, samePart, c1, c2, base.Self)
 }
 
-func NewPonPartFromExisting(t tile.Tile, c1, c2 tile.CopyId) Same {
+func NewPonPartFromExisting(t tile.Tile, c1, c2 tile.CopyID) Same {
 	mask := compact.NewMask(0, t).SetCopyBit(c1).SetCopyBit(c2).InvertTiles()
 	c1 = mask.FirstCopy()
 	c2 = mask.UnsetCopyBit(c1).FirstCopy()

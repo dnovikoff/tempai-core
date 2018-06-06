@@ -57,7 +57,7 @@ func TestYakumanChuren1(t *testing.T) {
 
 func TestYakumanKokushi13(t *testing.T) {
 	tester := NewYakuTester(t, "19s19p19m1234567z")
-	for i := tile.Begin; i < tile.End; i++ {
+	for i := tile.TileBegin; i < tile.TileEnd; i++ {
 		win := tester.Ron(i)
 		if i.IsTerminalOrHonor() {
 			require.NotNil(t, win, i.String())
@@ -74,7 +74,7 @@ func TestYakumanKokushi1(t *testing.T) {
 	assert.Equal(t, "YakumanKokushi:1", win.String())
 
 	winTile := tile.Man9
-	for i := tile.Begin; i < tile.End; i++ {
+	for i := tile.TileBegin; i < tile.TileEnd; i++ {
 		if i == winTile {
 			continue
 		}
