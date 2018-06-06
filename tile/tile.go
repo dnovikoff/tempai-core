@@ -1,7 +1,17 @@
 package tile
 
+// Tile is a representation of an uniqe tile. THere are 34 unique tiles.
+// Tile values starts from value of `1` and ends with value of `34`.
+// Value `0` (TileNull) used for `undefined` (not set).
+// Tiles order is the following:
+// - `123456789` `Man` (numbers 1-9)
+// - `123456789` `Pin` (numbers 10-18)
+// - `123456789` `Sou` (numbers 19-27)
+// - `East`, `South`, `West`, `East` (numbers 28-31)
+// - `White`, `Green`, `Red` (numbers 32-34)
+// Take note, that for the last group values starts from `White` (not `Red`, as stated in some manuals)
+// See also Instance.
 type Tile int
-type Type int
 
 // Tile numberation starts from 1
 const (
@@ -45,24 +55,18 @@ const (
 	Green
 	Red
 
-	End
+	TileEnd
 )
 
 const (
-	TypeMan     Type = Type(Man1)
-	TypePin     Type = Type(Pin1)
-	TypeSou     Type = Type(Sou1)
-	TypeWind    Type = Type(East)
-	TypeDragon  Type = Type(White)
-	TypeEnd     Type = Type(End)
-	TileCount        = int(End - Begin)
-	SequenceEnd      = East
-	Begin            = Man1
+	TileCount   = int(TileEnd - TileBegin)
+	SequenceEnd = East
+	TileBegin   = Man1
 )
 
 func createKokushTiles() Tiles {
-	result := make(Tiles, 0, End-Begin)
-	for t := Begin; t < End; t++ {
+	result := make(Tiles, 0, TileCount-7*3)
+	for t := TileBegin; t < TileEnd; t++ {
 		if !t.IsTerminalOrHonor() {
 			continue
 		}
@@ -73,155 +77,89 @@ func createKokushTiles() Tiles {
 
 var KokushiTiles = createKokushTiles()
 
-func (this Type) Rune() rune {
-	switch this {
-	case TypeMan:
-		return 'm'
-	case TypePin:
-		return 'p'
-	case TypeSou:
-		return 's'
-	case TypeDragon, TypeWind:
-		return 'z'
-	}
-	return '-'
-}
-
-func (this Type) TileNumber(num int) Tile {
-	return this.Tile(num - 1)
-}
-
-func (this Type) Tile(shift int) Tile {
-	return Tile(this) + Tile(shift)
-}
-
-func NewTile(t Type, number int) Tile {
-	return Tile(t) + Tile(number) - 1
-}
-
-func (this Tile) IsNull() bool {
-	return this == End
-}
-
-func (this Tile) Type() Type {
-	t := Type(this)
+func (t Tile) Type() Type {
+	tp := Type(t)
 	switch {
-	case this < Begin:
-		return TypeEnd
-	case t < TypePin:
+	case t < TileBegin:
+		return TypeNull
+	case tp < TypePin:
 		return TypeMan
-	case t < TypeSou:
+	case tp < TypeSou:
 		return TypePin
-	case t < TypeWind:
+	case tp < TypeWind:
 		return TypeSou
-	case t < TypeDragon:
+	case tp < TypeDragon:
 		return TypeWind
-	case t < TypeEnd:
+	case t < TileEnd:
 		return TypeDragon
 	}
-	return TypeEnd
+	return TypeNull
 }
 
-func (this Tile) NumberInSequence() int {
-	return int(this) - int(this.Type()) + 1
+func (t Tile) Number() int {
+	return int(t) - int(t.Type()) + 1
 }
 
-func (this Tile) IsHonor() bool {
-	return Type(this) >= TypeWind
+func (t Tile) IsHonor() bool {
+	return Type(t) >= TypeWind
 }
 
-func (this Tile) IsSequence() bool {
-	return !this.IsHonor()
+func (t Tile) IsSequence() bool {
+	return !t.IsHonor()
 }
 
-func (this Tile) IsTerminal() bool {
-	return this.IsSequence() && (this.NumberInSequence() == 1 || this.NumberInSequence() == 9)
+func (t Tile) IsTerminal() bool {
+	return t.IsSequence() && (t.Number() == 1 || t.Number() == 9)
 }
 
-func (this Tile) IsTerminalOrHonor() bool {
-	return this.IsHonor() || this.IsTerminal()
+func (t Tile) IsTerminalOrHonor() bool {
+	return t.IsHonor() || t.IsTerminal()
 }
 
-func (this Tile) IsMiddle() bool {
-	return this.IsSequence() && !this.IsTerminal()
+func (t Tile) IsMiddle() bool {
+	return t.IsSequence() && !t.IsTerminal()
 }
 
-// For all green yakuman
-func (this Tile) IsGreen() bool {
-	switch this {
-	case Green, Sou2, Sou3, Sou4, Sou6, Sou8:
-		return true
-	}
-	return false
-}
-
-func (this Tile) Indicates() Tile {
-	next := this + 1
-	if this.Type() != next.Type() {
-		return Tile(this.Type())
+// Indicates used for dora indicators to choose dora tile
+func (t Tile) Indicates() Tile {
+	next := t + 1
+	if t.Type() != next.Type() {
+		return Tile(t.Type())
 	}
 	return next
 }
 
-func (this Tile) DistanceAbs(rhs Tile) (ret int) {
-	ret = int(this - rhs)
-	if ret < 0 {
-		ret *= -1
-	}
-	return
+func (t Tile) String() string {
+	return Tiles{t}.String()
 }
 
-func (this Tile) StringOrNull() string {
-	if this.IsNull() {
-		return "!"
-	}
-	return this.String()
-}
-
-func (this Tile) String() string {
-	return Tiles{this}.String()
-}
-
-func (this Tile) Instance(c CopyId) Instance {
-	return NewInstance(this, c)
+func (t Tile) Instance(c CopyID) Instance {
+	return newInstance(t, c)
 }
 
 type Tiles []Tile
 
-func (this Tiles) CheckLinear(t Tile) bool {
-	for _, v := range this {
-		if t == v {
+func (t Tiles) Contains(x Tile) bool {
+	for _, v := range t {
+		if x == v {
 			return true
 		}
 	}
 	return false
 }
 
-func (this Tiles) Clone() Tiles {
-	x := make(Tiles, len(this))
-	for k, v := range this {
+func (t Tiles) Clone() Tiles {
+	x := make(Tiles, len(t))
+	for k, v := range t {
 		x[k] = v
 	}
 	return x
 }
 
-func (this Tiles) String() (ret string) {
-	return TilesToTenhouString(this)
+func (t Tiles) String() string {
+	return TilesToTenhouString(t)
 }
 
-func (this Tile) VisitImproves(f func(Tile)) {
-	if !this.IsSequence() {
-		f(this)
-		return
-	}
-	for x := this - 2; x < this+3; x++ {
-		if this.Type() == x.Type() {
-			f(x)
-		}
-	}
-
-}
-
-func (a Tiles) Len() int           { return len(a) }
-func (a Tiles) Less(i, j int) bool { return a[i] < a[j] }
-func (a Tiles) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (t Tiles) Len() int           { return len(t) }
+func (t Tiles) Less(i, j int) bool { return t[i] < t[j] }
+func (t Tiles) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }

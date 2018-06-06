@@ -1,6 +1,9 @@
 
 all: generate test build
 
+clean:
+	rm -rf gobin build
+
 gobin:
 	mkdir -p gobin
 
@@ -14,6 +17,6 @@ generate: gobin/stringer
 	PATH=$(CURDIR)/gobin:$(PATH) go generate ./...
 
 build:
-	rm -rf build
 	mkdir -p build
 	GOBIN=$(shell pwd)/build go install ./examples/...
+

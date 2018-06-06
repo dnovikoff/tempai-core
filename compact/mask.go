@@ -76,7 +76,7 @@ func (this Mask) InvertTiles() Mask {
 	return result
 }
 
-func (this Mask) FirstCopy() tile.CopyId {
+func (this Mask) FirstCopy() tile.CopyID {
 	switch {
 	case this&1 == 1:
 		return 0
@@ -100,7 +100,7 @@ func (this Mask) First() tile.Instance {
 
 func (this Mask) Each(f func(tile.Instance) bool) bool {
 	t := this.Tile()
-	for i := tile.CopyId(0); i < 4; i++ {
+	for i := tile.CopyID(0); i < 4; i++ {
 		if this&1 == 1 {
 			if !f(t.Instance(i)) {
 				return false
@@ -111,7 +111,7 @@ func (this Mask) Each(f func(tile.Instance) bool) bool {
 	return true
 }
 
-func (this Mask) Check(index tile.CopyId) bool {
+func (this Mask) Check(index tile.CopyID) bool {
 	return ((1 << uint(index)) & this) != 0
 }
 
@@ -119,7 +119,7 @@ func (this Mask) SetIntBit(index uint) Mask {
 	return this | (1<<index)&15
 }
 
-func (this Mask) SetCopyBit(cid tile.CopyId) Mask {
+func (this Mask) SetCopyBit(cid tile.CopyID) Mask {
 	return this.SetIntBit(uint(cid))
 }
 
@@ -129,19 +129,19 @@ func (this Mask) UnsetIntBit(index uint) Mask {
 }
 
 func (this Mask) UnsetInstance(i tile.Instance) Mask {
-	return this.UnsetCopyBit(i.CopyId())
+	return this.UnsetCopyBit(i.CopyID())
 }
 
 func (this Mask) UnsetInstances(i tile.Instances) Mask {
 	for _, v := range i {
-		this = this.UnsetCopyBit(v.CopyId())
+		this = this.UnsetCopyBit(v.CopyID())
 	}
 	return this
 }
 
 func (this Mask) SetInstances(i tile.Instances) Mask {
 	for _, v := range i {
-		this = this.SetCopyBit(v.CopyId())
+		this = this.SetCopyBit(v.CopyID())
 	}
 	return this
 }
@@ -154,7 +154,7 @@ func (this Mask) Remove(m Mask) Mask {
 	return NewMask(this.Mask()&(^m.Mask()), this.Tile())
 }
 
-func (this Mask) UnsetCopyBit(cid tile.CopyId) Mask {
+func (this Mask) UnsetCopyBit(cid tile.CopyID) Mask {
 	return this.UnsetIntBit(uint(cid))
 }
 

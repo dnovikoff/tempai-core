@@ -36,7 +36,7 @@ func tilePriority(t tile.Tile) int {
 		return 0
 	}
 
-	switch t.NumberInSequence() {
+	switch t.Number() {
 	case 1, 9:
 		return 1
 	case 2, 8:

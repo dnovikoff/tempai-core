@@ -30,7 +30,7 @@ func NewAllInstancesFromTo(from, to tile.Tile) Instances {
 }
 
 func NewAllInstances() Instances {
-	return NewAllInstancesFromTo(tile.Begin, tile.End)
+	return NewAllInstancesFromTo(tile.TileBegin, tile.TileEnd)
 }
 
 func NewInstances() Instances {
@@ -224,7 +224,7 @@ func (this Instances) GetCount(t tile.Tile) int {
 
 func (this Instances) Set(t tile.Instance) {
 	current := this.GetMask(t.Tile())
-	this.SetMask(current.SetCopyBit(t.CopyId()))
+	this.SetMask(current.SetCopyBit(t.CopyID()))
 }
 
 func (this Instances) RemoveAll(t tile.Tile) {
@@ -241,19 +241,19 @@ func (this Instances) RemoveTile(t tile.Tile) tile.Instance {
 }
 
 func (this Instances) Check(t tile.Instance) bool {
-	return this.GetMask(t.Tile()).Check(t.CopyId())
+	return this.GetMask(t.Tile()).Check(t.CopyID())
 }
 
 func (this Instances) Remove(t tile.Instance) bool {
 	current := this.GetMask(t.Tile())
-	next := current.UnsetCopyBit(t.CopyId())
+	next := current.UnsetCopyBit(t.CopyID())
 	this.SetMask(next)
 	return next != current
 }
 
 func (this Instances) UniqueTiles() Tiles {
 	cts := Tiles(0)
-	start := tile.Begin
+	start := tile.TileBegin
 	for _, v := range this.packed() {
 		t := start
 		for v != 0 {

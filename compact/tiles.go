@@ -6,9 +6,9 @@ import "github.com/dnovikoff/tempai-core/tile"
 type Tiles uint64
 
 // 53 is js limit for int64
-const _ = uint(53 - tile.End)
+const _ = uint(53 - tile.TileEnd)
 
-const AllTiles = (^Tiles(0)) >> (64 - uint(tile.End))
+const AllTiles = (^Tiles(0)) >> (64 - uint(tile.TileEnd))
 
 var KokushiTiles = Tiles(0).SetAll(tile.KokushiTiles)
 
@@ -25,7 +25,7 @@ func NewFromTiles(tiles ...tile.Tile) Tiles {
 }
 
 func shift(t tile.Tile) uint {
-	return uint(t - tile.Begin)
+	return uint(t - tile.TileBegin)
 }
 
 func (this Tiles) Check(t tile.Tile) bool {
@@ -68,7 +68,7 @@ func (this Tiles) Invert() Tiles {
 }
 
 func (this Tiles) Normalize() Tiles {
-	return ((1 << shift(tile.End)) - 1) & this
+	return ((1 << shift(tile.TileEnd)) - 1) & this
 }
 
 func (this Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
@@ -86,12 +86,12 @@ func (this Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
 }
 
 func (this Tiles) Each(f func(tile.Tile) bool) bool {
-	return this.EachRange(tile.Begin, tile.End, f)
+	return this.EachRange(tile.TileBegin, tile.TileEnd, f)
 }
 
 func (this Tiles) Tiles() tile.Tiles {
-	ret := make(tile.Tiles, 0, int(tile.End))
-	for i := tile.Begin; i < tile.End; i++ {
+	ret := make(tile.Tiles, 0, int(tile.TileEnd))
+	for i := tile.TileBegin; i < tile.TileEnd; i++ {
 		if this&1 == 1 {
 			ret = append(ret, i)
 		}
