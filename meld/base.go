@@ -7,9 +7,9 @@ import (
 
 type BaseMelds Melds
 
-func (this BaseMelds) Filter(possible compact.Instances, freeTiles compact.Tiles) Melds {
-	filtered := make(Melds, 0, len(this))
-	for _, v := range this {
+func (bm BaseMelds) Filter(possible compact.Instances, freeTiles compact.Tiles) Melds {
+	filtered := make(Melds, 0, len(bm))
+	for _, v := range bm {
 		w := v.Waits()
 		if !w.IsEmpty() && (w & freeTiles).IsEmpty() {
 			continue

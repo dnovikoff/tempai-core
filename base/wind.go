@@ -15,29 +15,29 @@ const (
 	WindEnd
 )
 
-func (this Wind) tile() tile.Tile {
-	return tile.Tile(this) + tile.East
+func (w Wind) tile() tile.Tile {
+	return tile.Tile(w) + tile.East
 }
 
-func (this Wind) Opponent(other Wind) Opponent {
-	diff := other - this
+func (w Wind) Opponent(other Wind) Opponent {
+	diff := other - w
 	if diff < 0 {
 		diff += 4
 	}
 	return Self + Opponent(diff)
 }
 
-func (this Wind) CheckTile(t tile.Tile) bool {
-	return this.tile() == t
+func (w Wind) CheckTile(t tile.Tile) bool {
+	return w.tile() == t
 }
 
-func (this Wind) fix() Wind {
-	if this < 0 {
-		return (this + (4 * (this / -4)) + 4) % 4
+func (w Wind) fix() Wind {
+	if w < 0 {
+		return (w + (4 * (w / -4)) + 4) % 4
 	}
-	return this % 4
+	return w % 4
 }
 
-func (this Wind) Advance(num int) Wind {
-	return (this + Wind(num)).fix()
+func (w Wind) Advance(num int) Wind {
+	return (w + Wind(num)).fix()
 }

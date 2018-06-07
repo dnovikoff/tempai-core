@@ -62,69 +62,69 @@ func newPair(base tile.Tile, sub pairSubtype, c1, c2 tile.CopyID) Pair {
 	return Pair(x)
 }
 
-func (this Pair) IsBadWait() bool {
-	return this.subType() == pairSubtypeTanki
+func (p Pair) IsBadWait() bool {
+	return p.subType() == pairSubtypeTanki
 }
 
-func (this Pair) Base() tile.Tile {
-	return tile.Tile((this >> 2) & 63)
+func (p Pair) Base() tile.Tile {
+	return tile.Tile((p >> 2) & 63)
 }
 
-func (this Pair) subType() pairSubtype {
-	return pairSubtype((this >> (2 + 6)) & 3)
+func (p Pair) subType() pairSubtype {
+	return pairSubtype((p >> (2 + 6)) & 3)
 }
 
-func (this Pair) c1() tile.CopyID {
-	return tile.CopyID((this >> (2 + 6 + 2)) & 3)
+func (p Pair) c1() tile.CopyID {
+	return tile.CopyID((p >> (2 + 6 + 2)) & 3)
 }
 
-func (this Pair) c2() tile.CopyID {
-	return tile.CopyID((this >> (2 + 6 + 4)) & 3)
+func (p Pair) c2() tile.CopyID {
+	return tile.CopyID((p >> (2 + 6 + 4)) & 3)
 }
 
-func (this Pair) IsComplete() bool {
-	return this.subType() == pairSubtypePair || this.subType() == pairSubtypeOne
+func (p Pair) IsComplete() bool {
+	return p.subType() == pairSubtypePair || p.subType() == pairSubtypeOne
 }
 
-func (this Pair) IsOpened() bool {
+func (p Pair) IsOpened() bool {
 	return false
 }
 
-func (this Pair) IsTanki() bool {
-	return this.subType() == pairSubtypeTanki
+func (p Pair) IsTanki() bool {
+	return p.subType() == pairSubtypeTanki
 }
 
-func (this Pair) OriginalWaits() compact.Tiles {
-	if this.IsComplete() {
+func (p Pair) OriginalWaits() compact.Tiles {
+	if p.IsComplete() {
 		return 0
 	}
-	return compact.FromTile(this.Base())
+	return compact.FromTile(p.Base())
 }
 
-func (this Pair) Opponent() base.Opponent {
+func (p Pair) Opponent() base.Opponent {
 	return base.Self
 }
 
-func (this Pair) Waits() compact.Tiles {
-	return this.OriginalWaits()
+func (p Pair) Waits() compact.Tiles {
+	return p.OriginalWaits()
 }
 
-func (this Pair) Open(tile.Instance, base.Opponent) Meld {
+func (p Pair) Open(tile.Instance, base.Opponent) Meld {
 	return 0
 }
 
-func (this Pair) OpenedBy() compact.Tiles {
+func (p Pair) OpenedBy() compact.Tiles {
 	return 0
 }
 
-func (this Pair) Meld() Meld {
-	return Meld(this)
+func (p Pair) Meld() Meld {
+	return Meld(p)
 }
 
-func (this Pair) Rebase(in compact.Instances) Meld {
-	meld := this
-	mask := in.GetMask(this.Base())
-	switch this.subType() {
+func (p Pair) Rebase(in compact.Instances) Meld {
+	meld := p
+	mask := in.GetMask(p.Base())
+	switch p.subType() {
 	case pairSubtypeTanki:
 		return NewTanki(mask.First()).Meld()
 	case pairSubtypeOne:
@@ -133,29 +133,29 @@ func (this Pair) Rebase(in compact.Instances) Meld {
 		first := mask.FirstCopy()
 		mask = mask.UnsetCopyBit(first)
 		second := mask.FirstCopy()
-		return NewPair(this.Base(), first, second).Meld()
+		return NewPair(p.Base(), first, second).Meld()
 	}
 	return meld.Meld()
 }
 
-func (this Pair) AddTo(in compact.Instances) {
-	switch this.subType() {
+func (p Pair) AddTo(in compact.Instances) {
+	switch p.subType() {
 	case pairSubtypeTanki, pairSubtypeOne:
-		in.Set(this.Base().Instance(this.c1()))
+		in.Set(p.Base().Instance(p.c1()))
 	case pairSubtypePair:
-		mask := in.GetMask(this.Base())
-		mask = mask.SetCopyBit(this.c1()).SetCopyBit(this.c2())
+		mask := in.GetMask(p.Base())
+		mask = mask.SetCopyBit(p.c1()).SetCopyBit(p.c2())
 		in.SetMask(mask)
 	}
 }
 
-func (this Pair) ExtractFrom(in compact.Instances) bool {
-	switch this.subType() {
+func (p Pair) ExtractFrom(in compact.Instances) bool {
+	switch p.subType() {
 	case pairSubtypeTanki, pairSubtypeOne:
-		return in.Remove(this.Base().Instance(this.c1()))
+		return in.Remove(p.Base().Instance(p.c1()))
 	case pairSubtypePair:
-		mask := in.GetMask(this.Base())
-		next := mask.UnsetCopyBit(this.c1()).UnsetCopyBit(this.c2())
+		mask := in.GetMask(p.Base())
+		next := mask.UnsetCopyBit(p.c1()).UnsetCopyBit(p.c2())
 		in.SetMask(next)
 		return next != mask
 	}

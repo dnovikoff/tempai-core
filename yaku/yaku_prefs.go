@@ -23,13 +23,13 @@ var CompactYakuPref = &YakuPrefs{MergeDragons: true, MergeWinds: MergeWindToYaku
 var CompactYakuPref2 = &YakuPrefs{MergeDragons: true, MergeWinds: MergeWindToTile, MergeDora: true}
 var CompactYakuPref3 = &YakuPrefs{MergeDragons: true, MergeWinds: MergeWindToType, MergeDora: true}
 
-func (this *YakuPrefs) FormatYaku(in YakuSet) YakuSet {
+func (p *YakuPrefs) FormatYaku(in YakuSet) YakuSet {
 	out := YakuSet{}
 
 	for k, v := range in {
 		switch k {
 		case YakuHaku, YakuHatsu, YakuChun:
-			if this.MergeDragons {
+			if p.MergeDragons {
 				out[YakuYakuhai] += v
 				continue
 			}
@@ -41,7 +41,7 @@ func (this *YakuPrefs) FormatYaku(in YakuSet) YakuSet {
 			YakuNanRound,
 			YakuSjaRound,
 			YakuPeiRound:
-			switch this.MergeWinds {
+			switch p.MergeWinds {
 			case MergeWindNoMerge:
 			case MergeWindToYakuhai:
 				out[YakuYakuhai] += v
@@ -62,7 +62,7 @@ func (this *YakuPrefs) FormatYaku(in YakuSet) YakuSet {
 				continue
 			}
 		case YakuUraDora, YakuAkaDora:
-			if this.MergeDora && v != 0 {
+			if p.MergeDora && v != 0 {
 				out[YakuDora] += v
 				continue
 			}

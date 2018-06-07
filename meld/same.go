@@ -52,112 +52,112 @@ func newSame(base tile.Tile, subType sameSubtype, c1, c2 tile.CopyID, op base.Op
 	return Same(x)
 }
 
-func (this Same) Base() tile.Tile {
-	return tile.Tile((this >> 2) & 63)
+func (s Same) Base() tile.Tile {
+	return tile.Tile((s >> 2) & 63)
 }
 
-func (this Same) subType() sameSubtype {
-	return sameSubtype((this >> (2 + 6)) & 3)
+func (s Same) subType() sameSubtype {
+	return sameSubtype((s >> (2 + 6)) & 3)
 }
 
-func (this Same) c1() tile.CopyID {
-	return tile.CopyID((this >> (2 + 6 + 2)) & 3)
+func (s Same) c1() tile.CopyID {
+	return tile.CopyID((s >> (2 + 6 + 2)) & 3)
 }
 
-func (this Same) c2() tile.CopyID {
-	return tile.CopyID((this >> (2 + 6 + 2 + 2)) & 3)
+func (s Same) c2() tile.CopyID {
+	return tile.CopyID((s >> (2 + 6 + 2 + 2)) & 3)
 }
 
-func (this Same) Opponent() base.Opponent {
-	return base.Opponent((this >> (2 + 6 + 2 + 2 + 2)) & 3)
+func (s Same) Opponent() base.Opponent {
+	return base.Opponent((s >> (2 + 6 + 2 + 2 + 2)) & 3)
 }
 
-func (this Same) baseCompact() compact.Tiles {
-	return compact.FromTile(this.Base())
+func (s Same) baseCompact() compact.Tiles {
+	return compact.FromTile(s.Base())
 }
 
-func (this Same) IsComplete() bool {
-	return this.subType() != samePart || this.Opponent() != base.Self
+func (s Same) IsComplete() bool {
+	return s.subType() != samePart || s.Opponent() != base.Self
 }
 
-func (this Same) Meld() Meld {
-	return Meld(this)
+func (s Same) Meld() Meld {
+	return Meld(s)
 }
 
-func (this Same) IsOpened() bool {
-	return this.Opponent() != base.Self
+func (s Same) IsOpened() bool {
+	return s.Opponent() != base.Self
 }
 
-func (this Same) IsBadWait() bool {
+func (s Same) IsBadWait() bool {
 	return false
 }
 
-func (this Same) OpenedBy() compact.Tiles {
-	switch this.subType() {
+func (s Same) OpenedBy() compact.Tiles {
+	switch s.subType() {
 	case samePart:
-		if this.Opponent() == base.Self {
-			return this.baseCompact()
+		if s.Opponent() == base.Self {
+			return s.baseCompact()
 		}
 	case samePon:
-		return this.baseCompact()
+		return s.baseCompact()
 	}
 	return 0
 }
 
-func (this Same) IsUpgraded() bool {
-	return this.subType() == sameUpgraded
+func (s Same) IsUpgraded() bool {
+	return s.subType() == sameUpgraded
 }
 
-func (this Same) UpgradeOrAnyInstance() tile.Instance {
-	if !this.IsUpgraded() {
-		return this.Base().Instance(0)
+func (s Same) UpgradeOrAnyInstance() tile.Instance {
+	if !s.IsUpgraded() {
+		return s.Base().Instance(0)
 	}
-	return this.Base().Instance(this.c2())
+	return s.Base().Instance(s.c2())
 }
 
-func (this Same) UpgradeInstance() tile.Instance {
-	if !this.IsUpgraded() {
+func (s Same) UpgradeInstance() tile.Instance {
+	if !s.IsUpgraded() {
 		return tile.InstanceNull
 	}
-	return this.Base().Instance(this.c2())
+	return s.Base().Instance(s.c2())
 }
 
-func (this Same) IsKan() bool {
-	switch this.subType() {
+func (s Same) IsKan() bool {
+	switch s.subType() {
 	case sameKan, sameUpgraded:
 		return true
 	}
 	return false
 }
 
-func (this Same) Upgrade() Same {
-	if this.subType() != samePart {
+func (s Same) Upgrade() Same {
+	if s.subType() != samePart {
 		return 0
 	}
-	op := this.Opponent()
+	op := s.Opponent()
 	if op == base.Self {
 		return 0
 	}
-	return newSame(this.Base(), sameUpgraded, this.c1(), this.c2(), op)
+	return newSame(s.Base(), sameUpgraded, s.c1(), s.c2(), op)
 }
 
-func (this Same) OpenedCopy() tile.CopyID {
-	return this.c1()
+func (s Same) OpenedCopy() tile.CopyID {
+	return s.c1()
 }
 
-func (this Same) NotInPonCopy() tile.CopyID {
-	return this.c2()
+func (s Same) NotInPonCopy() tile.CopyID {
+	return s.c2()
 }
 
-func (this Same) Open(t tile.Instance, opponent base.Opponent) Meld {
-	if !this.OpenedBy().Check(t.Tile()) {
+func (s Same) Open(t tile.Instance, opponent base.Opponent) Meld {
+	if !s.OpenedBy().Check(t.Tile()) {
 		return 0
 	}
 	c := t.CopyID()
-	base := this.Base()
-	c1 := this.c1()
-	c2 := this.c2()
-	switch this.subType() {
+	base := s.Base()
+	c1 := s.c1()
+	c2 := s.c2()
+	switch s.subType() {
 	case samePart:
 		if c == c1 {
 			return newSame(base, samePart, c1, c2, opponent).Meld()
@@ -172,17 +172,17 @@ func (this Same) Open(t tile.Instance, opponent base.Opponent) Meld {
 	return 0
 }
 
-func (this Same) InstancesMask() compact.Mask {
-	b := this.Base()
+func (s Same) InstancesMask() compact.Mask {
+	b := s.Base()
 	kan := compact.NewMask(compact.MaskByCount(4), b)
-	switch this.subType() {
+	switch s.subType() {
 	case samePart:
-		kan = kan.UnsetCopyBit(this.c2())
-		if this.Opponent() == base.Self {
-			kan = kan.UnsetCopyBit(this.c1())
+		kan = kan.UnsetCopyBit(s.c2())
+		if s.Opponent() == base.Self {
+			kan = kan.UnsetCopyBit(s.c1())
 		}
 	case samePon:
-		kan = kan.UnsetCopyBit(this.c1())
+		kan = kan.UnsetCopyBit(s.c1())
 	case sameKan, sameUpgraded:
 	default:
 		return 0
@@ -190,17 +190,17 @@ func (this Same) InstancesMask() compact.Mask {
 	return kan
 }
 
-func (this Same) Waits() compact.Tiles {
-	if this.subType() == samePart && this.Opponent() == base.Self {
-		return this.baseCompact()
+func (s Same) Waits() compact.Tiles {
+	if s.subType() == samePart && s.Opponent() == base.Self {
+		return s.baseCompact()
 	}
 	return 0
 }
 
-func (this Same) OriginalWaits() compact.Tiles {
-	switch this.subType() {
+func (s Same) OriginalWaits() compact.Tiles {
+	switch s.subType() {
 	case samePart, sameUpgraded:
-		return this.baseCompact()
+		return s.baseCompact()
 	}
 	return 0
 }
@@ -242,9 +242,9 @@ func NewPonPartFromExisting(t tile.Tile, c1, c2 tile.CopyID) Same {
 	return NewPonPart(t, c1, c2)
 }
 
-func (this Same) Rebase(in compact.Instances) Meld {
-	original := in.GetMask(this.Base())
-	switch this.subType() {
+func (s Same) Rebase(in compact.Instances) Meld {
+	original := in.GetMask(s.Base())
+	switch s.subType() {
 	case samePart:
 		if original.Count() < 2 {
 			return 0
@@ -252,12 +252,12 @@ func (this Same) Rebase(in compact.Instances) Meld {
 		inverted := original.InvertTiles()
 		first := inverted.FirstCopy()
 		second := inverted.UnsetCopyBit(first).FirstCopy()
-		return NewPonPart(this.Base(), first, second).Meld()
+		return NewPonPart(s.Base(), first, second).Meld()
 	case sameKan, sameUpgraded:
 		if original.Count() != 4 {
 			return 0
 		}
-		return this.Meld()
+		return s.Meld()
 	case samePon:
 		if original.Count() < 3 {
 			return 0
@@ -267,26 +267,26 @@ func (this Same) Rebase(in compact.Instances) Meld {
 		if !original.IsFull() {
 			notInPon = original.InvertTiles().FirstCopy()
 		}
-		op := this.Opponent()
+		op := s.Opponent()
 		if op == base.Self {
-			return NewPon(this.Base().Instance(notInPon)).Meld()
+			return NewPon(s.Base().Instance(notInPon)).Meld()
 		}
 		// Not enough information to choose one
 		opened := original.FirstCopy()
-		return NewPonOpened(this.Base().Instance(opened), notInPon, op).Meld()
+		return NewPonOpened(s.Base().Instance(opened), notInPon, op).Meld()
 	}
 	return 0
 }
 
-func (this Same) AddTo(in compact.Instances) {
-	original := in.GetMask(this.Base())
-	mask := this.InstancesMask()
+func (s Same) AddTo(in compact.Instances) {
+	original := in.GetMask(s.Base())
+	mask := s.InstancesMask()
 	in.SetMask(original.Merge(mask))
 }
 
-func (this Same) ExtractFrom(in compact.Instances) bool {
-	original := in.GetMask(this.Base())
-	mask := this.InstancesMask()
+func (s Same) ExtractFrom(in compact.Instances) bool {
+	original := in.GetMask(s.Base())
+	mask := s.InstancesMask()
 	next := original.Remove(mask)
 	in.SetMask(next)
 	return next != original

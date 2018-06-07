@@ -11,8 +11,8 @@ type Honba int
 type MoneyBase int
 type RiichiSticks int
 
-func (this RiichiSticks) Money() Money {
-	return Money(this) * 1000
+func (rs RiichiSticks) Money() Money {
+	return Money(rs) * 1000
 }
 
 type Score struct {
@@ -38,9 +38,9 @@ func MergeChanges(args ...ScoreChanges) ScoreChanges {
 	return ret
 }
 
-func (this ScoreChanges) ArrayFrom(wnd base.Wind, max int) []Money {
+func (sc ScoreChanges) ArrayFrom(wnd base.Wind, max int) []Money {
 	ret := make([]Money, max)
-	for k, v := range this {
+	for k, v := range sc {
 		ret[k.Advance(-int(wnd))] = v
 	}
 	return ret
@@ -62,8 +62,8 @@ func MergeChangeArrays(args ...[]Money) []Money {
 	return ret
 }
 
-func (this ScoreChanges) TotalWin() Money {
-	for _, v := range this {
+func (sc ScoreChanges) TotalWin() Money {
+	for _, v := range sc {
 		if v > 0 {
 			return v
 		}
@@ -71,8 +71,8 @@ func (this ScoreChanges) TotalWin() Money {
 	return 0
 }
 
-func (this ScoreChanges) TotalPayed() (total Money) {
-	for _, v := range this {
+func (sc ScoreChanges) TotalPayed() (total Money) {
+	for _, v := range sc {
 		if v < 0 {
 			total -= v
 		}
@@ -80,7 +80,7 @@ func (this ScoreChanges) TotalPayed() (total Money) {
 	return
 }
 
-func (this Score) GetChanges(selfWind, otherWind base.Wind, sticks RiichiSticks) ScoreChanges {
+func (s Score) GetChanges(selfWind, otherWind base.Wind, sticks RiichiSticks) ScoreChanges {
 	changes := make(ScoreChanges, 4)
 	isDealer := (selfWind == base.WindEast)
 	isTsumo := (selfWind == otherWind)
@@ -88,29 +88,29 @@ func (this Score) GetChanges(selfWind, otherWind base.Wind, sticks RiichiSticks)
 	if isTsumo {
 		if isDealer {
 			for w := base.WindSouth; w != base.WindEnd; w++ {
-				changes[w] = -this.PayTsumoDealer
+				changes[w] = -s.PayTsumoDealer
 			}
 		} else {
-			changes[base.WindEast] = -this.PayTsumoDealer
+			changes[base.WindEast] = -s.PayTsumoDealer
 			for w := base.WindSouth; w != base.WindEnd; w++ {
 				if w != selfWind {
-					changes[w] = -this.PayTsumo
+					changes[w] = -s.PayTsumo
 				}
 			}
 		}
 	} else {
 		if isDealer {
-			changes[otherWind] = -this.PayRonDealer
+			changes[otherWind] = -s.PayRonDealer
 		} else {
-			changes[otherWind] = -this.PayRon
+			changes[otherWind] = -s.PayRon
 		}
 	}
 	changes[selfWind] = changes.TotalPayed() + sticks.Money()
 	return changes
 }
 
-func (this MoneyBase) Round100(mul int) Money {
-	b := MoneyBase(mul) * this
+func (mb MoneyBase) Round100(mul int) Money {
+	b := MoneyBase(mul) * mb
 	left := b % 100
 	if left > 0 {
 		b = b - left + 100
@@ -118,8 +118,8 @@ func (this MoneyBase) Round100(mul int) Money {
 	return Money(b)
 }
 
-func (this MoneyBase) Money(rules Rules, mul int, honba Honba) Money {
-	return this.Round100(mul) + GetHonbaMoney(rules, honba)
+func (mb MoneyBase) Money(rules Rules, mul int, honba Honba) Money {
+	return mb.Round100(mul) + GetHonbaMoney(rules, honba)
 }
 
 func calculateScoreBase(r Rules, han yaku.HanPoints, fu yaku.FuPoints) (MoneyBase, yaku.Limit) {
