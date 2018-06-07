@@ -59,9 +59,10 @@ const (
 )
 
 const (
-	TileCount   = int(TileEnd - TileBegin)
-	SequenceEnd = East
-	TileBegin   = Man1
+	TileCount     = int(TileEnd - TileBegin)
+	SequenceBegin = TileBegin
+	SequenceEnd   = East
+	TileBegin     = Man1
 )
 
 func createKokushTiles() Tiles {

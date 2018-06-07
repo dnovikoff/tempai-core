@@ -20,23 +20,6 @@ func (pm PackedMasks) Get(index uint, tile tile.Tile) Mask {
 	return NewMask(uint(pm)>>(4*index), tile)
 }
 
-func (pm PackedMasks) Each(start, end tile.Tile, skipEmpty bool, f func(mask Mask) bool) bool {
-	for i := 0; i < tilesPerPack; i++ {
-		mask := NewMask(uint(pm), start)
-		if !skipEmpty || !mask.IsEmpty() {
-			if !f(mask) {
-				return false
-			}
-		}
-		start++
-		if start >= end {
-			return true
-		}
-		pm >>= 4
-	}
-	return true
-}
-
 func (pm PackedMasks) CountBits() int {
 	cnt := 0
 
