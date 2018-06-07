@@ -208,17 +208,17 @@ func (this Seq) OriginalWaits() compact.Tiles {
 	switch idx {
 	case 2:
 		// hole waits
-		return compact.NewFromTile(base + 1)
+		return compact.FromTile(base + 1)
 	case 1:
 		if base.Number() == 7 {
-			return compact.NewFromTile(base)
+			return compact.FromTile(base)
 		}
-		return compact.NewFromTiles(base, base+3)
+		return compact.FromTiles(base, base+3)
 	case 3:
 		if base.Number() == 1 {
-			return compact.NewFromTile(base + 2)
+			return compact.FromTile(base + 2)
 		}
-		return compact.NewFromTiles(base-1, base+2)
+		return compact.FromTiles(base-1, base+2)
 	}
 	// Complete chi closed in hand = 0
 	return 0

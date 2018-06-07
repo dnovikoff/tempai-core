@@ -8,15 +8,23 @@ type Tiles uint64
 // 53 is js limit for int64
 const _ = uint(53 - tile.TileEnd)
 
-const AllTiles = (^Tiles(0)) >> (64 - uint(tile.TileEnd))
+const AllTiles = (^Tiles(0)) >> (64 - uint(tile.TileCount))
 
 var KokushiTiles = Tiles(0).SetAll(tile.KokushiTiles)
 
-func NewFromTile(t tile.Tile) Tiles {
+func NewTiles(x ...tile.Tile) Tiles {
+	r := Tiles(0)
+	for _, v := range x {
+		r = r.Set(v)
+	}
+	return r
+}
+
+func FromTile(t tile.Tile) Tiles {
 	return Tiles(0).Set(t)
 }
 
-func NewFromTiles(tiles ...tile.Tile) Tiles {
+func FromTiles(tiles ...tile.Tile) Tiles {
 	x := Tiles(0)
 	for _, v := range tiles {
 		x = x.Set(v)
@@ -28,81 +36,81 @@ func shift(t tile.Tile) uint {
 	return uint(t - tile.TileBegin)
 }
 
-func (this Tiles) Check(t tile.Tile) bool {
-	return ((1 << shift(t)) & this) != 0
+func (ts Tiles) Check(t tile.Tile) bool {
+	return ((1 << shift(t)) & ts) != 0
 }
 
-func (this Tiles) Set(t tile.Tile) Tiles {
-	return ((1 << shift(t)) | this)
+func (ts Tiles) Set(t tile.Tile) Tiles {
+	return ((1 << shift(t)) | ts)
 }
 
-func (this Tiles) Sub(other Tiles) Tiles {
-	return (this | other) ^ other
+func (ts Tiles) Sub(other Tiles) Tiles {
+	return (ts | other) ^ other
 }
 
-func (this Tiles) Unset(t tile.Tile) Tiles {
+func (ts Tiles) Unset(t tile.Tile) Tiles {
 	mask := Tiles(1 << shift(t))
-	return this &^ mask
+	return ts &^ mask
 }
 
-func (this Tiles) IsEmpty() bool {
-	return this == 0
+func (ts Tiles) IsEmpty() bool {
+	return ts == 0
 }
 
-func (this Tiles) Merge(other Tiles) Tiles {
-	return this | other
+func (ts Tiles) Merge(other Tiles) Tiles {
+	return ts | other
 }
 
-func (this Tiles) Count() int {
-	this = this.Normalize()
+func (ts Tiles) Count() int {
+	ts = ts.Normalize()
 	count := 0
-	for this != 0 {
-		count += int(this & 1)
-		this >>= 1
+	for ts != 0 {
+		count += int(ts & 1)
+		ts >>= 1
 	}
 	return count
 }
 
-func (this Tiles) Invert() Tiles {
-	return (^this).Normalize()
+func (ts Tiles) Invert() Tiles {
+	return (^ts).Normalize()
 }
 
-func (this Tiles) Normalize() Tiles {
-	return ((1 << shift(tile.TileEnd)) - 1) & this
+func (ts Tiles) Normalize() Tiles {
+	return ((1 << shift(tile.TileEnd)) - 1) & ts
 }
 
-func (this Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
-	this >>= shift(begin)
+func (ts Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
+	ts >>= shift(begin)
 
 	for i := begin; i < end; i++ {
-		if this&1 == 1 {
+		if ts&1 == 1 {
 			if !f(i) {
 				return false
 			}
 		}
-		this >>= 1
+		ts >>= 1
 	}
 	return true
 }
 
-func (this Tiles) Each(f func(tile.Tile) bool) bool {
-	return this.EachRange(tile.TileBegin, tile.TileEnd, f)
+func (ts Tiles) Each(f func(tile.Tile) bool) bool {
+	return ts.EachRange(tile.TileBegin, tile.TileEnd, f)
 }
 
-func (this Tiles) Tiles() tile.Tiles {
-	ret := make(tile.Tiles, 0, int(tile.TileEnd))
+func (ts Tiles) Tiles() tile.Tiles {
+	ret := make(tile.Tiles, 0, tile.TileCount)
 	for i := tile.TileBegin; i < tile.TileEnd; i++ {
-		if this&1 == 1 {
+		if ts&1 == 1 {
 			ret = append(ret, i)
 		}
-		this >>= 1
+		ts >>= 1
 	}
 	return ret
 }
 
-func (this Tiles) SetAll(t tile.Tiles) Tiles {
+func (ts Tiles) SetAll(t tile.Tiles) Tiles {
 	for _, v := range t {
-		this = this.Set(v)
+		ts = ts.Set(v)
 	}
-	return this
+	return ts
 }

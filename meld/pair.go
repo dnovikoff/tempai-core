@@ -98,7 +98,7 @@ func (this Pair) OriginalWaits() compact.Tiles {
 	if this.IsComplete() {
 		return 0
 	}
-	return compact.NewFromTile(this.Base())
+	return compact.FromTile(this.Base())
 }
 
 func (this Pair) Opponent() base.Opponent {

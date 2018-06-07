@@ -21,10 +21,12 @@ func Calculate(closed compact.Instances, options ...calc.Option) (results Result
 	results = make(Results)
 	cp := closed.Clone()
 	closed.Each(func(mask compact.Mask) bool {
-		k := mask.Tile()
-		first := cp.RemoveTile(k)
-		results[k] = shanten.Calculate(cp, options...)
-		cp.Set(first)
+		i := mask.First()
+		if !cp.Remove(i) {
+			return false
+		}
+		results[i.Tile()] = shanten.Calculate(cp, options...)
+		cp.Set(i)
 		return true
 	})
 	return

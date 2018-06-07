@@ -132,10 +132,13 @@ func GetTempaiTiles(closed compact.Instances, options ...calc.Option) compact.Ti
 	}
 	result := compact.Tiles(0)
 
-	closed.EachTile(func(t tile.Tile) bool {
-		i := closed.RemoveTile(t)
+	closed.Each(func(m compact.Mask) bool {
+		i := m.First()
+		if !closed.Remove(i) {
+			return false
+		}
 		if checkTempai(closed, opts) {
-			result = result.Set(t)
+			result = result.Set(i.Tile())
 		}
 		closed.Set(i)
 		return true

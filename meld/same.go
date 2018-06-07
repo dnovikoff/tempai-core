@@ -73,7 +73,7 @@ func (this Same) Opponent() base.Opponent {
 }
 
 func (this Same) baseCompact() compact.Tiles {
-	return compact.NewFromTile(this.Base())
+	return compact.FromTile(this.Base())
 }
 
 func (this Same) IsComplete() bool {
@@ -174,7 +174,7 @@ func (this Same) Open(t tile.Instance, opponent base.Opponent) Meld {
 
 func (this Same) InstancesMask() compact.Mask {
 	b := this.Base()
-	kan := compact.NewMaskByCount(4, b)
+	kan := compact.NewMask(compact.MaskByCount(4), b)
 	switch this.subType() {
 	case samePart:
 		kan = kan.UnsetCopyBit(this.c2())

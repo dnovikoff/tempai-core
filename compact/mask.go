@@ -1,30 +1,34 @@
 package compact
 
-import "github.com/dnovikoff/tempai-core/tile"
+import (
+	"github.com/dnovikoff/tempai-core/tile"
+)
 
 type Mask uint
 
+const (
+	FullMask = 15
+)
+
+func MaskByCount(c int) uint {
+	return FullMask >> uint(4-c)
+}
+
 func NewMask(mask uint, t tile.Tile) Mask {
-	this := Mask(t) << 4
-	return this | Mask(mask&15)
+	m := Mask(shift(t)) << 4
+	return m | Mask(mask&15)
 }
 
-func NewMaskByCount(count int, t tile.Tile) Mask {
-	return NewMask(0, t).SetCount(count)
+func (m Mask) Tile() tile.Tile {
+	return tile.Tile(m>>4) + tile.TileBegin
 }
 
-func (this Mask) Tile() tile.Tile {
-	return tile.Tile(this >> 4)
+func (m Mask) Mask() uint {
+	return (uint(m) & 15)
 }
 
-func (this Mask) Mask() uint {
-	return (uint(this) & 15)
-}
-
-func (this Mask) Count() int {
-	switch this.Mask() {
-	case 0:
-		return 0
+func (m Mask) Count() int {
+	switch m.Mask() {
 	case 1, 2, 4, 8:
 		return 1
 	case 3, 5, 6, 9, 10, 12:
@@ -37,16 +41,16 @@ func (this Mask) Count() int {
 	return 0
 }
 
-func (this Mask) NaiveCount() int {
+func (m Mask) NaiveCount() int {
 	cnt := 0
 	for i := 0; i < 4; i++ {
-		cnt += int(this & 1)
-		this >>= 1
+		cnt += int(m & 1)
+		m >>= 1
 	}
 	return cnt
 }
 
-func (this Mask) SetCount(in int) Mask {
+func (m Mask) SetCount(in int) Mask {
 	x := uint(0)
 	switch in {
 	case 0:
@@ -59,109 +63,108 @@ func (this Mask) SetCount(in int) Mask {
 	case 4:
 		x = 1 + 2 + 4 + 8
 	}
-	return NewMask(x, this.Tile())
+	return NewMask(x, m.Tile())
 }
 
-func (this Mask) Instances() tile.Instances {
+func (m Mask) Instances() tile.Instances {
 	ret := make(tile.Instances, 0, 4)
-	this.Each(func(t tile.Instance) bool {
+	m.Each(func(t tile.Instance) bool {
 		ret = append(ret, t)
 		return true
 	})
 	return ret
 }
 
-func (this Mask) InvertTiles() Mask {
-	result := NewMask(^this.Mask(), this.Tile())
-	return result
+func (m Mask) InvertTiles() Mask {
+	return NewMask(^m.Mask(), m.Tile())
 }
 
-func (this Mask) FirstCopy() tile.CopyID {
+func (m Mask) FirstCopy() tile.CopyID {
 	switch {
-	case this&1 == 1:
+	case m&1 == 1:
 		return 0
-	case this&2 == 2:
+	case m&2 == 2:
 		return 1
-	case this&4 == 4:
+	case m&4 == 4:
 		return 2
-	case this&8 == 8:
+	case m&8 == 8:
 		return 3
 	}
 	return tile.NullCopy
 }
 
-func (this Mask) First() tile.Instance {
-	c := this.FirstCopy()
+func (m Mask) First() tile.Instance {
+	c := m.FirstCopy()
 	if c == tile.NullCopy {
 		return tile.InstanceNull
 	}
-	return this.Tile().Instance(c)
+	return m.Tile().Instance(c)
 }
 
-func (this Mask) Each(f func(tile.Instance) bool) bool {
-	t := this.Tile()
+func (m Mask) Each(f func(tile.Instance) bool) bool {
+	t := m.Tile()
 	for i := tile.CopyID(0); i < 4; i++ {
-		if this&1 == 1 {
+		if m&1 == 1 {
 			if !f(t.Instance(i)) {
 				return false
 			}
 		}
-		this >>= 1
+		m >>= 1
 	}
 	return true
 }
 
-func (this Mask) Check(index tile.CopyID) bool {
-	return ((1 << uint(index)) & this) != 0
+func (m Mask) Check(index tile.CopyID) bool {
+	return ((1 << uint(index)) & m) != 0
 }
 
-func (this Mask) SetIntBit(index uint) Mask {
-	return this | (1<<index)&15
+func (m Mask) SetIntBit(index uint) Mask {
+	return m | (1<<index)&15
 }
 
-func (this Mask) SetCopyBit(cid tile.CopyID) Mask {
-	return this.SetIntBit(uint(cid))
+func (m Mask) SetCopyBit(cid tile.CopyID) Mask {
+	return m.SetIntBit(uint(cid))
 }
 
-func (this Mask) UnsetIntBit(index uint) Mask {
+func (m Mask) UnsetIntBit(index uint) Mask {
 	mask := Mask(1<<index) & 15
-	return this &^ mask
+	return m &^ mask
 }
 
-func (this Mask) UnsetInstance(i tile.Instance) Mask {
-	return this.UnsetCopyBit(i.CopyID())
+func (m Mask) UnsetInstance(i tile.Instance) Mask {
+	return m.UnsetCopyBit(i.CopyID())
 }
 
-func (this Mask) UnsetInstances(i tile.Instances) Mask {
+func (m Mask) UnsetInstances(i tile.Instances) Mask {
 	for _, v := range i {
-		this = this.UnsetCopyBit(v.CopyID())
+		m = m.UnsetCopyBit(v.CopyID())
 	}
-	return this
+	return m
 }
 
-func (this Mask) SetInstances(i tile.Instances) Mask {
+func (m Mask) SetInstances(i tile.Instances) Mask {
 	for _, v := range i {
-		this = this.SetCopyBit(v.CopyID())
+		m = m.SetCopyBit(v.CopyID())
 	}
-	return this
+	return m
 }
 
-func (this Mask) Merge(m Mask) Mask {
-	return NewMask(m.Mask()|this.Mask(), this.Tile())
+func (m Mask) Merge(x Mask) Mask {
+	return NewMask(x.Mask()|m.Mask(), m.Tile())
 }
 
-func (this Mask) Remove(m Mask) Mask {
-	return NewMask(this.Mask()&(^m.Mask()), this.Tile())
+func (m Mask) Remove(x Mask) Mask {
+	return NewMask(m.Mask()&(^x.Mask()), m.Tile())
 }
 
-func (this Mask) UnsetCopyBit(cid tile.CopyID) Mask {
-	return this.UnsetIntBit(uint(cid))
+func (m Mask) UnsetCopyBit(cid tile.CopyID) Mask {
+	return m.UnsetIntBit(uint(cid))
 }
 
-func (this Mask) IsFull() bool {
-	return this.Mask() == 15
+func (m Mask) IsFull() bool {
+	return m.Mask() == FullMask
 }
 
-func (this Mask) IsEmpty() bool {
-	return this.Mask() == 0
+func (m Mask) IsEmpty() bool {
+	return m.Mask() == 0
 }
