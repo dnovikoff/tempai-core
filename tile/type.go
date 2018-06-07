@@ -11,8 +11,8 @@ const (
 	TypeNull   Type = Type(TileNull)
 )
 
-func (this Type) Tile(num int) Tile {
-	return Tile(this) + Tile(num-1)
+func (t Type) Tile(num int) Tile {
+	return Tile(t) + Tile(num-1)
 }
 
 // TypeRune used for stringifying tiles

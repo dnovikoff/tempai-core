@@ -43,8 +43,8 @@ func newSeqCopies(c1, c2, c3 tile.CopyID) seqCopies {
 	return x
 }
 
-func (this seqCopies) at(idx int) tile.CopyID {
-	return tile.CopyID((this >> (uint(idx) * 2)) & 3)
+func (c seqCopies) at(idx int) tile.CopyID {
+	return tile.CopyID((c >> (uint(idx) * 2)) & 3)
 }
 
 func newSeq(base tile.Tile, copies seqCopies, complete int, opened int) Seq {
@@ -117,11 +117,11 @@ func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyID) Seq {
 	return 0
 }
 
-func (this Seq) each(f func(i tile.Instance) bool) bool {
-	idx := this.OpenedIndex()
-	base := this.Base()
-	isComplete := this.IsComplete()
-	copies := this.copies()
+func (s Seq) each(f func(i tile.Instance) bool) bool {
+	idx := s.OpenedIndex()
+	base := s.Base()
+	isComplete := s.IsComplete()
+	copies := s.copies()
 	openedTile := tile.Tile(idx-1) + base
 	end := base + 3
 	for base < end {
@@ -137,20 +137,20 @@ func (this Seq) each(f func(i tile.Instance) bool) bool {
 	return true
 }
 
-func (this Seq) IsBadWait() bool {
-	return this.Waits().Count() == 1
+func (s Seq) IsBadWait() bool {
+	return s.Waits().Count() == 1
 }
 
-func (this Seq) Open(t tile.Instance, opponent base.Opponent) Meld {
+func (s Seq) Open(t tile.Instance, opponent base.Opponent) Meld {
 	if opponent != base.Left {
 		return 0
 	}
-	base := this.Base()
+	base := s.Base()
 	ot := t.Tile()
-	if !this.OpenedBy().Check(ot) {
+	if !s.OpenedBy().Check(ot) {
 		return 0
 	}
-	mask := this.copies()
+	mask := s.copies()
 	switch ot {
 	case base - 1:
 		mask = (mask << 2) | seqCopies(t.CopyID())
@@ -167,44 +167,44 @@ func (this Seq) Open(t tile.Instance, opponent base.Opponent) Meld {
 	return 0
 }
 
-func (this Seq) setCopies(mask seqCopies) Seq {
+func (s Seq) setCopies(mask seqCopies) Seq {
 	x := int(mask) & 63
 	x <<= 7
 
-	return Seq((int(this) & (^seqCopiesMask)) | x)
+	return Seq((int(s) & (^seqCopiesMask)) | x)
 }
 
-func (this Seq) copies() seqCopies {
-	return seqCopies((this >> 7) & 63)
+func (s Seq) copies() seqCopies {
+	return seqCopies((s >> 7) & 63)
 }
 
-func (this Seq) Base() tile.Tile {
-	return tile.Tile((this >> 2) & 31)
+func (s Seq) Base() tile.Tile {
+	return tile.Tile((s >> 2) & 31)
 }
 
-func (this Seq) Meld() Meld {
-	return Meld(this)
+func (s Seq) Meld() Meld {
+	return Meld(s)
 }
 
-func (this Seq) Opponent() base.Opponent {
+func (s Seq) Opponent() base.Opponent {
 	return base.Left
 }
 
-func (this Seq) IsComplete() bool {
-	return ((this >> (2 + 5 + 3*2)) & 1) == 1
+func (s Seq) IsComplete() bool {
+	return ((s >> (2 + 5 + 3*2)) & 1) == 1
 }
 
-func (this Seq) OpenedIndex() int {
-	return int((this >> (2 + 5 + 3*2 + 1)) & 3)
+func (s Seq) OpenedIndex() int {
+	return int((s >> (2 + 5 + 3*2 + 1)) & 3)
 }
 
-func (this Seq) IsOpened() bool {
-	return this.IsComplete() && this.OpenedIndex() != 0
+func (s Seq) IsOpened() bool {
+	return s.IsComplete() && s.OpenedIndex() != 0
 }
 
-func (this Seq) OriginalWaits() compact.Tiles {
-	idx := this.OpenedIndex()
-	base := this.Base()
+func (s Seq) OriginalWaits() compact.Tiles {
+	idx := s.OpenedIndex()
+	base := s.Base()
 	switch idx {
 	case 2:
 		// hole waits
@@ -224,25 +224,25 @@ func (this Seq) OriginalWaits() compact.Tiles {
 	return 0
 }
 
-func (this Seq) OpenedBy() compact.Tiles {
-	return this.Waits()
+func (s Seq) OpenedBy() compact.Tiles {
+	return s.Waits()
 }
 
-func (this Seq) Waits() compact.Tiles {
-	if this.IsComplete() {
+func (s Seq) Waits() compact.Tiles {
+	if s.IsComplete() {
 		return 0
 	}
-	return this.OriginalWaits()
+	return s.OriginalWaits()
 }
 
-func (this Seq) Rebase(in compact.Instances) Meld {
-	meld := this
+func (s Seq) Rebase(in compact.Instances) Meld {
+	meld := s
 	mask := seqCopies(0)
-	base := this.Base()
+	base := s.Base()
 	end := base + 3
 	excluded := tile.Tile(-1)
-	if !this.IsComplete() {
-		excluded = tile.Tile(this.OpenedIndex()-1) + base
+	if !s.IsComplete() {
+		excluded = tile.Tile(s.OpenedIndex()-1) + base
 	}
 	shift := uint(0)
 	for base < end {
@@ -260,23 +260,23 @@ func (this Seq) Rebase(in compact.Instances) Meld {
 	return meld.setCopies(mask).Meld()
 }
 
-func (this Seq) Instances() (ret tile.Instances) {
-	this.each(func(i tile.Instance) bool {
+func (s Seq) Instances() (ret tile.Instances) {
+	s.each(func(i tile.Instance) bool {
 		ret = append(ret, i)
 		return true
 	})
 	return
 }
 
-func (this Seq) AddTo(in compact.Instances) {
-	this.each(func(i tile.Instance) bool {
+func (s Seq) AddTo(in compact.Instances) {
+	s.each(func(i tile.Instance) bool {
 		in.Set(i)
 		return true
 	})
 }
 
-func (this Seq) ExtractFrom(in compact.Instances) bool {
-	return this.each(func(i tile.Instance) bool {
+func (s Seq) ExtractFrom(in compact.Instances) bool {
+	return s.each(func(i tile.Instance) bool {
 		return in.Remove(i)
 	})
 }

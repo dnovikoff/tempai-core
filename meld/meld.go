@@ -34,85 +34,85 @@ type Interface interface {
 	ExtractFrom(compact.Instances) bool
 }
 
-func (this Meld) IsPon() bool {
-	return this.Type() == TypeSame
+func (m Meld) IsPon() bool {
+	return m.Type() == TypeSame
 }
 
-func (this Meld) IsSeq() bool {
-	return this.Type() == TypeSeq
+func (m Meld) IsSeq() bool {
+	return m.Type() == TypeSeq
 }
 
-func (this Meld) IsTanki() bool {
-	if this.Type() != TypePair {
+func (m Meld) IsTanki() bool {
+	if m.Type() != TypePair {
 		return false
 	}
-	return Pair(this).IsTanki()
+	return Pair(m).IsTanki()
 }
 
-func (this Meld) IsKan() bool {
-	if this.Type() != TypeSame {
+func (m Meld) IsKan() bool {
+	if m.Type() != TypeSame {
 		return false
 	}
-	return Same(this).IsKan()
+	return Same(m).IsKan()
 }
 
-func (this Meld) Type() Type {
-	return Type(this & 3)
+func (m Meld) Type() Type {
+	return Type(m & 3)
 }
 
-func (this Meld) IsNull() bool {
-	return this == 0
+func (m Meld) IsNull() bool {
+	return m == 0
 }
 
-func (this Meld) Interface() Interface {
-	switch this.Type() {
+func (m Meld) Interface() Interface {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this)
+		return Seq(m)
 	case TypeSame:
-		return Same(this)
+		return Same(m)
 	case TypePair:
-		return Pair(this)
+		return Pair(m)
 	}
 	return nil
 }
 
-func (this Meld) Waits() compact.Tiles {
-	switch this.Type() {
+func (m Meld) Waits() compact.Tiles {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this).Waits()
+		return Seq(m).Waits()
 	case TypeSame:
-		return Same(this).Waits()
+		return Same(m).Waits()
 	case TypePair:
-		return Pair(this).Waits()
+		return Pair(m).Waits()
 	}
 	return 0
 }
 
-func (this Meld) IsComplete() bool {
-	switch this.Type() {
+func (m Meld) IsComplete() bool {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this).IsComplete()
+		return Seq(m).IsComplete()
 	case TypeSame:
-		return Same(this).IsComplete()
+		return Same(m).IsComplete()
 	case TypePair:
-		return Pair(this).IsComplete()
+		return Pair(m).IsComplete()
 	}
 	return false
 }
 
-func (this Meld) AddTo(in compact.Instances) {
-	switch this.Type() {
+func (m Meld) AddTo(in compact.Instances) {
+	switch m.Type() {
 	case TypeSeq:
-		Seq(this).AddTo(in)
+		Seq(m).AddTo(in)
 	case TypeSame:
-		Same(this).AddTo(in)
+		Same(m).AddTo(in)
 	case TypePair:
-		Pair(this).AddTo(in)
+		Pair(m).AddTo(in)
 	}
 }
 
-func (this Meld) RebaseAndExtractFrom(in compact.Instances) Meld {
-	fixed := this.Rebase(in)
+func (m Meld) RebaseAndExtractFrom(in compact.Instances) Meld {
+	fixed := m.Rebase(in)
 	if fixed == 0 {
 		return 0
 	}
@@ -120,44 +120,44 @@ func (this Meld) RebaseAndExtractFrom(in compact.Instances) Meld {
 	return fixed
 }
 
-func (this Meld) ExtractFrom(in compact.Instances) bool {
-	switch this.Type() {
+func (m Meld) ExtractFrom(in compact.Instances) bool {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this).ExtractFrom(in)
+		return Seq(m).ExtractFrom(in)
 	case TypeSame:
-		return Same(this).ExtractFrom(in)
+		return Same(m).ExtractFrom(in)
 	case TypePair:
-		return Pair(this).ExtractFrom(in)
+		return Pair(m).ExtractFrom(in)
 	}
 	return false
 }
 
-func (this Meld) Rebase(in compact.Instances) Meld {
-	switch this.Type() {
+func (m Meld) Rebase(in compact.Instances) Meld {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this).Rebase(in)
+		return Seq(m).Rebase(in)
 	case TypeSame:
-		return Same(this).Rebase(in)
+		return Same(m).Rebase(in)
 	case TypePair:
-		return Pair(this).Rebase(in)
+		return Pair(m).Rebase(in)
 	}
 	return 0
 }
 
-func (this Meld) Instances() tile.Instances {
+func (m Meld) Instances() tile.Instances {
 	i := compact.NewInstances()
-	this.AddTo(i)
+	m.AddTo(i)
 	return i.Instances()
 }
 
-func (this Meld) Base() tile.Tile {
-	switch this.Type() {
+func (m Meld) Base() tile.Tile {
+	switch m.Type() {
 	case TypeSeq:
-		return Seq(this).Base()
+		return Seq(m).Base()
 	case TypeSame:
-		return Same(this).Base()
+		return Same(m).Base()
 	case TypePair:
-		return Pair(this).Base()
+		return Pair(m).Base()
 	}
 	return 0
 }
@@ -189,8 +189,8 @@ func ExtractLastMeld(t compact.Instances) Meld {
 	return 0
 }
 
-func (this Melds) Win(t tile.Tile) Meld {
-	for _, m := range this {
+func (m Melds) Win(t tile.Tile) Meld {
+	for _, m := range m {
 		w := m.Waits()
 		if w == 0 {
 			continue
@@ -212,8 +212,8 @@ func MeldsToString(melds Melds) string {
 	return strings.Join(x, " ")
 }
 
-func (this Melds) AddTo(x compact.Instances) {
-	for _, v := range this {
+func (m Melds) AddTo(x compact.Instances) {
+	for _, v := range m {
 		v.AddTo(x)
 	}
 }
