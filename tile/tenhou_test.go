@@ -38,6 +38,6 @@ func TestTenhouTilesFromStringErrors(t *testing.T) {
 	assert.Contains(t, tst("1"), "Expected to end with a letter")
 	assert.Contains(t, tst("1ps"), "Empty range at 2")
 	assert.Contains(t, tst("p"), "Empty range at 0")
-	assert.Contains(t, tst("0p"), "Unexpected symbol 0 at position 0")
-	assert.Contains(t, tst("8z"), "Unexpected value 8 for type z")
+	assert.Contains(t, tst("0p"), "Unexpected symbol '0' at position 0")
+	assert.Contains(t, tst("8z"), "Unexpected value '8' for type 'z'")
 }
