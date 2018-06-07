@@ -131,24 +131,6 @@ func (m Mask) UnsetIntBit(index uint) Mask {
 	return m &^ mask
 }
 
-func (m Mask) UnsetInstance(i tile.Instance) Mask {
-	return m.UnsetCopyBit(i.CopyID())
-}
-
-func (m Mask) UnsetInstances(i tile.Instances) Mask {
-	for _, v := range i {
-		m = m.UnsetCopyBit(v.CopyID())
-	}
-	return m
-}
-
-func (m Mask) SetInstances(i tile.Instances) Mask {
-	for _, v := range i {
-		m = m.SetCopyBit(v.CopyID())
-	}
-	return m
-}
-
 func (m Mask) Merge(x Mask) Mask {
 	return NewMask(x.Mask()|m.Mask(), m.Tile())
 }

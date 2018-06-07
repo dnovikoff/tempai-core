@@ -23,3 +23,9 @@ func (tg *TestGenerator) InstancesFromString(str string) tile.Instances {
 	require.NoError(tg.t, err)
 	return x
 }
+
+func (tg *TestGenerator) CompactFromString(str string) Instances {
+	x, err := tg.impl.CompactFromString(str)
+	require.NoError(tg.t, err)
+	return x
+}
