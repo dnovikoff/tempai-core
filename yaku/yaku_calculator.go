@@ -383,40 +383,48 @@ func (this *YakuCalculator) tryColor() Yaku {
 	return y
 }
 
-func (this *YakuCalculator) tryTileTypes() {
-	const (
-		maskTerminal = 1 << iota
-		maskMiddle
-		maskHonor
-		maskChi
-	)
-	tmp := 0
-	same := func(m meld.Meld) {
-		t := m.Base()
-		switch {
-		case t.IsHonor():
-			tmp |= maskHonor
-		case t.IsTerminal():
-			tmp |= maskTerminal
-		default:
-			tmp |= maskMiddle
-		}
+const (
+	maskTerminal = 1 << iota
+	maskMiddle
+	maskHonor
+	maskChi
+)
+
+func maskForChi(t tile.Tile) int {
+	tmp := maskChi
+	if t.Number() == 1 || t.Number() == 7 {
+		tmp |= maskTerminal
+	} else {
+		tmp |= maskMiddle
 	}
+	return tmp
+}
+
+func maskForSame(t tile.Tile) int {
+	switch {
+	case t.IsHonor():
+		return maskHonor
+	case t.IsTerminal():
+		return maskTerminal
+	}
+	return maskMiddle
+}
+
+func maskForMeld(m meld.Meld) int {
+	t := m.Base()
+	switch m.Type() {
+	case meld.TypeSame, meld.TypePair:
+		return maskForSame(t)
+	case meld.TypeSeq:
+		return maskForChi(t)
+	}
+	return 0
+}
+
+func (this *YakuCalculator) tryTileTypes() {
+	tmp := 0
 	for _, v := range this.melds {
-		switch v.Type() {
-		case meld.TypeSame, meld.TypePair:
-			same(v)
-		case meld.TypeSeq:
-			t := this.finalMeld(v).Base()
-			tmp |= maskChi
-			if t.Number() == 1 || t.Number() == 7 {
-				tmp |= maskTerminal
-			} else {
-				tmp |= maskMiddle
-			}
-		default:
-			return
-		}
+		tmp |= maskForMeld(this.finalMeld(v))
 	}
 
 	switch tmp {
@@ -666,15 +674,66 @@ func (this *YakuCalculator) calculateResult() *YakuResult {
 	return result
 }
 
+func (this *YakuCalculator) tryKokushi() bool {
+	if len(this.melds) < 12 {
+		return false
+	}
+	if this.win.IsTanki() {
+		this.addYakuman2(YakumanKokushi13)
+	} else {
+		this.addYakuman(YakumanKokushi)
+	}
+	return true
+}
+
+func (this *YakuCalculator) tryLastTile() {
+	if !this.ctx.IsLastTile {
+		return
+	}
+	if this.ctx.IsRinshan && this.ctx.Rules.HaiteiFromLiveOnly() {
+		return
+	}
+
+	if this.ctx.IsTsumo {
+		this.addYaku(YakuHaitei)
+	} else {
+		this.addYaku(YakuHoutei)
+	}
+}
+
+func (this *YakuCalculator) tryTsumo() {
+	if !this.isClosed || !this.ctx.IsTsumo {
+		return
+	}
+	if this.ctx.IsFirstTake {
+		if this.ctx.SelfWind == base.WindEast {
+			// TODO: could be mangan
+			this.addYakuman(YakumanTenhou)
+		} else {
+			this.addYakuman(YakumanChihou)
+		}
+	}
+	this.addYaku(YakuTsumo)
+}
+
+func (this *YakuCalculator) tryRiichi() {
+	if !this.ctx.IsRiichi {
+		return
+	}
+	if this.ctx.ShouldAddIpatsu() {
+		this.addYaku(YakuIppatsu)
+	}
+	if this.ctx.IsDaburi {
+		this.addYaku(YakuDaburi)
+	} else {
+		this.addYaku(YakuRiichi)
+	}
+}
+
 func (this *YakuCalculator) Calculate() *YakuResult {
 	this.result = NewYakuResult(this.melds)
 
-	if len(this.melds) > 11 {
-		if this.win.IsTanki() {
-			this.addYakuman2(YakumanKokushi13)
-		} else {
-			this.addYakuman(YakumanKokushi)
-		}
+	if this.tryKokushi() {
 		return this.calculateResult()
 	}
 
@@ -682,37 +741,10 @@ func (this *YakuCalculator) Calculate() *YakuResult {
 		this.addYaku(YakuRinshan)
 	}
 
-	if (!this.ctx.IsRinshan || !this.ctx.Rules.HaiteiFromLiveOnly()) && this.ctx.IsLastTile {
-		if this.ctx.IsTsumo {
-			this.addYaku(YakuHaitei)
-		} else if !this.ctx.Rules.HaiteiFromLiveOnly() || !this.ctx.IsRinshan {
-			this.addYaku(YakuHoutei)
-		}
-	}
+	this.tryLastTile()
+	this.tryTsumo()
+	this.tryRiichi()
 
-	if this.isClosed && this.ctx.IsTsumo {
-		if this.ctx.IsFirstTake {
-			if this.ctx.SelfWind == base.WindEast {
-				// TODO: could be mangan
-				this.addYakuman(YakumanTenhou)
-			} else {
-				this.addYakuman(YakumanChihou)
-			}
-		}
-
-		this.addYaku(YakuTsumo)
-	}
-
-	if this.ctx.IsRiichi {
-		if this.ctx.ShouldAddIpatsu() {
-			this.addYaku(YakuIppatsu)
-		}
-		if this.ctx.IsDaburi {
-			this.addYaku(YakuDaburi)
-		} else {
-			this.addYaku(YakuRiichi)
-		}
-	}
 	if this.ctx.IsChankan {
 		this.addYaku(YakuChankan)
 	}

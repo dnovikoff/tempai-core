@@ -41,10 +41,10 @@ func TilesToTenhouString(tiles Tiles) string {
 }
 
 func NewTilesFromString(str string) (Tiles, error) {
-	tmp := make(Tiles, 0, len(str))
 	if len(str) == 0 {
 		return nil, nil
 	}
+	tmp := make(Tiles, 0, len(str))
 	index := 0
 	t := TileEnd
 	max := '0'
@@ -60,11 +60,11 @@ func NewTilesFromString(str string) (Tiles, error) {
 		case 'z':
 			t = East
 			if max > '7' {
-				return nil, stackerr.Newf("Unexpected value %v for type %v", string(max), string(v))
+				return nil, stackerr.Newf("Unexpected value '%s' for type '%s'", max, v)
 			}
 		default:
 			if r < '1' || r > '9' {
-				return nil, stackerr.Newf("Unexpected symbol %v at position %v", string(v), k)
+				return nil, stackerr.Newf("Unexpected symbol '%s' at position %v", v, k)
 			}
 			if r > max {
 				max = r
