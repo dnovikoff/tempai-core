@@ -13,7 +13,7 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-type YakuTester struct {
+type yakuTester struct {
 	hand     compact.Instances
 	declared meld.Melds
 	ctx      *Context
@@ -22,86 +22,86 @@ type YakuTester struct {
 	rules    *RulesStruct
 }
 
-func NewYakuTester(t *testing.T, in string) (this *YakuTester) {
-	this = &YakuTester{t: t}
+func newYakuTester(t *testing.T, in string) *yakuTester {
+	yt := &yakuTester{t: t}
 	tg := compact.NewTileGenerator()
 	hand, err := tg.CompactFromString(in)
 	require.NoError(t, err)
-	this.hand = hand
-	this.rules = RulesEMA()
-	this.ctx = &Context{
-		Rules: this.rules,
+	yt.hand = hand
+	yt.rules = RulesEMA()
+	yt.ctx = &Context{
+		Rules: yt.rules,
 	}
-	this.tg = tg
-	return
+	yt.tg = tg
+	return yt
 }
 
-func (this *YakuTester) Riichi() *YakuTester {
-	this.ctx.IsRiichi = true
-	return this
+func (yt *yakuTester) riichi() *yakuTester {
+	yt.ctx.IsRiichi = true
+	return yt
 }
 
-func (this *YakuTester) IDora(str string) *YakuTester {
-	tiles, err := this.tg.InstancesFromString(str)
-	require.NoError(this.t, err, str)
-	this.ctx.DoraTiles = IndicatorsToDoraTiles(tiles)
-	return this
+func (yt *yakuTester) iDora(str string) *yakuTester {
+	tiles, err := yt.tg.InstancesFromString(str)
+	require.NoError(yt.t, err, str)
+	yt.ctx.DoraTiles = IndicatorsToDoraTiles(tiles)
+	return yt
 }
 
-func (this *YakuTester) IUra(str string) *YakuTester {
-	tiles, err := this.tg.InstancesFromString(str)
-	require.NoError(this.t, err, str)
-	this.ctx.UraTiles = IndicatorsToDoraTiles(tiles)
-	return this
+func (yt *yakuTester) iUra(str string) *yakuTester {
+	tiles, err := yt.tg.InstancesFromString(str)
+	require.NoError(yt.t, err, str)
+	yt.ctx.UraTiles = IndicatorsToDoraTiles(tiles)
+	return yt
 }
 
-func (this *YakuTester) tempai() tempai.TempaiMelds {
-	cnt := this.hand.Count() + len(this.declared)*3
-	require.Equal(this.t, 13, cnt, this.hand.Instances().String())
-	t := tempai.Calculate(this.hand, calc.Melds(this.declared))
-	require.NotEmpty(this.t, t)
+func (yt *yakuTester) tempai() tempai.TempaiMelds {
+	cnt := yt.hand.Count() + len(yt.declared)*3
+	require.Equal(yt.t, 13, cnt, yt.hand.Instances().String())
+	t := tempai.Calculate(yt.hand, calc.Melds(yt.declared))
+	require.NotEmpty(yt.t, t)
 	return t
 }
 
-func (this *YakuTester) win(t tile.Tile) *YakuResult {
-	i := this.tempai().Index()
-	this.ctx.Tile = this.tg.Instance(t)
-	win := Win(i, this.ctx)
+func (yt *yakuTester) win(t tile.Tile) *Result {
+	i := yt.tempai().Index()
+	yt.ctx.Tile = yt.tg.Instance(t)
+	win := Win(i, yt.ctx)
 	return win
 }
 
-func (this *YakuTester) Ron(t tile.Tile) *YakuResult {
-	this.ctx.IsTsumo = false
-	return this.win(t)
+func (yt *yakuTester) ron(t tile.Tile) *Result {
+	yt.ctx.IsTsumo = false
+	return yt.win(t)
 }
 
-func (this *YakuTester) TempaiTiles() string {
-	return this.tempai().Waits().Tiles().String()
+func (yt *yakuTester) tempaiTiles() string {
+	return yt.tempai().Waits().Tiles().String()
 }
 
-func (this *YakuTester) Tsumo(t tile.Tile) *YakuResult {
-	this.ctx.IsTsumo = true
-	return this.win(t)
+func (yt *yakuTester) tsumo(t tile.Tile) *Result {
+	yt.ctx.IsTsumo = true
+	return yt.win(t)
 }
 
-func (this *YakuTester) Kan(t tile.Tile) {
-	require.Equal(this.t, 4, this.hand.GetCount(t))
+func (yt *yakuTester) kan(t tile.Tile) {
+	require.Equal(yt.t, 4, yt.hand.GetCount(t))
 	kan := meld.NewKan(t.Instance(0))
-	kan.ExtractFrom(this.hand)
-	this.declared = append(this.declared, kan.Meld())
+	kan.ExtractFrom(yt.hand)
+	yt.declared = append(yt.declared, kan.Meld())
 }
 
-func (this *YakuTester) Pon(t tile.Tile, o base.Opponent) {
-	this.Declare(meld.NewPonPart(t, 0, 1), t, o)
+func (yt *yakuTester) pon(t tile.Tile, o base.Opponent) {
+	yt.declare(meld.NewPonPart(t, 0, 1), t, o)
 }
 
-func (this *YakuTester) Declare(m meld.Interface, t tile.Tile, o base.Opponent) {
-	fixed := m.Rebase(this.hand)
-	require.False(this.t, fixed.IsNull())
-	i := this.tg.Instance(t)
-	require.NotEqual(this.t, tile.InstanceNull, i)
+func (yt *yakuTester) declare(m meld.Interface, t tile.Tile, o base.Opponent) {
+	fixed := m.Rebase(yt.hand)
+	require.False(yt.t, fixed.IsNull())
+	i := yt.tg.Instance(t)
+	require.NotEqual(yt.t, tile.InstanceNull, i)
 	opened := fixed.Interface().Open(i, o)
-	require.False(this.t, fixed.IsNull())
-	fixed.ExtractFrom(this.hand)
-	this.declared = append(this.declared, opened)
+	require.False(yt.t, fixed.IsNull())
+	fixed.ExtractFrom(yt.hand)
+	yt.declared = append(yt.declared, opened)
 }

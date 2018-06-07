@@ -13,12 +13,12 @@ const (
 	LimitYakuman   Limit = 5
 )
 
-func (this Limit) ShortString() string {
-	return this.String()[len("Limit"):]
+func (lim Limit) ShortString() string {
+	return lim.String()[len("Limit"):]
 }
 
-func (this Limit) BaseHans() HanPoints {
-	switch this {
+func (lim Limit) BaseHans() HanPoints {
+	switch lim {
 	case LimitMangan:
 		return 5
 	case LimitHaneman:

@@ -145,7 +145,7 @@ func calculateScoreBase(r Rules, han yaku.HanPoints, fu yaku.FuPoints) (MoneyBas
 }
 
 // TODO: yakuman split for pao?
-func GetScoreByResult(r Rules, res *yaku.YakuResult, honba Honba) Score {
+func GetScoreByResult(r Rules, res *yaku.Result, honba Honba) Score {
 	if len(res.Yakuman) > 0 {
 		mul := 1
 		if r.YakumanSum() {

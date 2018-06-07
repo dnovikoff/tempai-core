@@ -5,33 +5,34 @@ import (
 	"github.com/dnovikoff/tempai-core/meld"
 )
 
-func Win(tempai tempai.IndexedResult, ctx *Context) (ret *YakuResult) {
+func Win(tempai tempai.IndexedResult, ctx *Context) *Result {
 	current := tempai[ctx.Tile.Tile()]
 
 	if len(current) == 0 {
 		return nil
 	}
 	top := 0
+	var res *Result
 	for _, v := range current {
 		waiting := append(meld.Melds{}, v...)
 		winMeld := waiting.Win(ctx.Tile.Tile())
 		if winMeld.IsNull() {
 			return nil
 		}
-		calc := NewYakuCalculator(ctx, waiting).Calculate()
-		if calc == nil {
+		result := calculate(ctx, waiting)
+		if result == nil {
 			return nil
 		}
 
-		if len(calc.Yakuman) > 0 {
+		if len(result.Yakuman) > 0 {
 			top = 14
-			return calc
+			return result
 		}
-		sum := int(calc.Fus.Sum()) + int(calc.Yaku.Sum()*1000)
+		sum := int(result.Fus.Sum()) + int(result.Yaku.Sum()*1000)
 		if sum > top && sum > 1000 {
-			ret = calc
+			res = result
 			top = sum
 		}
 	}
-	return
+	return res
 }

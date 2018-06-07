@@ -4,13 +4,13 @@ type HanPoints int
 type FuPoints int
 type FuPointsRounded int
 
-func (this FuPoints) Round() FuPointsRounded {
-	if this == 25 {
-		return FuPointsRounded(this)
+func (p FuPoints) Round() FuPointsRounded {
+	if p == 25 {
+		return FuPointsRounded(p)
 	}
-	left := this % 10
+	left := p % 10
 	if left == 0 {
-		return FuPointsRounded(this)
+		return FuPointsRounded(p)
 	}
-	return FuPointsRounded(this - left + 10)
+	return FuPointsRounded(p - left + 10)
 }
