@@ -96,3 +96,84 @@ func TestMaskRemove(t *testing.T) {
 func TestMaskPrinting(t *testing.T) {
 	assert.Equal(t, "6666p", NewMask(15, tile.Pin6).Instances().String())
 }
+
+func TestMaskCount(t *testing.T) {
+	tst := func(x int) int {
+		return NewMask(0, tile.Man1).SetCount(x).Count()
+	}
+	assert.Equal(t, 0, tst(0))
+	assert.Equal(t, 1, tst(1))
+	assert.Equal(t, 2, tst(2))
+	assert.Equal(t, 3, tst(3))
+	assert.Equal(t, 4, tst(4))
+
+	assert.Equal(t, 0, tst(5))
+	assert.Equal(t, 0, tst(400))
+	assert.Equal(t, 0, tst(-1))
+}
+
+func TestMaskFirstCopy(t *testing.T) {
+	m := NewMask(0, tile.Man1).SetCount(4)
+	assert.EqualValues(t, 0, m.FirstCopy())
+	assert.True(t, m.Check(0))
+	assert.True(t, m.Check(1))
+	assert.True(t, m.Check(2))
+	assert.True(t, m.Check(3))
+
+	m = m.UnsetCopyBit(0)
+	assert.EqualValues(t, 1, m.FirstCopy())
+	assert.False(t, m.Check(0))
+	assert.True(t, m.Check(1))
+	assert.True(t, m.Check(2))
+	assert.True(t, m.Check(3))
+
+	m = m.UnsetCopyBit(1)
+	assert.EqualValues(t, 2, m.FirstCopy())
+	assert.False(t, m.Check(0))
+	assert.False(t, m.Check(1))
+	assert.True(t, m.Check(2))
+	assert.True(t, m.Check(3))
+
+	m = m.UnsetCopyBit(2)
+	assert.EqualValues(t, 3, m.FirstCopy())
+	assert.False(t, m.Check(0))
+	assert.False(t, m.Check(1))
+	assert.False(t, m.Check(2))
+	assert.True(t, m.Check(3))
+
+	m = m.UnsetCopyBit(3)
+	assert.EqualValues(t, tile.NullCopy, m.FirstCopy())
+	assert.False(t, m.Check(0))
+	assert.False(t, m.Check(1))
+	assert.False(t, m.Check(2))
+	assert.False(t, m.Check(3))
+}
+
+func TestMaskFirst(t *testing.T) {
+	assert.Equal(t, tile.Pin4.Instance(0), NewMask(0, tile.Pin4).SetCount(4).First())
+	assert.Equal(t, tile.InstanceNull, NewMask(0, tile.Pin4).SetCount(0).First())
+}
+
+func TestMaskEach(t *testing.T) {
+	t.Run("each", func(t *testing.T) {
+		var res tile.Instances
+		NewMask(0, tile.Red).SetCount(2).Each(func(i tile.Instance) bool {
+			res = append(res, i)
+			return true
+		})
+		assert.Equal(t, tile.Instances{
+			tile.Red.Instance(0),
+			tile.Red.Instance(1),
+		}, res)
+	})
+	t.Run("stop", func(t *testing.T) {
+		var res tile.Instances
+		NewMask(0, tile.Red).SetCount(2).Each(func(i tile.Instance) bool {
+			res = append(res, i)
+			return false
+		})
+		assert.Equal(t, tile.Instances{
+			tile.Red.Instance(0),
+		}, res)
+	})
+}

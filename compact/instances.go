@@ -75,7 +75,7 @@ func (is Instances) CountFree(in Tiles) int {
 }
 
 func (is Instances) GetFree() Tiles {
-	return ^is.GetFull()
+	return is.GetFull().Invert()
 }
 
 func (is Instances) GetFull() Tiles {
@@ -111,20 +111,6 @@ func (is Instances) CopyFrom(x Instances) {
 	for k, v := range x {
 		is[k] = v
 	}
-}
-
-func (is Instances) extract(t tile.Tile, count int) Mask {
-	original := is.GetMask(t) & 15
-	if original.Count() < count {
-		return 0
-	}
-	eraser := ^Mask(0)
-	for (original & eraser).Count() > count {
-		eraser <<= 1
-	}
-
-	is.setMaskImpl(uint(t), (^eraser)&original)
-	return original & eraser & 15
 }
 
 func (is Instances) Merge(other Instances) Instances {

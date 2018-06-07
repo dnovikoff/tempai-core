@@ -107,3 +107,51 @@ func TestInstanceCounters(t *testing.T) {
 	assert.True(t, st.GetMask(tile.Man3).IsFull())
 	assert.False(t, st.GetMask(tile.Man3).IsEmpty())
 }
+
+func TestInstanceClone(t *testing.T) {
+	tg := NewTestGenerator(t)
+	x1 := tg.CompactFromString("126m")
+	x2 := x1.Clone()
+	assert.Equal(t, x1.Instances(), x2.Instances())
+	x2.Set(tile.Red.Instance(1))
+	assert.NotEqual(t, x1.Instances(), x2.Instances())
+}
+
+func TestInstanceCheck(t *testing.T) {
+	tg := NewTestGenerator(t)
+	x1 := tg.CompactFromString("1126m")
+	assert.True(t, x1.Check(tile.Man1.Instance(0)))
+	assert.True(t, x1.Check(tile.Man1.Instance(1)))
+	assert.True(t, x1.Check(tile.Man2.Instance(0)))
+	assert.True(t, x1.Check(tile.Man6.Instance(0)))
+
+	assert.False(t, x1.Check(tile.Man1.Instance(2)))
+	assert.False(t, x1.Check(tile.Man1.Instance(3)))
+	assert.False(t, x1.Check(tile.Red.Instance(0)))
+}
+
+func TestInstanceEach(t *testing.T) {
+	tg := NewTestGenerator(t)
+	x1 := tg.CompactFromString("1m7z")
+	t.Run("each", func(t *testing.T) {
+		var res tile.Instances
+		x1.Each(func(m Mask) bool {
+			res = append(res, m.Instances()...)
+			return true
+		})
+		assert.Equal(t, tile.Instances{
+			tile.Man1.Instance(0),
+			tile.Red.Instance(0),
+		}, res)
+	})
+	t.Run("stop", func(t *testing.T) {
+		var res tile.Instances
+		x1.Each(func(m Mask) bool {
+			res = append(res, m.Instances()...)
+			return false
+		})
+		assert.Equal(t, tile.Instances{
+			tile.Man1.Instance(0),
+		}, res)
+	})
+}

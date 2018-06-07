@@ -98,3 +98,13 @@ func TestTilesEach(t *testing.T) {
 		assert.Equal(t, tile.Tiles{tile.Man1}, res)
 	})
 }
+
+func TestTilesValues(t *testing.T) {
+	assert.Equal(t, 34, AllTiles.Count())
+	assert.Equal(t, 0, AllTiles.Invert().Count())
+	assert.Equal(t, 13, KokushiTiles.Count())
+	assert.Equal(t, 21, KokushiTiles.Invert().Count())
+	assert.EqualValues(t, 1, FromTile(tile.Man1))
+
+	assert.Equal(t, "19m19p19s1234567z", KokushiTiles.Tiles().String())
+}
