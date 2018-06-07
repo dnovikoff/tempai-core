@@ -153,7 +153,7 @@ func TestFuRound(t *testing.T) {
 
 func TestResultCounting(t *testing.T) {
 	r := RulesEMA()
-	result := &yaku.YakuResult{
+	result := &yaku.Result{
 		Yaku: yaku.YakuSet{
 			yaku.YakuChanta: 1,
 			yaku.YakuDora:   5,
@@ -175,7 +175,7 @@ func TestResultCountingYakuman(t *testing.T) {
 	r := RulesEMA()
 	r.IsYakumanSum = false
 	r.IsYakumanDouble = false
-	result := &yaku.YakuResult{
+	result := &yaku.Result{
 		Yakuman: yaku.YakumanSet{
 			yaku.YakumanDaisangen: 1,
 			yaku.YakumanDaisuushi: 2,

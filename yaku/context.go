@@ -23,16 +23,16 @@ type Context struct {
 	IsChankan   bool
 }
 
-func (this Context) ShouldAddUras() bool {
-	return this.IsRiichi && this.Rules.Ura()
+func (c *Context) shouldAddUras() bool {
+	return c.IsRiichi && c.Rules.Ura()
 }
 
-func (this Context) ShouldAddIpatsu() bool {
-	return this.IsIpatsu && this.Rules.Ipatsu()
+func (c *Context) shouldAddIpatsu() bool {
+	return c.IsIpatsu && c.Rules.Ipatsu()
 }
 
-func (this Context) IsRon() bool {
-	return !this.IsTsumo
+func (c *Context) isRon() bool {
+	return !c.IsTsumo
 }
 
 func IndicatorsToDoraTiles(in tile.Instances) tile.Tiles {
