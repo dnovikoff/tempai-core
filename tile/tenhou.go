@@ -60,11 +60,11 @@ func NewTilesFromString(str string) (Tiles, error) {
 		case 'z':
 			t = East
 			if max > '7' {
-				return nil, stackerr.Newf("Unexpected value '%s' for type '%s'", max, v)
+				return nil, stackerr.Newf("Unexpected value '%s' for type '%s'", string(max), string(v))
 			}
 		default:
 			if r < '1' || r > '9' {
-				return nil, stackerr.Newf("Unexpected symbol '%s' at position %v", v, k)
+				return nil, stackerr.Newf("Unexpected symbol '%s' at position %v", string(v), k)
 			}
 			if r > max {
 				max = r

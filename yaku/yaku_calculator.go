@@ -362,7 +362,7 @@ func (this *YakuCalculator) tryYakuhai() {
 	}
 }
 
-func (this *YakuCalculator) tryColor() Yaku {
+func (this *YakuCalculator) tryColor() {
 	haveHonor := false
 	color := tile.TypeWind
 	for _, v := range this.base {
@@ -371,7 +371,7 @@ func (this *YakuCalculator) tryColor() Yaku {
 			continue
 		}
 		if color != tile.TypeWind && color != v.Type() {
-			return YakuNone
+			return
 		}
 		color = v.Type()
 	}
@@ -380,7 +380,20 @@ func (this *YakuCalculator) tryColor() Yaku {
 		y = YakuHonitsu
 	}
 	this.addYaku(y)
-	return y
+	this.tryColorYakumans(y == YakuChinitsu)
+	return
+}
+
+func (this *YakuCalculator) tryColorYakumans(isClean bool) {
+	if this.isChitoi() {
+		return
+	}
+	if isClean && this.isClosed {
+		this.tryGates()
+	}
+	if !isClean || !this.ctx.Rules.GreenRequired() {
+		this.tryGreenYakuman()
+	}
 }
 
 const (
@@ -730,6 +743,10 @@ func (this *YakuCalculator) tryRiichi() {
 	}
 }
 
+func (this *YakuCalculator) isChitoi() bool {
+	return this.isClosed && len(this.melds) == 7
+}
+
 func (this *YakuCalculator) Calculate() *YakuResult {
 	this.result = NewYakuResult(this.melds)
 
@@ -748,8 +765,7 @@ func (this *YakuCalculator) Calculate() *YakuResult {
 	if this.ctx.IsChankan {
 		this.addYaku(YakuChankan)
 	}
-	isChitoi := (this.isClosed && len(this.melds) == 7)
-	if isChitoi {
+	if this.isChitoi() {
 		this.addFu(FuBase7, 25)
 		this.addYaku(YakuChiitoi)
 	} else {
@@ -771,15 +787,7 @@ func (this *YakuCalculator) Calculate() *YakuResult {
 	}
 	// Not listed in normal form cause of Tsuiso possible in chitoi
 	this.tryTileTypes()
-	colorYaku := this.tryColor()
-	if !isChitoi && (colorYaku == YakuChinitsu) && this.isClosed {
-		this.tryGates()
-	}
-	if colorYaku == YakuHonitsu ||
-		(colorYaku == YakuChinitsu && !this.ctx.Rules.GreenRequired()) {
-		this.tryGreenYakuman()
-	}
-
+	this.tryColor()
 	this.tryDora()
 	if this.ctx.IsFirstTake && this.ctx.IsRon() {
 		this.addYaku(YakuRenhou)
