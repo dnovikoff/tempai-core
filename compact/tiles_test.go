@@ -9,7 +9,7 @@ import (
 )
 
 func TestTilesNew(t *testing.T) {
-	assert.Equal(t, "47p", NewFromTiles(tile.Pin4, tile.Pin7).Tiles().String())
+	assert.Equal(t, "47p", FromTiles(tile.Pin4, tile.Pin7).Tiles().String())
 }
 
 func TestCTS(t *testing.T) {

@@ -62,7 +62,7 @@ func TestMask(t *testing.T) {
 }
 
 func TestMaskCounters(t *testing.T) {
-	mask := NewMaskByCount(0, tile.Man3)
+	mask := NewMask(0, tile.Man3)
 	assert.Equal(t, 0, mask.Count())
 	assert.False(t, mask.IsFull())
 	assert.True(t, mask.IsEmpty())

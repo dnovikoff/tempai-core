@@ -66,7 +66,7 @@ func TestSamePon(t *testing.T) {
 	assert.False(t, m.IsBadWait())
 	assert.EqualValues(t, 0, m.OriginalWaits())
 	assert.EqualValues(t, 0, m.Waits())
-	assert.Equal(t, compact.NewFromTile(tile.Sou8), m.OpenedBy())
+	assert.Equal(t, compact.FromTile(tile.Sou8), m.OpenedBy())
 	i := m.Meld().Instances()
 	assert.Equal(t, "888s", i.Tiles().String())
 	assert.Equal(t, tile.Instances{
@@ -105,7 +105,7 @@ func TestSamePart(t *testing.T) {
 	assert.False(t, m.IsComplete())
 	assert.False(t, m.IsOpened())
 	assert.False(t, m.IsBadWait())
-	w := compact.NewFromTile(tile.West)
+	w := compact.FromTile(tile.West)
 	assert.Equal(t, w, m.OriginalWaits())
 	assert.Equal(t, w, m.Waits())
 	assert.Equal(t, w, m.OpenedBy())

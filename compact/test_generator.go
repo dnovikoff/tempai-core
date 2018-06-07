@@ -14,12 +14,12 @@ func NewTestGenerator(t require.TestingT) *TestGenerator {
 	return &TestGenerator{NewTileGenerator(), t}
 }
 
-func (this *TestGenerator) TilesLeft() tile.Instances {
-	return this.impl.TilesLeft()
+func (tg *TestGenerator) TilesLeft() tile.Instances {
+	return tg.impl.TilesLeft()
 }
 
-func (this *TestGenerator) InstancesFromString(str string) tile.Instances {
-	x, err := this.impl.InstancesFromString(str)
-	require.NoError(this.t, err)
+func (tg *TestGenerator) InstancesFromString(str string) tile.Instances {
+	x, err := tg.impl.InstancesFromString(str)
+	require.NoError(tg.t, err)
 	return x
 }

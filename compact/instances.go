@@ -21,7 +21,7 @@ const _ = uint(tilesPerPack*instancesInts*4 - tile.InstanceCount)
 
 const counterInvalid = PackedMasks(1024)
 
-func NewAllInstancesFromTo(from, to tile.Tile) Instances {
+func AllInstancesFromTo(from, to tile.Tile) Instances {
 	x := NewInstances()
 	for t := from; t < to; t++ {
 		x.SetCount(t, 4)
@@ -29,17 +29,17 @@ func NewAllInstancesFromTo(from, to tile.Tile) Instances {
 	return x
 }
 
-func NewAllInstances() Instances {
-	return NewAllInstancesFromTo(tile.TileBegin, tile.TileEnd)
+func AllInstances() Instances {
+	return AllInstancesFromTo(tile.TileBegin, tile.TileEnd)
 }
 
 func NewInstances() Instances {
 	return make(Instances, endIndex)
 }
 
-func (this Instances) Each(f func(mask Mask) bool) bool {
+func (is Instances) Each(f func(mask Mask) bool) bool {
 	start := tile.Man1
-	for _, v := range this.packed() {
+	for _, v := range is.packed() {
 		cur := start
 		for v != 0 {
 			mask := uint(v & 15)
@@ -56,50 +56,32 @@ func (this Instances) Each(f func(mask Mask) bool) bool {
 	return true
 }
 
-func (this Instances) EachTile(f func(t tile.Tile) bool) bool {
-	start := tile.Man1
-	for _, v := range this.packed() {
-		cur := start
-		for v != 0 {
-			if uint(v&15) != 0 {
-				if !f(cur) {
-					return false
-				}
-			}
-			cur++
-			v >>= 4
-		}
-		start += tilesPerPack
-	}
-	return true
+func (is Instances) invalidateCounter() {
+	is[counterIndex] = counterInvalid
 }
 
-func (this Instances) invalidateCounter() {
-	this[counterIndex] = counterInvalid
-}
-
-func (this Instances) GetMask(t tile.Tile) Mask {
-	block := this[int(shift(t)/tilesPerPack)]
+func (is Instances) GetMask(t tile.Tile) Mask {
+	block := is[int(shift(t)/tilesPerPack)]
 	return block.Get(shift(t)%tilesPerPack, t)
 }
 
-func (this Instances) CountFree(in Tiles) int {
+func (is Instances) CountFree(in Tiles) int {
 	result := 0
 	in.Each(func(t tile.Tile) bool {
-		result += 4 - this.GetCount(t)
+		result += 4 - is.GetCount(t)
 		return true
 	})
 	return result
 }
 
-func (this Instances) GetFree() Tiles {
-	return ^this.GetFull()
+func (is Instances) GetFree() Tiles {
+	return ^is.GetFull()
 }
 
-func (this Instances) GetFull() Tiles {
+func (is Instances) GetFull() Tiles {
 	result := Tiles(0)
 
-	this.Each(func(m Mask) bool {
+	is.Each(func(m Mask) bool {
 		if m.IsFull() {
 			result = result.Set(m.Tile())
 		}
@@ -108,15 +90,15 @@ func (this Instances) GetFull() Tiles {
 	return result
 }
 
-func (this Instances) Invert() Instances {
-	return this.CopyFree(AllTiles)
+func (is Instances) Invert() Instances {
+	return is.CopyFree(AllTiles)
 }
 
-func (this Instances) CopyFree(in Tiles) Instances {
+func (is Instances) CopyFree(in Tiles) Instances {
 	result := NewInstances()
 	count := 0
 	in.Each(func(t tile.Tile) bool {
-		i := this.GetMask(t).InvertTiles()
+		i := is.GetMask(t).InvertTiles()
 		result.SetMask(i)
 		count += i.Count()
 		return true
@@ -125,14 +107,14 @@ func (this Instances) CopyFree(in Tiles) Instances {
 	return result
 }
 
-func (this Instances) CopyFrom(x Instances) {
-	for k, v := range x.all() {
-		this[k] = v
+func (is Instances) CopyFrom(x Instances) {
+	for k, v := range x {
+		is[k] = v
 	}
 }
 
-func (this Instances) extract(t tile.Tile, count int) Mask {
-	original := this.GetMask(t) & 15
+func (is Instances) extract(t tile.Tile, count int) Mask {
+	original := is.GetMask(t) & 15
 	if original.Count() < count {
 		return 0
 	}
@@ -141,120 +123,80 @@ func (this Instances) extract(t tile.Tile, count int) Mask {
 		eraser <<= 1
 	}
 
-	this.setMaskImpl(uint(t), (^eraser)&original)
+	is.setMaskImpl(uint(t), (^eraser)&original)
 	return original & eraser & 15
 }
 
-func (this Instances) Merge(other Instances) Instances {
-	for k, v := range this.all() {
-		this[k] = v | other[k]
+func (is Instances) Merge(other Instances) Instances {
+	for k, v := range is[:counterIndex] {
+		is[k] = v | other[k]
 	}
-	this.invalidateCounter()
-	return this
+	is.invalidateCounter()
+	return is
 }
 
-func (this Instances) packed() Instances {
-	return this[:counterIndex]
+func (is Instances) packed() Instances {
+	return is[:counterIndex]
 }
 
-func (this Instances) all() Instances {
-	return this[:endIndex]
-}
-
-func (this Instances) setMaskImpl(index uint, mask Mask) {
+func (is Instances) setMaskImpl(index uint, mask Mask) {
 	blocknum := index / tilesPerPack
 	shift := index % tilesPerPack
-	this[blocknum] = this[blocknum].Set(mask, shift)
+	is[blocknum] = is[blocknum].Set(mask, shift)
 }
 
-func (this Instances) SetMask(mask Mask) {
-	this.setMaskImpl(shift(mask.Tile()), mask)
-	this.invalidateCounter()
+func (is Instances) SetMask(mask Mask) {
+	is.setMaskImpl(shift(mask.Tile()), mask)
+	is.invalidateCounter()
 }
 
-func (this Instances) Add(t tile.Instances) Instances {
+func (is Instances) Add(t tile.Instances) Instances {
 	for _, v := range t {
-		this.Set(v)
+		is.Set(v)
 	}
-	return this
+	return is
 }
 
-func (this Instances) Clone() Instances {
-	clone := make(Instances, len(this))
-	for k, v := range this.all() {
-		clone[k] = v
-	}
+func (is Instances) Clone() Instances {
+	clone := make(Instances, len(is))
+	clone.CopyFrom(is)
 	return clone
 }
 
-func (this Instances) AddCount(t tile.Tile, x int) Instances {
-	m := this.GetMask(t)
-	val := m.Count() + x
-	if val < 0 {
-		val = 0
-	} else if val > 4 {
-		val = 4
-	}
-	this.SetCount(t, val)
-	return this
+func (is Instances) AddCount(t tile.Tile, x int) Instances {
+	is.SetCount(t, is.GetMask(t).Count()+x)
+	return is
 }
 
-func (this Instances) AddCounts(t tile.Tiles) Instances {
-	for _, v := range t {
-		this.AddCount(v, 1)
-	}
-	return this
+func (is Instances) SetCount(t tile.Tile, x int) {
+	m := NewMask(MaskByCount(x), t)
+	is.SetMask(m)
 }
 
-func (this Instances) CheckEmpty(t tile.Tile) bool {
-	return this.GetMask(t).IsEmpty()
+func (is Instances) GetCount(t tile.Tile) int {
+	return is.GetMask(t).Count()
 }
 
-func (this Instances) CheckFull(t tile.Tile) bool {
-	return this.GetMask(t).IsFull()
+func (is Instances) Set(t tile.Instance) {
+	current := is.GetMask(t.Tile())
+	is.SetMask(current.SetCopyBit(t.CopyID()))
 }
 
-func (this Instances) SetCount(t tile.Tile, x int) {
-	this.SetMask(NewMaskByCount(x, t))
+func (is Instances) Check(t tile.Instance) bool {
+	return is.GetMask(t.Tile()).Check(t.CopyID())
 }
 
-func (this Instances) GetCount(t tile.Tile) int {
-	return this.GetMask(t).Count()
-}
-
-func (this Instances) Set(t tile.Instance) {
-	current := this.GetMask(t.Tile())
-	this.SetMask(current.SetCopyBit(t.CopyID()))
-}
-
-func (this Instances) RemoveAll(t tile.Tile) {
-	this.SetMask(this.GetMask(t).SetCount(0))
-}
-
-func (this Instances) RemoveTile(t tile.Tile) tile.Instance {
-	mask := this.GetMask(t)
-	first := mask.First()
-	if first != tile.InstanceNull {
-		this.SetMask(mask.UnsetInstance(first))
-	}
-	return first
-}
-
-func (this Instances) Check(t tile.Instance) bool {
-	return this.GetMask(t.Tile()).Check(t.CopyID())
-}
-
-func (this Instances) Remove(t tile.Instance) bool {
-	current := this.GetMask(t.Tile())
+func (is Instances) Remove(t tile.Instance) bool {
+	current := is.GetMask(t.Tile())
 	next := current.UnsetCopyBit(t.CopyID())
-	this.SetMask(next)
+	is.SetMask(next)
 	return next != current
 }
 
-func (this Instances) UniqueTiles() Tiles {
+func (is Instances) UniqueTiles() Tiles {
 	cts := Tiles(0)
 	start := tile.TileBegin
-	for _, v := range this.packed() {
+	for _, v := range is.packed() {
 		t := start
 		for v != 0 {
 			if (v & 15) != 0 {
@@ -268,23 +210,10 @@ func (this Instances) UniqueTiles() Tiles {
 	return cts
 }
 
-func (this Instances) UniqueCount() int {
-	cnt := 0
-	for _, val := range this.packed() {
-		for val != 0 {
-			if val&15 != 0 {
-				cnt++
-			}
-			val >>= 4
-		}
-	}
-	return cnt
-}
-
-func (this Instances) Instances() tile.Instances {
-	ret := make(tile.Instances, this.Count())
+func (is Instances) Instances() tile.Instances {
+	ret := make(tile.Instances, is.Count())
 	x := 0
-	this.Each(func(mask Mask) bool {
+	is.Each(func(mask Mask) bool {
 		return mask.Each(func(inst tile.Instance) bool {
 			ret[x] = inst
 			x++
@@ -294,19 +223,19 @@ func (this Instances) Instances() tile.Instances {
 	return ret
 }
 
-func (this Instances) Count() int {
-	val := this[counterIndex]
+func (is Instances) Count() int {
+	val := is[counterIndex]
 	if val == counterInvalid {
-		return this.recountImpl()
+		return is.recountImpl()
 	}
 	return int(val)
 }
 
-func (this Instances) recountImpl() int {
+func (is Instances) recountImpl() int {
 	x := 0
-	for _, v := range this.packed() {
+	for _, v := range is.packed() {
 		x += v.CountBits()
 	}
-	this[counterIndex] = PackedMasks(x)
+	is[counterIndex] = PackedMasks(x)
 	return x
 }

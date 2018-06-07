@@ -23,7 +23,7 @@ func testShanten() {
 	// prepare
 	source := rand.NewSource(123)
 	rnd := rand.New(source)
-	instances := compact.NewAllInstances().Instances()
+	instances := compact.AllInstances().Instances()
 	for k := range data {
 		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:13])
@@ -46,7 +46,7 @@ func testTempai() {
 	// prepare
 	source := rand.NewSource(123)
 	rnd := rand.New(source)
-	instances := compact.NewAllInstancesFromTo(tile.Sou1, tile.Sou9+1).Instances()
+	instances := compact.AllInstancesFromTo(tile.Sou1, tile.Sou9+1).Instances()
 	for k := range data {
 		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:13])
@@ -73,7 +73,7 @@ func testEffective() {
 	// prepare
 	source := rand.NewSource(123)
 	rnd := rand.New(source)
-	instances := compact.NewAllInstances().Instances()
+	instances := compact.AllInstances().Instances()
 	for k := range data {
 		shuffle(rnd, instances)
 		data[k] = compact.NewInstances().Add(instances[:14])
