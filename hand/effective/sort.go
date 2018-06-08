@@ -12,25 +12,25 @@ func newSortId(uCount, tCount, value int) sSortId {
 	return val
 }
 
-func (this sSortId) betterThan(other sSortId) bool {
-	return this > other
+func (id sSortId) betterThan(other sSortId) bool {
+	return id > other
 }
 
 type ResultsSorted []*Result
 
-func (this ResultsSorted) Best() *Result {
-	if len(this) == 0 {
+func (r ResultsSorted) Best() *Result {
+	if len(r) == 0 {
 		return nil
 	}
-	return this[0]
+	return r[0]
 }
 
-func (this ResultsSorted) Len() int {
-	return len(this)
+func (r ResultsSorted) Len() int {
+	return len(r)
 }
 
-func (this ResultsSorted) Swap(i, j int) {
-	this[i], this[j] = this[j], this[i]
+func (r ResultsSorted) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
 }
 
 func tileSortId(t tile.Tile) int {
@@ -51,13 +51,13 @@ func effLess(l, r *Result) bool {
 	return tileLess(l.Tile, r.Tile)
 }
 
-func (this ResultsSorted) Less(i, j int) bool {
-	return effLess(this[i], this[j])
+func (r ResultsSorted) Less(i, j int) bool {
+	return effLess(r[i], r[j])
 }
 
-func (this ResultsSorted) First() (ret *Result) {
-	if len(this) == 0 {
-		return
+func (r ResultsSorted) First() *Result {
+	if len(r) == 0 {
+		return nil
 	}
-	return this[0]
+	return r[0]
 }
