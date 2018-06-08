@@ -8,18 +8,12 @@ import (
 type Instances []PackedMasks
 
 const (
-	instancesBits = 32
-	instancesInts = 5
-	tilesPerPack  = 8
+	instancesBits = 64
+	instancesInts = 4
+	tilesPerPack  = 9
 )
 
-const (
-	counterIndex = instancesInts + iota
-	endIndex
-)
 const _ = uint(tilesPerPack*instancesInts*4 - tile.InstanceCount)
-
-const counterInvalid = PackedMasks(1024)
 
 func AllInstancesFromTo(from, to tile.Tile) Instances {
 	x := NewInstances()
@@ -34,12 +28,12 @@ func AllInstances() Instances {
 }
 
 func NewInstances() Instances {
-	return make(Instances, endIndex)
+	return make(Instances, instancesInts)
 }
 
 func (is Instances) Each(f func(mask Mask) bool) bool {
 	start := tile.Man1
-	for _, v := range is.packed() {
+	for _, v := range is {
 		cur := start
 		for v != 0 {
 			mask := uint(v & 15)
@@ -54,10 +48,6 @@ func (is Instances) Each(f func(mask Mask) bool) bool {
 		start += tilesPerPack
 	}
 	return true
-}
-
-func (is Instances) invalidateCounter() {
-	is[counterIndex] = counterInvalid
 }
 
 func (is Instances) GetMask(t tile.Tile) Mask {
@@ -96,14 +86,11 @@ func (is Instances) Invert() Instances {
 
 func (is Instances) CopyFree(in Tiles) Instances {
 	result := NewInstances()
-	count := 0
 	in.Each(func(t tile.Tile) bool {
 		i := is.GetMask(t).InvertTiles()
 		result.SetMask(i)
-		count += i.Count()
 		return true
 	})
-	result[counterIndex] = PackedMasks(count)
 	return result
 }
 
@@ -111,18 +98,6 @@ func (is Instances) CopyFrom(x Instances) {
 	for k, v := range x {
 		is[k] = v
 	}
-}
-
-func (is Instances) Merge(other Instances) Instances {
-	for k, v := range is[:counterIndex] {
-		is[k] = v | other[k]
-	}
-	is.invalidateCounter()
-	return is
-}
-
-func (is Instances) packed() Instances {
-	return is[:counterIndex]
 }
 
 func (is Instances) setMaskImpl(index uint, mask Mask) {
@@ -133,7 +108,6 @@ func (is Instances) setMaskImpl(index uint, mask Mask) {
 
 func (is Instances) SetMask(mask Mask) {
 	is.setMaskImpl(shift(mask.Tile()), mask)
-	is.invalidateCounter()
 }
 
 func (is Instances) Add(t tile.Instances) Instances {
@@ -182,7 +156,7 @@ func (is Instances) Remove(t tile.Instance) bool {
 func (is Instances) UniqueTiles() Tiles {
 	cts := Tiles(0)
 	start := tile.TileBegin
-	for _, v := range is.packed() {
+	for _, v := range is {
 		t := start
 		for v != 0 {
 			if (v & 15) != 0 {
@@ -197,7 +171,7 @@ func (is Instances) UniqueTiles() Tiles {
 }
 
 func (is Instances) Instances() tile.Instances {
-	ret := make(tile.Instances, is.Count())
+	ret := make(tile.Instances, is.CountBits())
 	x := 0
 	is.Each(func(mask Mask) bool {
 		return mask.Each(func(inst tile.Instance) bool {
@@ -209,19 +183,47 @@ func (is Instances) Instances() tile.Instances {
 	return ret
 }
 
-func (is Instances) Count() int {
-	val := is[counterIndex]
-	if val == counterInvalid {
-		return is.recountImpl()
-	}
-	return int(val)
-}
-
-func (is Instances) recountImpl() int {
+func (is Instances) CountBits() int {
 	x := 0
-	for _, v := range is.packed() {
+	for _, v := range is {
 		x += v.CountBits()
 	}
-	is[counterIndex] = PackedMasks(x)
 	return x
+}
+
+func (is Instances) IsEmpty() bool {
+	for _, v := range is {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func (is Instances) Contains(x Instances) bool {
+	for k, v := range is {
+		xv := x[k]
+		if (xv & v) != xv {
+			return false
+		}
+	}
+	return true
+}
+
+func (is Instances) Merge(other Instances) Instances {
+	// TODO: check
+	if other == nil {
+		return is
+	}
+	for k, v := range is {
+		is[k] = v | other[k]
+	}
+	return is
+}
+
+func (is Instances) Sub(other Instances) Instances {
+	for k, v := range is {
+		is[k] = v & (^other[k])
+	}
+	return is
 }

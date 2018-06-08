@@ -27,14 +27,14 @@ func TestPackedMasks(t *testing.T) {
 
 func TestInstanceCountingOne(t *testing.T) {
 	compact := NewInstances()
-	assert.Equal(t, 0, compact.Count())
+	assert.Equal(t, 0, compact.CountBits())
 	mask := NewMask(15, tile.Man1)
 	assert.Equal(t, 4, mask.Count())
 	compact.SetMask(mask)
-	assert.Equal(t, 4, compact.Count())
+	assert.Equal(t, 4, compact.CountBits())
 
 	compact.SetMask(NewMask(15, tile.Pin6))
-	assert.Equal(t, 8, compact.Count())
+	assert.Equal(t, 8, compact.CountBits())
 }
 
 func TestInstancePrinting(t *testing.T) {
@@ -45,14 +45,14 @@ func TestInstancePrinting(t *testing.T) {
 
 func TestInstanceCounting(t *testing.T) {
 	compact := NewInstances()
-	assert.Equal(t, 0, compact.Count())
+	assert.Equal(t, 0, compact.CountBits())
 	compact.SetMask(NewMask(15, tile.Pin6))
-	assert.Equal(t, 4, compact.Count())
+	assert.Equal(t, 4, compact.CountBits())
 	compact.SetMask(NewMask(2, tile.Pin6))
-	assert.Equal(t, 1, compact.Count())
+	assert.Equal(t, 1, compact.CountBits())
 
 	compact.SetMask(NewMask(3, tile.Red))
-	assert.Equal(t, 3, compact.Count())
+	assert.Equal(t, 3, compact.CountBits())
 
 	assert.Equal(t, "6p77z", compact.Instances().String())
 	assert.Equal(t, "6p7z", compact.UniqueTiles().Tiles().String())
@@ -65,14 +65,14 @@ func TestInstanceMerge(t *testing.T) {
 	third := first.Merge(second)
 
 	assert.Equal(t, "11m888s", third.Instances().String())
-	assert.Equal(t, 5, third.Count())
+	assert.Equal(t, 5, third.CountBits())
 }
 
 func TestInstanceMaskError1(t *testing.T) {
 	st := NewInstances()
 	require.Equal(t, "", st.Instances().String())
 	st.Set(tile.Sou4.Instance(0))
-	assert.Equal(t, 1, st.Count())
+	assert.Equal(t, 1, st.CountBits())
 	assert.Equal(t, "4s", st.Instances().String())
 }
 
@@ -85,10 +85,10 @@ func TestInstanceMaskErrors(t *testing.T) {
 	st := NewInstances()
 	st.Add(inst)
 
-	assert.Equal(t, len(inst), st.Count())
+	assert.Equal(t, len(inst), st.CountBits())
 	assert.Equal(t, str, st.Instances().String())
 
-	assert.Equal(t, len(inst), st.Count())
+	assert.Equal(t, len(inst), st.CountBits())
 }
 
 func TestInstanceCounters(t *testing.T) {

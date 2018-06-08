@@ -2,40 +2,50 @@ package calc
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
+type ResultData struct {
+	Validator Validator
+	Left      tile.Tiles
+	Closed    Melds
+	Pair      Meld
+	Sets      int
+}
+
 type Results interface {
-	CheckMinuses(minuses int) bool
-	Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals)
+	Record(*ResultData)
 }
 
 type calculator struct {
-	tiles   compact.Instances
 	stack   *meldStack
 	options *Options
+	hand    Counters
+	buf     tile.Tiles
 
-	totals  compact.Totals
-	sets    int
-	minuses int
-
-	baseMelds meld.BaseMelds
+	states []*state
+	ResultData
 }
 
-func Calculate(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) {
-	newCalculator(startMelds, tiles, opts).run()
+func Calculate(startMelds Melds, tiles compact.Instances, opts *Options) {
+	newCalculator(tiles, opts).run(startMelds)
 }
 
-func newCalculator(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) *calculator {
+func newCalculator(tiles compact.Instances, opts *Options) *calculator {
 	c := &calculator{}
-	c.tiles = tiles
-	c.baseMelds = startMelds
-	c.stack = newMeldStack(7)
+	c.hand = countersFromInstances(tiles)
+	c.buf = make(tile.Tiles, 14)
+	c.stack = newMeldStack(4)
 	c.options = opts
-	totals := compact.NewTotals().Merge(c.options.Used).Merge(tiles)
-	c.totals = totals
-
+	tmp := compact.NewInstances().Merge(c.options.Used).Merge(tiles)
+	c.Validator.c = countersFromInstances(tmp)
+	c.Validator.c.Invert()
+	for _, v := range opts.Declared {
+		if !v.Extract(c.Validator.c) {
+			return nil
+		}
+	}
+	c.states = newStates()
 	return c
 }
 
@@ -47,97 +57,135 @@ func (c *calculator) opened() int {
 	return c.options.Opened
 }
 
+func (c *ResultData) Validate(last Meld) bool {
+	if last == nil {
+		return c.Validator.Validate(c.Closed)
+	}
+	melds := make(Melds, 0, len(c.Closed)+1)
+	melds = append(melds, c.Closed...)
+	melds = append(melds, last)
+	return c.Validator.Validate(melds)
+}
+
 func (c *calculator) record() {
-	c.res().Record(c.stack.getMelds(), c.tiles, c.totals)
+	melds := c.stack.getMelds()
+	c.Closed = melds
+	c.Left = c.hand.write(c.buf)
+	c.res().Record(&c.ResultData)
 }
 
-func (c *calculator) run() {
-	parts := c.baseMelds.Filter(c.tiles, c.totals.FreeTiles())
+func (c *calculator) save() *state {
+	x := c.states[c.Sets+1]
+	x.save(c)
+	return x
+}
+
+func (c *calculator) saveTop() *state {
+	x := c.states[0]
+	x.save(c)
+	return x
+}
+
+func (c *calculator) run(parts Melds) {
+	// parts := c.filterMelds(baseMelds) //.Filter(c.totals.FreeTiles())
 	c.stack.reset()
-	c.sets = c.opened()
-	c.calculateImpl(parts)
+	c.Sets = c.opened()
+	c.subRun(parts)
+	c.runPairs(parts)
+}
 
-	c.sets = c.opened() - 1
-	c.tiles.Each(func(mask compact.Mask) bool {
-		if mask.Count() < 2 {
-			return true
+func (c *calculator) runPairs(parts Melds) {
+	state := c.saveTop()
+	for i := tile.TileBegin; i < tile.TileEnd; i++ {
+		if !c.hand.Dec(i, 2) {
+			continue
 		}
-		m := c.push(meld.NewPairFromMask(mask).Meld())
-		if m != 0 {
-			c.calculateImpl(parts)
-			c.pop(m)
-		}
-		return true
-	})
-}
-
-func getMissing(m meld.Meld) int {
-	if m != 0 && !m.IsComplete() {
-		return 1
+		c.Pair = Pair(i)
+		c.subRun(parts)
+		state.recover(c)
 	}
-	return 0
 }
 
-func (c *calculator) push(m meld.Meld) meld.Meld {
-	missing := getMissing(m)
-	if missing > 0 && !c.res().CheckMinuses(missing+c.minuses) {
-		return 0
-	}
-	fixed := m.Rebase(c.tiles)
-	if fixed == 0 {
-		return 0
-	}
-
-	c.sets++
-	c.minuses += missing
-	fixed.ExtractFrom(c.tiles)
-	c.stack.push(fixed)
-	return fixed
-}
-
-func (c *calculator) pop(m meld.Meld) {
-	c.stack.pop()
-	c.sets--
-	c.minuses -= getMissing(m)
-	m.AddTo(c.tiles)
-}
-
-func (c *calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
-	m = c.push(m)
-	if m == 0 {
+func (c *calculator) push(m Meld) bool {
+	if !m.Extract(c.hand) {
 		return false
 	}
-	w := m.Waits()
-	if w.IsEmpty() {
-		c.calculateImpl(parts)
-	} else {
-		base := m.Base()
-		w.EachRange(base, base+3, func(t tile.Tile) bool {
-			if c.totals.IsFull(t) {
-				return true
-			}
-			c.totals.Add(t, 1)
-			c.calculateImpl(parts)
-			c.totals.Add(t, -1)
-			return true
-		})
-	}
-	c.pop(m)
+	c.Sets++
+	c.stack.push(m)
 	return true
 }
 
-func (c *calculator) calculateImpl(parts meld.Melds) {
-	if c.sets > 3 {
+func (c *calculator) subRun(parts Melds) {
+	cnt := c.Sets
+	if c.Pair != nil {
+		cnt++
+	}
+	if c.Sets > 4 {
+		return
+	} else if c.Sets == 4 {
 		c.record()
 		return
 	}
-	one := false
-
-	for k, meld := range parts {
-		// Do not change order - must be calculated
-		one = c.tryMeld(meld, parts[k:]) || one
+	bestResult := true
+	state := c.save()
+	for k, m := range parts {
+		if !c.push(m) {
+			continue
+		}
+		bestResult = false
+		idx := k
+		if m.Tags().CheckAny(TagPon) {
+			idx++
+		}
+		c.subRun(parts[idx:])
+		state.recover(c)
+		c.stack.pop()
 	}
-	if !one {
+	if bestResult {
 		c.record()
 	}
+}
+
+func FilterMelds(tiles compact.Instances, m Melds) Melds {
+	c := countersFromInstances(tiles)
+	x := make(Melds, 0, len(m))
+	tmp := NewCounters()
+	tmp.copyFrom(c)
+	for _, v := range m {
+		if v.Extract(tmp) {
+			x = append(x, v)
+			tmp.copyFrom(c)
+		}
+	}
+	return x
+}
+
+type state struct {
+	data    Counters
+	minuses int
+	sets    int
+}
+
+func newStates() []*state {
+	x := make([]*state, 5)
+	for k := range x {
+		x[k] = newState()
+	}
+	return x
+}
+
+func newState() *state {
+	return &state{
+		data: NewCounters(),
+	}
+}
+
+func (s *state) save(c *calculator) {
+	s.data.copyFrom(c.hand)
+	s.sets = c.Sets
+}
+
+func (s *state) recover(c *calculator) {
+	c.hand.copyFrom(s.data)
+	c.Sets = s.sets
 }

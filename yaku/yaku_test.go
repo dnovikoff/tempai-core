@@ -7,18 +7,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dnovikoff/tempai-core/base"
-	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func TestYakuRinshanWin(t *testing.T) {
-	tester := newYakuTester(t, "123p345999s2255z")
+	tester := newYakuTester(t, "123p345s2255z")
 	tester.ctx.SelfWind = base.WindSouth
-	tester.declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Left)
+	tester.kan(tile.Sou9)
 	tester.ctx.IsRinshan = true
 	win := tester.tsumo(tile.South)
-	// assert.Equal(t, "999s(OpponentRight:9s) 55z 123p 345s 22z(OpponentSelf:2z:WIN) (2z)", win.Melds.String())
-	assert.Equal(t, "48 = 20(FuBase) + 2(FuTsumo) + 2(FuPair)[55z] + 16(FuOther)[9999s+] + 8(FuOther)[222z+]", win.Fus.String())
+	assert.Equal(t, "48 = 20(FuBase) + 2(FuTsumo) + 2(FuPair)[55z] + 16(FuMeld)[9999s+] + 8(FuMeld)[222z]", win.Fus.String())
 	assert.Equal(t, "2 = YakuNanSelf: 1, YakuRinshan: 1", win.String())
 	assert.Equal(t, 0, len(win.Yakuman))
 
@@ -28,19 +26,19 @@ func TestYakuRinshanWin(t *testing.T) {
 }
 
 func TestYakuHoiteiWin(t *testing.T) {
-	tester := newYakuTester(t, "123p345999s2255z")
-	tester.declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Right)
+	tester := newYakuTester(t, "123p345s2255z")
+	tester.kan(tile.Sou9)
 	tester.ctx.IsLastTile = true
 	assert.Equal(t, "1 = YakuHoutei: 1", tester.ron(tile.South).String())
 	assert.Equal(t, "1 = YakuHaitei: 1", tester.tsumo(tile.South).String())
 }
 
 func TestYakuRinshanIsNotHoitei(t *testing.T) {
-	tester := newYakuTester(t, "123p555999s2255z")
+	tester := newYakuTester(t, "123p555s2255z")
 	tester.ctx.IsLastTile = true
 	tester.ctx.IsRinshan = true
 	tester.rules.IsHaiteiFromLiveOnly = true
-	tester.declare(meld.NewPon(tile.Sou9.Instance(0)), tile.Sou9, base.Right)
+	tester.kan(tile.Sou9)
 
 	win := tester.tsumo(tile.South)
 	assert.Equal(t, "1 = YakuRinshan: 1", win.String())
@@ -51,12 +49,13 @@ func TestYakuRinshanIsNotHoitei(t *testing.T) {
 }
 
 func TestYakuKuitan(t *testing.T) {
-	tester := newYakuTester(t, "234567p34s3388m")
+	tester := newYakuTester(t, "234567p3388m")
 	tester.rules.IsOpenTanyao = true
-	tester.declare(meld.NewSeq(tile.Sou3, 0, 0, meld.HoleCopy), tile.Sou2, base.Left)
+	tester.chi(tile.Sou2)
 	win := tester.tsumo(tile.Man3)
+	require.NotNil(t, win)
 	assert.Equal(t, "1 = YakuTanyao: 1", win.String())
-	assert.Equal(t, "26 = 20(FuBase) + 2(FuTsumo) + 4(FuOther)[333m+]", win.Fus.String())
+	assert.Equal(t, "26 = 20(FuBase) + 2(FuTsumo) + 4(FuMeld)[333m]", win.Fus.String())
 }
 
 func TestToitoiSananko(t *testing.T) {
@@ -122,19 +121,19 @@ func TestPinfuPenchan(t *testing.T) {
 	tester := newYakuTester(t, "33z12m456p566778s")
 	win := tester.tsumo(tile.Man3)
 	assert.Equal(t, "1 = YakuTsumo: 1", win.String())
-	assert.Equal(t, "24 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[12m(3m)]", win.Fus.String())
+	assert.Equal(t, "24 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[12m (3m)]", win.Fus.String())
 }
 
 func TestPinfuKanchan(t *testing.T) {
 	tester := newYakuTester(t, "33z13m456p566778s")
 	win := tester.tsumo(tile.Man2)
 	assert.Equal(t, "1 = YakuTsumo: 1", win.String())
-	assert.Equal(t, "24 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[13m(2m)]", win.Fus.String())
+	assert.Equal(t, "24 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[13m (2m)]", win.Fus.String())
 }
 
 func TestNoFuOpen(t *testing.T) {
-	tester := newYakuTester(t, "12m33z123p12367s")
-	tester.declare(meld.NewSeq(tile.Man1, 0, 0, meld.HoleCopy), tile.Man3, base.Left)
+	tester := newYakuTester(t, "33z123p12367s")
+	tester.chi(tile.Man1)
 	win := tester.ron(tile.Sou8)
 	assert.Equal(t, "1 = YakuSanshoku: 1", win.String())
 	assert.Equal(t, "22 = 20(FuBase) + 2(FuNoOpenFu)", win.Fus.String())
@@ -145,16 +144,16 @@ func TestTanyaoClosed(t *testing.T) {
 	win := tester.tsumo(tile.Pin6)
 	require.NotNil(t, win)
 	assert.Equal(t, "4 = YakuSanankou: 2, YakuTanyao: 1, YakuTsumo: 1", win.String())
-	assert.Equal(t, "34 = 20(FuBase) + 2(FuTsumo) + 4(FuOther)[222m] + 4(FuOther)[666m] + 4(FuOther)[777s]", win.Fus.String())
+	assert.Equal(t, "34 = 20(FuBase) + 2(FuTsumo) + 4(FuMeld)[222m] + 4(FuMeld)[666m] + 4(FuMeld)[777s]", win.Fus.String())
 }
 
 func TestTanyaoOpen(t *testing.T) {
-	tester := newYakuTester(t, "33s45p222666m77s")
-	tester.pon(tile.Sou7, base.Front)
+	tester := newYakuTester(t, "33s45p222666m")
+	tester.pon(tile.Sou7)
 	win := tester.tsumo(tile.Pin6)
 	require.NotNil(t, win)
 	assert.Equal(t, "1 = YakuTanyao: 1", win.String())
-	assert.Equal(t, "32 = 20(FuBase) + 2(FuTsumo) + 2(FuOther)[777s+] + 4(FuOther)[222m] + 4(FuOther)[666m]", win.Fus.String())
+	assert.Equal(t, "32 = 20(FuBase) + 2(FuTsumo) + 4(FuMeld)[222m] + 4(FuMeld)[666m] + 2(FuMeld)[777s+]", win.Fus.String())
 }
 
 func TestYakuChiitoi(t *testing.T) {
@@ -182,9 +181,9 @@ func TestRуnhoCoolHandPriority(t *testing.T) {
 }
 
 func TestYakuCase1(t *testing.T) {
-	tester := newYakuTester(t, "77p33777z2244s")
-	tester.pon(tile.Sou2, base.Right)
-	tester.pon(tile.Sou4, base.Right)
+	tester := newYakuTester(t, "77p33777z")
+	tester.pon(tile.Sou2)
+	tester.pon(tile.Sou4)
 
 	win := tester.ron(tile.Sou2)
 	require.Nil(t, win)
@@ -193,11 +192,11 @@ func TestYakuCase1(t *testing.T) {
 }
 
 func TestTankiCase(t *testing.T) {
-	tester := newYakuTester(t, "1233455m666z1111p")
-	tester.kan(tile.Pin1)
+	tester := newYakuTester(t, "1233455m666z")
+	tester.kanClosed(tile.Pin1)
 	win := tester.tsumo(tile.Man5)
 	assert.Equal(t, "2 = YakuHatsu: 1, YakuTsumo: 1", win.String())
-	assert.Equal(t, "64 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[5m(5m)] + 32(FuOther)[1111p] + 8(FuOther)[666z]", win.Fus.String())
+	assert.Equal(t, "64 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[5m (5m)] + 8(FuMeld)[666z] + 32(FuMeld)[1111p]", win.Fus.String())
 }
 
 func TestTankiCase2(t *testing.T) {
@@ -207,11 +206,20 @@ func TestTankiCase2(t *testing.T) {
 	assert.Equal(t, "20 = 20(FuBase)", win.Fus.String())
 }
 
+func TestOpenTanyao(t *testing.T) {
+	tester := newYakuTester(t, "4588p444s")
+	tester.chi(tile.Man4)
+	tester.chi(tile.Man5)
+	win := tester.ron(tile.Pin3)
+	assert.Equal(t, "1 = YakuTanyao: 1", win.String())
+	assert.Equal(t, "24 = 20(FuBase) + 4(FuMeld)[444s]", win.Fus.String())
+}
+
 func TestKanchanTest(t *testing.T) {
 	tester := newYakuTester(t, "45556m456s456p11z")
 	win := tester.tsumo(tile.Man5)
 	assert.Equal(t, "3 = YakuSanshoku: 2, YakuTsumo: 1", win.String())
-	assert.Equal(t, "32 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[46m(5m)] + 4(FuPair)[11z] + 4(FuOther)[555m]", win.Fus.String())
+	assert.Equal(t, "32 = 20(FuBase) + 2(FuTsumo) + 2(FuBadWait)[46m (5m)] + 4(FuPair)[11z] + 4(FuMeld)[555m]", win.Fus.String())
 }
 
 // TODO:

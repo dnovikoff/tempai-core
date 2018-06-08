@@ -79,7 +79,7 @@ func (m Mask) InvertTiles() Mask {
 	return NewMask(^m.Mask(), m.Tile())
 }
 
-func (m Mask) FirstCopy() tile.CopyID {
+func (m Mask) FirstCopyNative() tile.CopyID {
 	switch {
 	case m&1 == 1:
 		return 0
@@ -89,6 +89,44 @@ func (m Mask) FirstCopy() tile.CopyID {
 		return 2
 	case m&8 == 8:
 		return 3
+	}
+	return tile.NullCopy
+}
+
+func (m Mask) FirstCopy() tile.CopyID {
+	switch m & 15 {
+	case 0:
+		return -1
+	case 1:
+		return 0
+	case 2:
+		return 1
+	case 3:
+		return 0
+	case 4:
+		return 2
+	case 5:
+		return 0
+	case 6:
+		return 1
+	case 7:
+		return 0
+	case 8:
+		return 3
+	case 9:
+		return 0
+	case 10:
+		return 1
+	case 11:
+		return 0
+	case 12:
+		return 2
+	case 13:
+		return 0
+	case 14:
+		return 1
+	case 15:
+		return 0
 	}
 	return tile.NullCopy
 }
@@ -119,7 +157,7 @@ func (m Mask) Check(index tile.CopyID) bool {
 }
 
 func (m Mask) SetIntBit(index uint) Mask {
-	return m | (1<<index)&15
+	return m | ((1 << index) & 15)
 }
 
 func (m Mask) SetCopyBit(cid tile.CopyID) Mask {

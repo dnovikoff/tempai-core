@@ -190,7 +190,7 @@ ctx := &yaku.Context{
     IsTsumo:   true,
     IsChankan: true,
 }
-yakuResult := yaku.Win(results, ctx)
+yakuResult := yaku.Win(results, ctx, nil)
 fmt.Printf("%v\n", yakuResult.Yaku.String())
 fmt.Printf("Value: %v.%v\n", yakuResult.Sum(), yakuResult.Fus.Sum())
 ```

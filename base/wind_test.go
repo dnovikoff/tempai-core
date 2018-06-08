@@ -8,28 +8,6 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-func TestWindToOpponent(t *testing.T) {
-	assert.Equal(t, Self, WindEast.Opponent(WindEast))
-	assert.Equal(t, Right, WindEast.Opponent(WindSouth))
-	assert.Equal(t, Front, WindEast.Opponent(WindWest))
-	assert.Equal(t, Left, WindEast.Opponent(WindNorth))
-
-	assert.Equal(t, Left, WindSouth.Opponent(WindEast))
-	assert.Equal(t, Self, WindSouth.Opponent(WindSouth))
-	assert.Equal(t, Right, WindSouth.Opponent(WindWest))
-	assert.Equal(t, Front, WindSouth.Opponent(WindNorth))
-
-	assert.Equal(t, Front, WindWest.Opponent(WindEast))
-	assert.Equal(t, Left, WindWest.Opponent(WindSouth))
-	assert.Equal(t, Self, WindWest.Opponent(WindWest))
-	assert.Equal(t, Right, WindWest.Opponent(WindNorth))
-
-	assert.Equal(t, Right, WindNorth.Opponent(WindEast))
-	assert.Equal(t, Front, WindNorth.Opponent(WindSouth))
-	assert.Equal(t, Left, WindNorth.Opponent(WindWest))
-	assert.Equal(t, Self, WindNorth.Opponent(WindNorth))
-}
-
 func TestWindAdvance(t *testing.T) {
 	assert.Equal(t, WindEast, WindEast.Advance(0))
 	assert.Equal(t, WindSouth, WindEast.Advance(1))
