@@ -194,7 +194,7 @@ func (c *calculator) tryFat() {
 	for _, v := range c.same {
 		i := v.Interface()
 		start := i.Base()
-		if start.IsSequence() {
+		if compact.Sequence.Check(start) {
 			numbers[start.Number()]++
 		}
 		count++
@@ -305,7 +305,7 @@ func (c *calculator) tryColor() {
 	haveHonor := false
 	color := tile.TypeWind
 	for _, v := range c.base {
-		if v.IsHonor() {
+		if compact.Honor.Check(v) {
 			haveHonor = true
 			continue
 		}
@@ -354,9 +354,9 @@ func maskForChi(t tile.Tile) int {
 
 func maskForSame(t tile.Tile) int {
 	switch {
-	case t.IsHonor():
+	case compact.Honor.Check(t):
 		return maskHonor
-	case t.IsTerminal():
+	case compact.Terminal.Check(t):
 		return maskTerminal
 	}
 	return maskMiddle
@@ -445,17 +445,9 @@ func (c *calculator) allInstances() tile.Instances {
 	return x
 }
 
-var greenTiles = compact.Tiles(0).
-	Set(tile.Sou2).
-	Set(tile.Sou3).
-	Set(tile.Sou4).
-	Set(tile.Sou6).
-	Set(tile.Sou8).
-	Set(tile.Green)
-
 func (c *calculator) tryGreenYakuman() {
 	for _, v := range c.allInstances() {
-		if !greenTiles.Check(v.Tile()) {
+		if !compact.GreenYakuman.Check(v.Tile()) {
 			return
 		}
 	}
@@ -561,7 +553,7 @@ func (c *calculator) tryFu() {
 	for _, m := range c.same {
 		var base FuPoints = 2
 		t := m.Base()
-		if t.IsTerminalOrHonor() {
+		if compact.TerminalOrHonor.Check(t) {
 			base = 4
 		}
 		if c.checkClosed(m) {

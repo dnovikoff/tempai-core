@@ -3,6 +3,8 @@ package yaku
 import (
 	"testing"
 
+	"github.com/dnovikoff/tempai-core/compact"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -59,7 +61,7 @@ func TestYakumanKokushi13(t *testing.T) {
 	tester := newYakuTester(t, "19s19p19m1234567z")
 	for i := tile.TileBegin; i < tile.TileEnd; i++ {
 		win := tester.ron(i)
-		if i.IsTerminalOrHonor() {
+		if compact.TerminalOrHonor.Check(i) {
 			require.NotNil(t, win, i.String())
 			assert.Equal(t, "YakumanKokushi13:2", win.String())
 		} else {

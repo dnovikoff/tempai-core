@@ -61,7 +61,7 @@ func newSeq2(base tile.Tile, c1, c2, c3 tile.CopyID, complete int, opened int) S
 }
 
 func NewSeq(base tile.Tile, t1, t2, t3 tile.CopyID) Seq {
-	if !base.IsSequence() {
+	if !compact.Sequence.Check(base) {
 		return 0
 	}
 	switch base.Number() {

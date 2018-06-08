@@ -4,7 +4,6 @@ import (
 	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/meld"
-	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func Calculate(tiles compact.Instances, options ...calc.Option) Results {
@@ -38,7 +37,7 @@ func CalculateKokushi(tiles compact.Instances) *Result {
 	havePair := false
 	count := 0
 	missing := compact.Tiles(0)
-	for _, t := range tile.KokushiTiles {
+	for _, t := range compact.TerminalOrHonor.Tiles() {
 		switch tiles.GetMask(t).Count() {
 		case 0:
 			missing = missing.Set(t)
@@ -51,7 +50,7 @@ func CalculateKokushi(tiles compact.Instances) *Result {
 	}
 
 	if !havePair {
-		missing = compact.KokushiTiles
+		missing = compact.TerminalOrHonor
 	} else {
 		count++
 	}

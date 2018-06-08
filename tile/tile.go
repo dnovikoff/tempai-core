@@ -65,19 +65,6 @@ const (
 	TileBegin     = Man1
 )
 
-func createKokushTiles() Tiles {
-	result := make(Tiles, 0, TileCount-7*3)
-	for t := TileBegin; t < TileEnd; t++ {
-		if !t.IsTerminalOrHonor() {
-			continue
-		}
-		result = append(result, t)
-	}
-	return result
-}
-
-var KokushiTiles = createKokushTiles()
-
 func (t Tile) Type() Type {
 	tp := Type(t)
 	switch {
@@ -99,26 +86,6 @@ func (t Tile) Type() Type {
 
 func (t Tile) Number() int {
 	return int(t) - int(t.Type()) + 1
-}
-
-func (t Tile) IsHonor() bool {
-	return Type(t) >= TypeWind
-}
-
-func (t Tile) IsSequence() bool {
-	return !t.IsHonor()
-}
-
-func (t Tile) IsTerminal() bool {
-	return t.IsSequence() && (t.Number() == 1 || t.Number() == 9)
-}
-
-func (t Tile) IsTerminalOrHonor() bool {
-	return t.IsHonor() || t.IsTerminal()
-}
-
-func (t Tile) IsMiddle() bool {
-	return t.IsSequence() && !t.IsTerminal()
 }
 
 // Indicates used for dora indicators to choose dora tile
