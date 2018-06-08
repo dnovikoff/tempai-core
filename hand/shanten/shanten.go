@@ -7,19 +7,16 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-func newCalculator(tiles compact.Instances, opts *calc.Options) *calc.Calculator {
-	return calc.NewCalculator(meld.AllShantenMelds, tiles, opts)
-}
-
-func Calculate(tiles compact.Instances, options ...calc.Option) (ret Results) {
+func Calculate(tiles compact.Instances, options ...calc.Option) Results {
 	opts := calc.GetOptions(options...)
-	ret.Regular = calculateRegular(tiles, opts)
+	res := Results{}
+	res.Regular = calculateRegular(tiles, opts)
 	if opts.Opened == 0 {
-		ret.Pairs = CalculatePairs(tiles)
-		ret.Kokushi = CalculateKokushi(tiles)
+		res.Pairs = CalculatePairs(tiles)
+		res.Kokushi = CalculateKokushi(tiles)
 	}
-	ret.Total = ret.Regular.clone().merge(ret.Pairs).merge(ret.Kokushi)
-	return
+	res.Total = res.Regular.clone().merge(res.Pairs).merge(res.Kokushi)
+	return res
 }
 
 func CalculateRegular(tiles compact.Instances, options ...calc.Option) *Result {
@@ -33,8 +30,7 @@ func calculateRegular(tiles compact.Instances, opts *calc.Options) *Result {
 		Result: Result{Value: 8},
 	}
 	opts.Results = &results
-	calc := newCalculator(tiles, opts)
-	calc.Calculate()
+	calc.Calculate(meld.AllShantenMelds, tiles, opts)
 	return &results.Result
 }
 

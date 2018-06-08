@@ -12,12 +12,12 @@ type result struct {
 	declared meld.Melds
 }
 
-func (this *result) CheckMinuses(minuses int) bool {
+func (*result) CheckMinuses(minuses int) bool {
 	return true
 }
 
-func (this *result) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
-	if len(this.declared)+len(melds) != 4 {
+func (r *result) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
+	if len(r.declared)+len(melds) != 4 {
 		return
 	}
 	last := meld.ExtractLastMeld(tiles)
@@ -36,11 +36,11 @@ func (this *result) Record(melds meld.Melds, tiles compact.Instances, totals com
 	}
 
 	ret := make(meld.Melds, 0, 5)
-	ret = append(ret, this.declared...)
+	ret = append(ret, r.declared...)
 	ret = append(ret, melds...)
 	ret = append(ret, last)
 
-	this.Melds = append(this.Melds, ret)
+	r.Melds = append(r.Melds, ret)
 }
 
 func getMeldsInstances(in meld.Melds) compact.Instances {

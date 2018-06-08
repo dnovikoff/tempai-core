@@ -11,7 +11,7 @@ type Results interface {
 	Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals)
 }
 
-type Calculator struct {
+type calculator struct {
 	tiles   compact.Instances
 	stack   *meldStack
 	options *Options
@@ -23,45 +23,49 @@ type Calculator struct {
 	baseMelds meld.BaseMelds
 }
 
-func NewCalculator(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) *Calculator {
-	this := &Calculator{}
-	this.tiles = tiles
-	this.baseMelds = startMelds
-	this.stack = newMeldStack(7)
-	this.options = opts
-	totals := compact.NewTotals().Merge(this.options.Used).Merge(tiles)
-	this.totals = totals
-
-	return this
+func Calculate(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) {
+	newCalculator(startMelds, tiles, opts).run()
 }
 
-func (this *Calculator) res() Results {
-	return this.options.Results
+func newCalculator(startMelds meld.BaseMelds, tiles compact.Instances, opts *Options) *calculator {
+	c := &calculator{}
+	c.tiles = tiles
+	c.baseMelds = startMelds
+	c.stack = newMeldStack(7)
+	c.options = opts
+	totals := compact.NewTotals().Merge(c.options.Used).Merge(tiles)
+	c.totals = totals
+
+	return c
 }
 
-func (this *Calculator) opened() int {
-	return this.options.Opened
+func (c *calculator) res() Results {
+	return c.options.Results
 }
 
-func (this *Calculator) record() {
-	this.res().Record(this.stack.getMelds(), this.tiles, this.totals)
+func (c *calculator) opened() int {
+	return c.options.Opened
 }
 
-func (this *Calculator) Calculate() {
-	parts := this.baseMelds.Filter(this.tiles, this.totals.FreeTiles())
-	this.stack.reset()
-	this.sets = this.opened()
-	this.calculateImpl(parts)
+func (c *calculator) record() {
+	c.res().Record(c.stack.getMelds(), c.tiles, c.totals)
+}
 
-	this.sets = this.opened() - 1
-	this.tiles.Each(func(mask compact.Mask) bool {
+func (c *calculator) run() {
+	parts := c.baseMelds.Filter(c.tiles, c.totals.FreeTiles())
+	c.stack.reset()
+	c.sets = c.opened()
+	c.calculateImpl(parts)
+
+	c.sets = c.opened() - 1
+	c.tiles.Each(func(mask compact.Mask) bool {
 		if mask.Count() < 2 {
 			return true
 		}
-		m := this.push(meld.NewPairFromMask(mask).Meld())
+		m := c.push(meld.NewPairFromMask(mask).Meld())
 		if m != 0 {
-			this.calculateImpl(parts)
-			this.pop(m)
+			c.calculateImpl(parts)
+			c.pop(m)
 		}
 		return true
 	})
@@ -74,66 +78,66 @@ func getMissing(m meld.Meld) int {
 	return 0
 }
 
-func (this *Calculator) push(m meld.Meld) meld.Meld {
+func (c *calculator) push(m meld.Meld) meld.Meld {
 	missing := getMissing(m)
-	if missing > 0 && !this.res().CheckMinuses(missing+this.minuses) {
+	if missing > 0 && !c.res().CheckMinuses(missing+c.minuses) {
 		return 0
 	}
-	fixed := m.Rebase(this.tiles)
+	fixed := m.Rebase(c.tiles)
 	if fixed == 0 {
 		return 0
 	}
 
-	this.sets++
-	this.minuses += missing
-	fixed.ExtractFrom(this.tiles)
-	this.stack.push(fixed)
+	c.sets++
+	c.minuses += missing
+	fixed.ExtractFrom(c.tiles)
+	c.stack.push(fixed)
 	return fixed
 }
 
-func (this *Calculator) pop(m meld.Meld) {
-	this.stack.pop()
-	this.sets--
-	this.minuses -= getMissing(m)
-	m.AddTo(this.tiles)
+func (c *calculator) pop(m meld.Meld) {
+	c.stack.pop()
+	c.sets--
+	c.minuses -= getMissing(m)
+	m.AddTo(c.tiles)
 }
 
-func (this *Calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
-	m = this.push(m)
+func (c *calculator) tryMeld(m meld.Meld, parts meld.Melds) bool {
+	m = c.push(m)
 	if m == 0 {
 		return false
 	}
 	w := m.Waits()
 	if w.IsEmpty() {
-		this.calculateImpl(parts)
+		c.calculateImpl(parts)
 	} else {
 		base := m.Base()
 		w.EachRange(base, base+3, func(t tile.Tile) bool {
-			if this.totals.IsFull(t) {
+			if c.totals.IsFull(t) {
 				return true
 			}
-			this.totals.Add(t, 1)
-			this.calculateImpl(parts)
-			this.totals.Add(t, -1)
+			c.totals.Add(t, 1)
+			c.calculateImpl(parts)
+			c.totals.Add(t, -1)
 			return true
 		})
 	}
-	this.pop(m)
+	c.pop(m)
 	return true
 }
 
-func (this *Calculator) calculateImpl(parts meld.Melds) {
-	if this.sets > 3 {
-		this.record()
+func (c *calculator) calculateImpl(parts meld.Melds) {
+	if c.sets > 3 {
+		c.record()
 		return
 	}
 	one := false
 
 	for k, meld := range parts {
 		// Do not change order - must be calculated
-		one = this.tryMeld(meld, parts[k:]) || one
+		one = c.tryMeld(meld, parts[k:]) || one
 	}
 	if !one {
-		this.record()
+		c.record()
 	}
 }
