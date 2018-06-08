@@ -46,7 +46,7 @@ func TestTilesNormalize(t *testing.T) {
 	assert.EqualValues(t, 0, FromTile(tile.TileEnd).Normalize())
 
 	assert.Equal(t, AllTiles, AllTiles.Normalize())
-	assert.Equal(t, KokushiTiles, KokushiTiles.Normalize())
+	assert.Equal(t, TerminalOrHonor, TerminalOrHonor.Normalize())
 }
 
 func TestTilesInvert(t *testing.T) {
@@ -102,9 +102,9 @@ func TestTilesEach(t *testing.T) {
 func TestTilesValues(t *testing.T) {
 	assert.Equal(t, 34, AllTiles.Count())
 	assert.Equal(t, 0, AllTiles.Invert().Count())
-	assert.Equal(t, 13, KokushiTiles.Count())
-	assert.Equal(t, 21, KokushiTiles.Invert().Count())
+	assert.Equal(t, 13, TerminalOrHonor.Count())
+	assert.Equal(t, 21, TerminalOrHonor.Invert().Count())
 	assert.EqualValues(t, 1, FromTile(tile.Man1))
 
-	assert.Equal(t, "19m19p19s1234567z", KokushiTiles.Tiles().String())
+	assert.Equal(t, "19m19p19s1234567z", TerminalOrHonor.Tiles().String())
 }

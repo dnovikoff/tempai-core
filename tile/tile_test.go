@@ -3,7 +3,6 @@ package tile
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,57 +25,6 @@ func TestConvert(t *testing.T) {
 			})
 		}
 	}
-}
-
-func TestAllTiles(t *testing.T) {
-	tile := TileBegin
-	next := func() (ret string) {
-		ret = fmt.Sprintf("[%d] %v=%v", tile, tile, tileStatus(tile))
-		tile++
-		return
-	}
-	assert.Equal(t, "[1] 1m=SmThO", next())
-	assert.Equal(t, "[2] 2m=SMtho", next())
-	assert.Equal(t, "[3] 3m=SMtho", next())
-	assert.Equal(t, "[4] 4m=SMtho", next())
-	assert.Equal(t, "[5] 5m=SMtho", next())
-	assert.Equal(t, "[6] 6m=SMtho", next())
-	assert.Equal(t, "[7] 7m=SMtho", next())
-	assert.Equal(t, "[8] 8m=SMtho", next())
-	assert.Equal(t, "[9] 9m=SmThO", next())
-
-	// pin
-	assert.Equal(t, "[10] 1p=SmThO", next())
-	assert.Equal(t, "[11] 2p=SMtho", next())
-	assert.Equal(t, "[12] 3p=SMtho", next())
-	assert.Equal(t, "[13] 4p=SMtho", next())
-	assert.Equal(t, "[14] 5p=SMtho", next())
-	assert.Equal(t, "[15] 6p=SMtho", next())
-	assert.Equal(t, "[16] 7p=SMtho", next())
-	assert.Equal(t, "[17] 8p=SMtho", next())
-	assert.Equal(t, "[18] 9p=SmThO", next())
-
-	// sou
-	assert.Equal(t, "[19] 1s=SmThO", next())
-	assert.Equal(t, "[20] 2s=SMtho", next())
-	assert.Equal(t, "[21] 3s=SMtho", next())
-	assert.Equal(t, "[22] 4s=SMtho", next())
-	assert.Equal(t, "[23] 5s=SMtho", next())
-	assert.Equal(t, "[24] 6s=SMtho", next())
-	assert.Equal(t, "[25] 7s=SMtho", next())
-	assert.Equal(t, "[26] 8s=SMtho", next())
-	assert.Equal(t, "[27] 9s=SmThO", next())
-
-	// wind
-	assert.Equal(t, "[28] 1z=smtHO", next())
-	assert.Equal(t, "[29] 2z=smtHO", next())
-	assert.Equal(t, "[30] 3z=smtHO", next())
-	assert.Equal(t, "[31] 4z=smtHO", next())
-
-	// dragon
-	assert.Equal(t, "[32] 5z=smtHO", next())
-	assert.Equal(t, "[33] 6z=smtHO", next())
-	assert.Equal(t, "[34] 7z=smtHO", next())
 }
 
 func TestTileStatic(t *testing.T) {
@@ -139,23 +87,4 @@ func TestTilesContains(t *testing.T) {
 
 	assert.False(t, ts.Contains(Pin3))
 	assert.False(t, ts.Contains(Pin5))
-}
-
-func TestTileImproves(t *testing.T) {
-}
-
-func runeBool(l rune, in bool) string {
-	if in {
-		return strings.ToUpper(string(l))
-	}
-	return string(l)
-}
-
-func tileStatus(t Tile) (ret string) {
-	ret += runeBool('s', t.IsSequence())
-	ret += runeBool('m', t.IsMiddle())
-	ret += runeBool('t', t.IsTerminal())
-	ret += runeBool('h', t.IsHonor())
-	ret += runeBool('o', t.IsTerminalOrHonor())
-	return
 }

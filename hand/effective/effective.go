@@ -34,7 +34,7 @@ func Calculate(closed compact.Instances, options ...calc.Option) Results {
 
 //wd98765
 func tilePriority(t tile.Tile) int {
-	if t.IsHonor() {
+	if compact.Honor.Check(t) {
 		return 0
 	}
 

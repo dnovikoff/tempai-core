@@ -4,7 +4,6 @@ import (
 	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/meld"
-	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func CalculatePairs(tiles compact.Instances) meld.Melds {
@@ -36,7 +35,7 @@ func CalculateKokushi(tiles compact.Instances) meld.Melds {
 
 	var hole meld.Meld
 	var pair meld.Meld
-	for _, t := range tile.KokushiTiles {
+	for _, t := range compact.TerminalOrHonor.Tiles() {
 		mask := tiles.GetMask(t)
 		first := mask.First()
 		switch mask.Count() {
