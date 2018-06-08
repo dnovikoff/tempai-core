@@ -8,32 +8,32 @@ type meldStack struct {
 }
 
 func newMeldStack(capacity int) *meldStack {
-	this := &meldStack{}
-	this.melds = make(meld.Melds, capacity)
-	return this
+	return &meldStack{
+		melds: make(meld.Melds, capacity),
+	}
 }
 
-func (this *meldStack) size() int {
-	return this.index
+func (ms *meldStack) size() int {
+	return ms.index
 }
 
-func (this *meldStack) reset() {
-	this.index = 0
+func (ms *meldStack) reset() {
+	ms.index = 0
 }
 
-func (this *meldStack) push(meld meld.Meld) {
-	this.melds[this.index] = meld
-	this.index++
+func (ms *meldStack) push(meld meld.Meld) {
+	ms.melds[ms.index] = meld
+	ms.index++
 }
 
-func (this *meldStack) getMelds() meld.Melds {
-	return this.melds[:this.index]
+func (ms *meldStack) getMelds() meld.Melds {
+	return ms.melds[:ms.index]
 }
 
-func (this *meldStack) back() meld.Meld {
-	return this.melds[this.index-1]
+func (ms *meldStack) back() meld.Meld {
+	return ms.melds[ms.index-1]
 }
 
-func (this *meldStack) pop() {
-	this.index--
+func (ms *meldStack) pop() {
+	ms.index--
 }

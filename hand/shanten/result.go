@@ -24,29 +24,29 @@ type calcResult struct {
 	opened  int
 }
 
-func (this *Result) clone() *Result {
-	x := *this
+func (r *Result) clone() *Result {
+	x := *r
 	return &x
 }
 
-func (this *Result) merge(other *Result) *Result {
+func (r *Result) merge(other *Result) *Result {
 	if other == nil {
-		return this
+		return r
 	}
-	if this.Value < other.Value {
-		return this
+	if r.Value < other.Value {
+		return r
 	}
-	if this.Value > other.Value {
+	if r.Value > other.Value {
 		return other
 	}
-	this.Improves = this.Improves | other.Improves
-	return this
+	r.Improves = r.Improves | other.Improves
+	return r
 }
 
-func (this Result) CalculateUkeIre(total compact.Totals) compact.Totals {
+func (r *Result) CalculateUkeIre(total compact.Totals) compact.Totals {
 	uke := compact.NewTotals()
 	uCount := 0
-	this.Improves.Each(func(t tile.Tile) bool {
+	r.Improves.Each(func(t tile.Tile) bool {
 		c := 4 - total.Get(t)
 		if c <= 0 {
 			return true
@@ -58,13 +58,13 @@ func (this Result) CalculateUkeIre(total compact.Totals) compact.Totals {
 	return uke
 }
 
-func (this *calcResult) CheckMinuses(minuses int) bool {
+func (r *calcResult) CheckMinuses(minuses int) bool {
 	// A set without 1 tile is still tempai
-	return minuses <= this.Value+1
+	return minuses <= r.Value+1
 }
 
-func (this *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
-	sets := this.opened
+func (r *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
+	sets := r.opened
 	value := 8 - sets*2
 	var improves compact.Tiles
 	havePair := false
@@ -78,11 +78,11 @@ func (this *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals
 		improves |= v.Waits()
 	}
 
-	if value > this.Value {
+	if value > r.Value {
 		// avoid useless calculations
 		return
-	} else if value < this.Value {
-		this.checked = 0
+	} else if value < r.Value {
+		r.checked = 0
 	}
 
 	fullSets := sets > 3
@@ -97,7 +97,7 @@ func (this *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals
 	}
 
 	if !fullSets {
-		toCheck := tiles.UniqueTiles() & (^this.checked)
+		toCheck := tiles.UniqueTiles() & (^r.checked)
 		try := func(central, improve, wait tile.Tile) {
 			if (central.Type() != improve.Type()) || (central.Type() != wait.Type()) {
 				return
@@ -117,23 +117,23 @@ func (this *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals
 			try(t, t+2, t+1)
 			return true
 		})
-		this.checked |= toCheck
+		r.checked |= toCheck
 	}
 
-	this.add(value, improves)
+	r.add(value, improves)
 }
 
-func (this *calcResult) add(value int, improves compact.Tiles) {
+func (r *calcResult) add(value int, improves compact.Tiles) {
 	if improves == 0 {
 		return
 	}
-	if value > this.Value {
+	if value > r.Value {
 		return
-	} else if value < this.Value {
-		this.Improves = 0
-		this.Value = value
+	} else if value < r.Value {
+		r.Improves = 0
+		r.Value = value
 	}
-	this.Improves |= improves
+	r.Improves |= improves
 }
 
 func reducesShantenBy(m meld.Meld) int {

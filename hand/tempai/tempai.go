@@ -64,30 +64,22 @@ func CalculateKokushi(tiles compact.Instances) meld.Melds {
 	return append(melds, pair, hole)
 }
 
-func NewTempai(closed compact.Instances, opts *calc.Options) *calc.Calculator {
-	if opts.Opened*3+closed.Count() != 13 {
-		return nil
-	}
-	return calc.NewCalculator(meld.AllTempaiMelds, closed, opts)
-}
-
-func CalculateRegular(closed compact.Instances, options ...calc.Option) (ret TempaiMelds) {
+func CalculateRegular(closed compact.Instances, options ...calc.Option) TempaiMelds {
 	opts := calc.GetOptions(options...)
 	return calculateRegular(closed, opts)
 }
 
-func calculateRegular(closed compact.Instances, opts *calc.Options) (ret TempaiMelds) {
-	x := &result{declared: opts.Melds}
-	opts.Results = x
-	t := NewTempai(closed, opts)
-	if t == nil {
+func calculateRegular(closed compact.Instances, opts *calc.Options) TempaiMelds {
+	if opts.Opened*3+closed.Count() != 13 {
 		return nil
 	}
-	t.Calculate()
+	x := &result{declared: opts.Melds}
+	opts.Results = x
+	calc.Calculate(meld.AllTempaiMelds, closed, opts)
 	return x.Melds
 }
 
-func Calculate(closed compact.Instances, options ...calc.Option) (ret TempaiMelds) {
+func Calculate(closed compact.Instances, options ...calc.Option) TempaiMelds {
 	opts := calc.GetOptions(options...)
 	return calculate(closed, opts)
 }
