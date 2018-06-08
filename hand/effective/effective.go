@@ -17,8 +17,8 @@ type Result struct {
 	sortId  sSortId
 }
 
-func Calculate(closed compact.Instances, options ...calc.Option) (results Results) {
-	results = make(Results)
+func Calculate(closed compact.Instances, options ...calc.Option) Results {
+	results := make(Results)
 	cp := closed.Clone()
 	closed.Each(func(mask compact.Mask) bool {
 		i := mask.First()
@@ -29,7 +29,7 @@ func Calculate(closed compact.Instances, options ...calc.Option) (results Result
 		cp.Set(i)
 		return true
 	})
-	return
+	return results
 }
 
 //wd98765
@@ -54,10 +54,10 @@ func tilePriority(t tile.Tile) int {
 	return 7
 }
 
-func (this Results) Sorted(used compact.Instances) ResultsSorted {
-	ret := make(ResultsSorted, 0, len(this))
+func (r Results) Sorted(used compact.Instances) ResultsSorted {
+	ret := make(ResultsSorted, 0, len(r))
 	uq := used.UniqueTiles().Invert()
-	for k, v := range this {
+	for k, v := range r {
 		t := (uq & v.Total.Improves).Count()
 		u := used.CountFree(v.Total.Improves)
 		id := newSortId(u, t, v.Total.Value)
