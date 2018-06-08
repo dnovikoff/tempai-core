@@ -74,8 +74,7 @@ func (ts Tiles) Normalize() Tiles {
 
 func (ts Tiles) EachRange(begin, end tile.Tile, f func(tile.Tile) bool) bool {
 	ts >>= shift(begin)
-
-	for i := begin; i < end; i++ {
+	for i := begin; ts != 0 && i < end; i++ {
 		if ts&1 == 1 {
 			if !f(i) {
 				return false

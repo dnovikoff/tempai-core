@@ -5,17 +5,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/dnovikoff/tempai-core/base"
 	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/hand/tempai"
-	"github.com/dnovikoff/tempai-core/meld"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type yakuTester struct {
 	hand     compact.Instances
-	declared meld.Melds
+	declared calc.Melds
 	ctx      *Context
 	tg       *compact.Generator
 	t        *testing.T
@@ -55,19 +53,18 @@ func (yt *yakuTester) iUra(str string) *yakuTester {
 	return yt
 }
 
-func (yt *yakuTester) tempai() tempai.TempaiMelds {
-	cnt := yt.hand.Count() + len(yt.declared)*3
+func (yt *yakuTester) tempai() *tempai.TempaiResults {
+	cnt := yt.hand.CountBits() + len(yt.declared)*3
 	require.Equal(yt.t, 13, cnt, yt.hand.Instances().String())
-	t := tempai.Calculate(yt.hand, calc.Melds(yt.declared))
-	require.NotEmpty(yt.t, t)
+	t := tempai.Calculate(yt.hand, calc.Declared(yt.declared))
+	require.NotNil(yt.t, t)
 	return t
 }
 
 func (yt *yakuTester) win(t tile.Tile) *Result {
-	i := yt.tempai().Index()
+	i := yt.tempai()
 	yt.ctx.Tile = yt.tg.Instance(t)
-	win := Win(i, yt.ctx)
-	return win
+	return Win(i, yt.ctx, nil)
 }
 
 func (yt *yakuTester) ron(t tile.Tile) *Result {
@@ -76,7 +73,7 @@ func (yt *yakuTester) ron(t tile.Tile) *Result {
 }
 
 func (yt *yakuTester) tempaiTiles() string {
-	return yt.tempai().Waits().Tiles().String()
+	return tempai.GetWaits(yt.tempai()).Tiles().String()
 }
 
 func (yt *yakuTester) tsumo(t tile.Tile) *Result {
@@ -85,23 +82,21 @@ func (yt *yakuTester) tsumo(t tile.Tile) *Result {
 }
 
 func (yt *yakuTester) kan(t tile.Tile) {
-	require.Equal(yt.t, 4, yt.hand.GetCount(t))
-	kan := meld.NewKan(t.Instance(0))
-	kan.ExtractFrom(yt.hand)
-	yt.declared = append(yt.declared, kan.Meld())
+	yt.open(calc.Kan(t))
 }
 
-func (yt *yakuTester) pon(t tile.Tile, o base.Opponent) {
-	yt.declare(meld.NewPonPart(t, 0, 1), t, o)
+func (yt *yakuTester) kanClosed(t tile.Tile) {
+	yt.declared = append(yt.declared, calc.Kan(t))
 }
 
-func (yt *yakuTester) declare(m meld.Interface, t tile.Tile, o base.Opponent) {
-	fixed := m.Rebase(yt.hand)
-	require.False(yt.t, fixed.IsNull())
-	i := yt.tg.Instance(t)
-	require.NotEqual(yt.t, tile.InstanceNull, i)
-	opened := fixed.Interface().Open(i, o)
-	require.False(yt.t, fixed.IsNull())
-	fixed.ExtractFrom(yt.hand)
-	yt.declared = append(yt.declared, opened)
+func (yt *yakuTester) pon(t tile.Tile) {
+	yt.open(calc.Pon(t))
+}
+
+func (yt *yakuTester) open(m calc.Meld) {
+	yt.declared = append(yt.declared, calc.Open(m))
+}
+
+func (yt *yakuTester) chi(t tile.Tile) {
+	yt.open(calc.Chi(t))
 }

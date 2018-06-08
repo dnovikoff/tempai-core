@@ -14,7 +14,7 @@ func testUkeIre(t *testing.T, in string) string {
 	tg := compact.NewTileGenerator()
 	tiles, err := tg.CompactFromString(in)
 	require.NoError(t, err, in)
-	require.Equal(t, 13, tiles.Count())
+	require.Equal(t, 13, tiles.CountBits())
 	res := Calculate(tiles).Total
 	uke := res.CalculateUkeIre(compact.NewTotals().Merge(tiles))
 
@@ -36,42 +36,46 @@ func TestUkeIreSimpleOthers(t *testing.T) {
 }
 
 func TestUkeIreSimple(t *testing.T) {
-	tst := func(in string) string {
-		return testUkeIre(t, in)
+	for _, v := range []struct {
+		hand     string
+		expected string
+	}{
+		{"233m1122334p111s", "1/10/30 = 1234m123456p"},
+		{"335m1122334p111s", "1/11/34 = 34567m123456p"},
+
+		{"1233446888m444p", "1/8/22 = 12345678m"},
+		{"1233448889m444p", "1/8/22 = 12345789m"},
+
+		{"3335p233778899s", "1/9/29 = 34567p1234s"},
+		{"444556m2225678s", "1/13/42 = 345678m3456789s"},
+		{"445999m1123p555z", "1/9/29 = 34567m1234p"},
+
+		{"1133889m777p789s", "1/5/14 = 12378m"},
+		{"3444m226778p567s", "1/11/34 = 12345m256789p"},
+
+		{"335m56788s22266z", "1/4/10 = 34m8s6z"},
+
+		{"4578m234567789p", "1/7/24 = 3456789m"},
+		{"4578m345567789p", "1/7/24 = 3456789m"},
+
+		{"5778m123345666p", "1/7/24 = 3456789m"},
+		{"577m1123345666p", "1/10/28 = 34567m12346p"},
+
+		{"236788m5789p555z", "1/5/17 = 1458m5p"},
+		{"2366788m789p555z", "1/9/29 = 123456789m"},
+
+		{"2356m111123777p", "1/7/24 = 1234567m"},
+		{"2368m111123777p", "1/7/24 = 1234678m"},
+
+		{"12233355666m33z", "1/6/14 = 12345m3z"},
+		{"1445m222567p567s", "1/7/24 = 1234567m"},
+
+		{"112355m2344556s", "1/12/35 = 12345m1234567s"},
+	} {
+		t.Run(v.hand, func(t *testing.T) {
+			assert.Equal(t, v.expected, testUkeIre(t, v.hand))
+		})
 	}
-
-	// From marujan
-	assert.Equal(t, "1/10/30 = 1234m123456p", tst("233m1122334p111s"))
-	assert.Equal(t, "1/11/34 = 34567m123456p", tst("335m1122334p111s"))
-
-	assert.Equal(t, "1/8/22 = 12345678m", tst("1233446888m444p"))
-	assert.Equal(t, "1/8/22 = 12345789m", tst("1233448889m444p"))
-
-	assert.Equal(t, "1/9/29 = 34567p1234s", tst("3335p233778899s"))
-	assert.Equal(t, "1/13/42 = 345678m3456789s", tst("444556m2225678s"))
-	assert.Equal(t, "1/9/29 = 34567m1234p", tst("445999m1123p555z"))
-
-	assert.Equal(t, "1/5/14 = 12378m", tst("1133889m777p789s"))
-	assert.Equal(t, "1/11/34 = 12345m256789p", tst("3444m226778p567s"))
-
-	assert.Equal(t, "1/4/10 = 34m8s6z", tst("335m56788s22266z"))
-
-	assert.Equal(t, "1/7/24 = 3456789m", tst("4578m234567789p"))
-	assert.Equal(t, "1/7/24 = 3456789m", tst("4578m345567789p"))
-
-	assert.Equal(t, "1/7/24 = 3456789m", tst("5778m123345666p"))
-	assert.Equal(t, "1/10/28 = 34567m12346p", tst("577m1123345666p"))
-
-	assert.Equal(t, "1/5/17 = 1458m5p", tst("236788m5789p555z"))
-	assert.Equal(t, "1/9/29 = 123456789m", tst("2366788m789p555z"))
-
-	assert.Equal(t, "1/7/24 = 1234567m", tst("2356m111123777p"))
-	assert.Equal(t, "1/7/24 = 1234678m", tst("2368m111123777p"))
-
-	assert.Equal(t, "1/6/14 = 12345m3z", tst("12233355666m33z"))
-	assert.Equal(t, "1/7/24 = 1234567m", tst("1445m222567p567s"))
-
-	assert.Equal(t, "1/12/35 = 12345m1234567s", tst("112355m2344556s"))
 }
 
 func TestUkeIreCool(t *testing.T) {

@@ -2,7 +2,7 @@ package shanten
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
@@ -58,24 +58,18 @@ func (r *Result) CalculateUkeIre(total compact.Totals) compact.Totals {
 	return uke
 }
 
-func (r *calcResult) CheckMinuses(minuses int) bool {
-	// A set without 1 tile is still tempai
-	return minuses <= r.Value+1
-}
-
-func (r *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
-	sets := r.opened
-	value := 8 - sets*2
+func (r *calcResult) Record(in *calc.ResultData) {
+	if !in.Validator.Validate(in.Closed) {
+		return
+	}
+	value := 8 - r.opened*2
 	var improves compact.Tiles
-	havePair := false
-	for _, v := range melds {
-		if v.Type() == meld.TypePair {
-			havePair = true
-		} else {
-			sets++
-		}
+	for _, v := range in.Closed {
 		value -= reducesShantenBy(v)
-		improves |= v.Waits()
+		improves |= v.CompactWaits()
+	}
+	if in.Pair != nil {
+		value--
 	}
 
 	if value > r.Value {
@@ -85,25 +79,24 @@ func (r *calcResult) Record(melds meld.Melds, tiles compact.Instances, totals co
 		r.checked = 0
 	}
 
-	fullSets := sets > 3
+	fullSets := in.Sets > 3
 
-	if !havePair {
-		tiles.Each(func(m compact.Mask) bool {
-			if !totals.IsFull(m.Tile()) {
-				improves = improves.Set(m.Tile())
+	if in.Pair == nil {
+		for _, t := range in.Left {
+			if !in.Validator.Empty(t) {
+				improves = improves.Set(t)
 			}
-			return true
-		})
+		}
 	}
 
 	if !fullSets {
-		toCheck := tiles.UniqueTiles() & (^r.checked)
+		toCheck := compact.FromTiles(in.Left...) & (^r.checked)
 		try := func(central, improve, wait tile.Tile) {
 			if (central.Type() != improve.Type()) || (central.Type() != wait.Type()) {
 				return
 			}
 
-			if totals.IsFull(wait) || totals.IsFull(improve) {
+			if in.Validator.Empty(wait) || in.Validator.Empty(improve) {
 				return
 			}
 			improves = improves.Set(improve)
@@ -136,18 +129,18 @@ func (r *calcResult) add(value int, improves compact.Tiles) {
 	r.Improves |= improves
 }
 
-func reducesShantenBy(m meld.Meld) int {
-	if m == 0 {
+func reducesShantenBy(m calc.Meld) int {
+	if m == nil {
 		return 0
 	}
-	if m.Type() == meld.TypePair {
-		if meld.Pair(m).IsComplete() {
+	tags := m.Tags()
+	if tags.CheckAny(calc.TagPair) {
+		if tags.CheckAny(calc.TagComplete) {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	}
-	if m.IsComplete() {
+	if tags.CheckAny(calc.TagComplete) {
 		return 2
 	}
 	return 1

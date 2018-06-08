@@ -5,14 +5,13 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 )
 
 type YakuSet map[Yaku]HanPoints
 type YakumanSet map[Yakuman]int
 
 type Result struct {
-	Melds   meld.Melds
 	Yaku    YakuSet
 	Yakuman YakumanSet
 	Bonuses YakuSet
@@ -21,13 +20,12 @@ type Result struct {
 	IsClosed bool
 }
 
-func newResult(melds meld.Melds) *Result {
-	res := &Result{}
-	res.Melds = melds
-	res.Yaku = make(YakuSet, 16)
-	res.Bonuses = make(YakuSet, 16)
-	res.Yakuman = make(YakumanSet, 16)
-	return res
+func newResult() *Result {
+	return &Result{
+		Yaku:    make(YakuSet, 16),
+		Bonuses: make(YakuSet, 16),
+		Yakuman: make(YakumanSet, 16),
+	}
 }
 
 func (r *Result) Sum() HanPoints {
@@ -68,9 +66,9 @@ func (r *Result) setValues(k Yaku, opened, closed HanPoints) {
 }
 
 type FuInfo struct {
-	Meld   meld.Meld
 	Fu     Fu
 	Points FuPoints
+	Meld   calc.Meld
 }
 
 func (y YakuSet) Sum() HanPoints {
@@ -114,8 +112,12 @@ func (f Fus) String() string {
 	parts := make([]string, 0, len(f))
 	for _, v := range f {
 		part := fmt.Sprintf("%v(%v)", v.Points, v.Fu)
-		if !v.Meld.IsNull() {
-			part += "[" + meld.DebugDescribe(v.Meld) + "]"
+		if v.Meld != nil {
+			part += "[" + calc.DebugMeld(v.Meld)
+			if v.Meld.Tags().CheckAny(calc.TagOpened) {
+				part += "+"
+			}
+			part += "]"
 		}
 		parts = append(parts, part)
 	}

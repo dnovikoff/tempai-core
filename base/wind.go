@@ -19,14 +19,6 @@ func (w Wind) tile() tile.Tile {
 	return tile.Tile(w) + tile.East
 }
 
-func (w Wind) Opponent(other Wind) Opponent {
-	diff := other - w
-	if diff < 0 {
-		diff += 4
-	}
-	return Self + Opponent(diff)
-}
-
 func (w Wind) CheckTile(t tile.Tile) bool {
 	return w.tile() == t
 }

@@ -16,5 +16,5 @@ func main() {
 	}
 	results := tempai.Calculate(tiles)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
-	fmt.Printf("Waits are %s\n", results.Waits().Tiles())
+	fmt.Printf("Waits are %s\n", tempai.GetWaits(results).Tiles())
 }

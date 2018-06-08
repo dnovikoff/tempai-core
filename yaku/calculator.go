@@ -3,69 +3,105 @@ package yaku
 import (
 	"github.com/dnovikoff/tempai-core/base"
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/hand/calc"
+	"github.com/dnovikoff/tempai-core/hand/tempai"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type calculator struct {
-	ctx       *Context
-	melds     meld.Melds
-	seq       meld.Melds
-	same      meld.Melds
-	result    *Result
-	pair      meld.Pair
-	win       meld.Meld
-	winOpened meld.Meld
-	base      tile.Tiles
-	isClosed  bool
+	args    *args
+	helpers helpers
+	result  *Result
 }
 
-func calculate(ctx *Context, melds meld.Melds) *Result {
-	return newYakuCalculator(ctx, melds).run()
+type declared struct {
+	melds calc.Melds
+	tiles compact.Instances
 }
 
-func newYakuCalculator(ctx *Context, melds meld.Melds) *calculator {
-	ret := &calculator{}
-	ret.ctx = ctx
-	ret.melds = melds
-	ret.win = ret.findWin()
-	ret.winOpened = ret.win.Interface().Open(ctx.Tile, base.Left)
-	ret.isClosed = calculateClosed(melds)
-	if ret.win.IsTanki() {
-		ret.pair = meld.Pair(ret.win)
-	}
-	for _, v := range melds {
-		ret.base = append(ret.base, v.Base())
-		if v == ret.win {
-			continue
-		}
-		switch v.Type() {
-		case meld.TypeSame:
-			ret.same = append(ret.same, v)
-		case meld.TypeSeq:
-			ret.seq = append(ret.seq, v)
-		case meld.TypePair:
-			ret.pair = meld.Pair(v)
-		}
-	}
-	switch ret.win.Type() {
-	case meld.TypeSame:
-		ret.same = append(ret.same, ret.winOpened)
-	case meld.TypeSeq:
-		ret.seq = append(ret.seq, ret.winOpened)
+type args struct {
+	ctx      *Context
+	result   *tempai.TempaiResult
+	hand     compact.Instances
+	declared declared
+	win      calc.Meld
+}
+
+type melds struct {
+	all calc.Melds
+	chi calc.Melds
+	pon calc.Melds
+}
+
+type helpers struct {
+	melds  melds
+	all    compact.Instances
+	closed bool
+}
+
+func calculate(args *args) *Result {
+	return newYakuCalculator(args).run()
+}
+
+func (c *calculator) initTiles() {
+	c.helpers.all = c.args.hand.Clone().Merge(c.args.declared.tiles)
+	c.helpers.all.Set(c.args.ctx.Tile)
+}
+
+func (c *calculator) initMelds() bool {
+	all := make(calc.Melds, 0, 5)
+
+	all = append(all, c.args.result.Melds...)
+	all = append(all, c.args.declared.melds...)
+	all = append(all, c.args.win)
+	pair := c.args.result.Pair
+	if pair != nil {
+		all = append(all, pair)
 	}
 
-	return ret
+	chi := make(calc.Melds, 0, 5)
+	pon := make(calc.Melds, 0, 5)
+	for _, v := range all {
+		t := v.Tags()
+		if t.CheckAny(calc.TagPon) {
+			pon = append(pon, v)
+		} else if t.CheckAny(calc.TagChi) {
+			chi = append(chi, v)
+		}
+	}
+	c.helpers.melds.all = all
+	c.helpers.melds.pon = pon
+	c.helpers.melds.chi = chi
+	return true
+}
+
+func (c *calculator) init(args *args) {
+	c.args = args
+	c.initTiles()
+	c.initMelds()
+	for _, v := range args.declared.melds {
+		if v.Tags().CheckAny(calc.TagOpened) {
+			return
+		}
+	}
+	c.helpers.closed = true
+}
+
+func newYakuCalculator(args *args) *calculator {
+	c := &calculator{}
+	c.init(args)
+	return c
 }
 
 func (c *calculator) run() *Result {
-	c.result = newResult(c.melds)
+	ctx := c.args.ctx
+	c.result = newResult()
 
 	if c.tryKokushi() {
 		return c.calculateResult()
 	}
 
-	if c.ctx.IsRinshan {
+	if ctx.IsRinshan {
 		c.addYaku(YakuRinshan)
 	}
 
@@ -73,14 +109,14 @@ func (c *calculator) run() *Result {
 	c.tryTsumo()
 	c.tryRiichi()
 
-	if c.ctx.IsChankan {
+	if ctx.IsChankan {
 		c.addYaku(YakuChankan)
 	}
 	if c.isChitoi() {
 		c.addFu(FuBase7, 25)
 		c.addYaku(YakuChiitoi)
 	} else {
-		if c.isClosed && c.ctx.isRon() {
+		if c.helpers.closed && ctx.isRon() {
 			c.addFu(FuBaseClosedRon, 30)
 		} else {
 			c.addFu(FuBase, 20)
@@ -92,7 +128,7 @@ func (c *calculator) run() *Result {
 			c.tryYakuhai()
 		}
 		c.trySeq()
-		if c.isClosed {
+		if c.helpers.closed {
 			c.tryXpeko()
 		}
 	}
@@ -100,47 +136,14 @@ func (c *calculator) run() *Result {
 	c.tryTileTypes()
 	c.tryColor()
 	c.tryDora()
-	if c.ctx.IsFirstTake && c.ctx.isRon() {
+	if ctx.IsFirstTake && ctx.isRon() {
 		c.addYaku(YakuRenhou)
 	}
 
-	c.result.IsClosed = c.isClosed
+	c.result.IsClosed = c.helpers.closed
 	c.tryFu()
 
 	return c.calculateResult()
-}
-
-func (c *calculator) findWin() meld.Meld {
-	t := c.ctx.Tile.Tile()
-	for _, v := range c.melds {
-		if !v.IsComplete() && v.Waits().Check(t) {
-			return v
-		}
-	}
-	return 0
-}
-
-func calculateClosed(melds meld.Melds) bool {
-	for _, v := range melds {
-		if v.Interface().IsOpened() {
-			return false
-		}
-	}
-	return true
-}
-
-func (c *calculator) finalMeld(m meld.Meld) meld.Meld {
-	if m == c.win {
-		return c.winOpened
-	}
-	return m
-}
-
-func (c *calculator) checkClosed(m meld.Meld) bool {
-	if m == c.win || m == c.winOpened {
-		return c.ctx.IsTsumo
-	}
-	return !m.Interface().IsOpened()
 }
 
 func (c *calculator) addYaku(yaku Yaku) {
@@ -152,11 +155,11 @@ func (c *calculator) addBonus(yaku Yaku) {
 }
 
 func (c *calculator) addFu(fu Fu, count FuPoints) {
-	c.addFuMeld(0, fu, count)
+	c.addFuMeld(fu, count, nil)
 }
 
-func (c *calculator) addFuMeld(meld meld.Meld, fu Fu, count FuPoints) {
-	c.result.Fus = append(c.result.Fus, &FuInfo{meld, fu, count})
+func (c *calculator) addFuMeld(fu Fu, count FuPoints, meld calc.Meld) {
+	c.result.Fus = append(c.result.Fus, &FuInfo{fu, count, meld})
 }
 
 func (c *calculator) addYakuman2(yaku Yakuman) {
@@ -167,20 +170,37 @@ func (c *calculator) addYakuman(yaku Yakuman) {
 	c.result.Yakuman[yaku] = 1
 }
 
+// 1. A closed hand
+// 2. All chi
+// 3. A non-yakuhai pair
+// 4. Ryanman wait
 func (c *calculator) isPinfu() bool {
-	for _, v := range c.melds {
-		i := v.Interface()
-		if i.IsBadWait() ||
-			i.IsOpened() ||
-			v.Type() == meld.TypeSame {
+	// 1. A closed hand
+	if !c.helpers.closed {
+		return false
+	}
+	// Closed kan is also declared, but no fit for pinfu anyway
+	if len(c.args.declared.melds) > 0 {
+		return false
+	}
+	res := c.args.result
+	// 4. Ryanman wait
+	if !res.Last.Tags().CheckAny(calc.TagRyanman) {
+		return false
+	}
+	// 2. All chi
+	for _, v := range res.Melds {
+		if !v.Tags().CheckAll(calc.TagComplete | calc.TagChi) {
 			return false
 		}
-		base := i.Base()
-		if c.ctx.SelfWind.CheckTile(base) ||
-			c.ctx.RoundWind.CheckTile(base) ||
-			v.Base().Type() == tile.TypeDragon {
-			return false
-		}
+	}
+	// 3. A non-yakuhai pair
+	t := res.Pair.Tile()
+	ctx := c.args.ctx
+	if ctx.SelfWind.CheckTile(t) ||
+		ctx.RoundWind.CheckTile(t) ||
+		t.Type() == tile.TypeDragon {
+		return false
 	}
 	return true
 }
@@ -190,27 +210,26 @@ func (c *calculator) tryFat() {
 	closed := 0
 	kan := 0
 
-	numbers := make(map[int]int)
-	for _, v := range c.same {
-		i := v.Interface()
-		start := i.Base()
-		if compact.Sequence.Check(start) {
-			numbers[start.Number()]++
+	numbers := make(map[int]int, 4)
+	for _, v := range c.helpers.melds.pon {
+		t := v.Tile()
+		tags := v.Tags()
+		if compact.Sequence.Check(t) {
+			numbers[t.Number()]++
 		}
 		count++
-		if c.checkClosed(v) {
+		if !tags.CheckAny(calc.TagOpened) {
 			closed++
 		}
-		if v.IsKan() {
+		if tags.CheckAny(calc.TagKan) {
 			kan++
 		}
 	}
-
 	if kan == 4 {
 		c.addYakuman(YakumanSuukantsu)
 	}
 	if closed == 4 {
-		if c.win.IsTanki() {
+		if c.args.win.Tags().CheckAny(calc.TagPair) {
 			c.addYakuman2(YakumanSuuankouTanki)
 		} else {
 			c.addYakuman(YakumanSuuankou)
@@ -235,12 +254,12 @@ func (c *calculator) tryFat() {
 }
 
 func (c *calculator) tryXpeko() {
-	if !c.isClosed {
+	if !c.helpers.closed {
 		return
 	}
-	tst := make(map[tile.Tile]int)
-	for _, v := range c.seq {
-		tst[v.Interface().Base()]++
+	tst := make(map[tile.Tile]int, 4)
+	for _, v := range c.helpers.melds.chi {
+		tst[v.Tile()]++
 	}
 	cnt := 0
 	for _, v := range tst {
@@ -261,9 +280,12 @@ func (c *calculator) tryYakuhai() {
 	winds := 0
 	const ponValue = 10
 	const pairValue = 1
-
-	if c.pair != 0 {
-		switch c.pair.Base().Type() {
+	pair := c.args.result.Pair
+	if pair == nil && c.args.win.Tags().CheckAny(calc.TagPair) {
+		pair = c.args.win
+	}
+	if pair != nil {
+		switch pair.Tile().Type() {
 		case tile.TypeDragon:
 			dragons += pairValue
 		case tile.TypeWind:
@@ -271,20 +293,21 @@ func (c *calculator) tryYakuhai() {
 		}
 	}
 
-	for _, v := range c.same {
-		start := v.Interface().Base()
-
-		switch start.Type() {
+	for _, v := range c.helpers.melds.pon {
+		t := v.Tile()
+		shift := Yaku(t.Number() - 1)
+		ctx := c.args.ctx
+		switch t.Type() {
 		case tile.TypeDragon:
-			c.addYaku(YakuHaku + Yaku(start.Number()-1))
+			c.addYaku(YakuHaku + shift)
 			dragons += ponValue
 		case tile.TypeWind:
 			winds += ponValue
-			if c.ctx.SelfWind.CheckTile(start) {
-				c.addYaku(YakuTonSelf + Yaku(start.Number()-1))
+			if ctx.SelfWind.CheckTile(t) {
+				c.addYaku(YakuTonSelf + shift)
 			}
-			if c.ctx.RoundWind.CheckTile(start) {
-				c.addYaku(YakuTonRound + Yaku(start.Number()-1))
+			if ctx.RoundWind.CheckTile(t) {
+				c.addYaku(YakuTonRound + shift)
 			}
 		}
 	}
@@ -302,24 +325,23 @@ func (c *calculator) tryYakuhai() {
 }
 
 func (c *calculator) tryColor() {
-	haveHonor := false
-	color := tile.TypeWind
-	for _, v := range c.base {
-		if compact.Honor.Check(v) {
-			haveHonor = true
-			continue
-		}
-		if color != tile.TypeWind && color != v.Type() {
-			return
-		}
-		color = v.Type()
+	var checker compact.Tiles
+	var tags calc.Tags
+	for _, v := range c.helpers.melds.all {
+		tags |= v.Tags()
+		checker = checker.Set(v.Tile().Type().Tile(1))
 	}
-	y := YakuChinitsu
-	if haveHonor {
-		y = YakuHonitsu
+	if (compact.Sequence & checker).Count() != 1 {
+		return
 	}
-	c.addYaku(y)
-	c.tryColorYakumans(y == YakuChinitsu)
+	clean := false
+	if (compact.Honor & checker).IsEmpty() {
+		c.addYaku(YakuChinitsu)
+		clean = true
+	} else {
+		c.addYaku(YakuHonitsu)
+	}
+	c.tryColorYakumans(clean)
 	return
 }
 
@@ -327,71 +349,42 @@ func (c *calculator) tryColorYakumans(isClean bool) {
 	if c.isChitoi() {
 		return
 	}
-	if isClean && c.isClosed {
+	if isClean && c.helpers.closed {
 		c.tryGates()
 	}
-	if !isClean || !c.ctx.Rules.GreenRequired() {
+	if !isClean || !c.args.ctx.Rules.GreenRequired() {
 		c.tryGreenYakuman()
 	}
 }
 
-const (
-	maskTerminal = 1 << iota
-	maskMiddle
-	maskHonor
-	maskChi
-)
-
-func maskForChi(t tile.Tile) int {
-	tmp := maskChi
-	if t.Number() == 1 || t.Number() == 7 {
-		tmp |= maskTerminal
-	} else {
-		tmp |= maskMiddle
-	}
-	return tmp
-}
-
-func maskForSame(t tile.Tile) int {
-	switch {
-	case compact.Honor.Check(t):
-		return maskHonor
-	case compact.Terminal.Check(t):
-		return maskTerminal
-	}
-	return maskMiddle
-}
-
-func maskForMeld(m meld.Meld) int {
-	t := m.Base()
-	switch m.Type() {
-	case meld.TypeSame, meld.TypePair:
-		return maskForSame(t)
-	case meld.TypeSeq:
-		return maskForChi(t)
-	}
-	return 0
-}
-
 func (c *calculator) tryTileTypes() {
-	tmp := 0
-	for _, v := range c.melds {
-		tmp |= maskForMeld(c.finalMeld(v))
-	}
+	const mask = calc.TagChi |
+		calc.TagPon |
+		calc.TagMiddle |
+		calc.TagTerminal |
+		calc.TagHonor
 
-	switch tmp {
-	case maskTerminal | maskChi:
+	var tags calc.Tags
+	for _, v := range c.helpers.melds.all {
+		tags |= v.Tags()
+	}
+	tags &= mask
+
+	switch tags {
+	case calc.TagChi | calc.TagPon | calc.TagTerminal:
 		c.addYaku(YakuJunchan)
-	case maskTerminal:
+	case calc.TagTerminal | calc.TagPon:
 		c.addYakuman(YakumanChinrouto)
-	case maskHonor:
+	case calc.TagPon | calc.TagHonor:
 		c.addYakuman(YakumanTsuiisou)
-	case maskTerminal | maskHonor:
+	case calc.TagPon | calc.TagHonor | calc.TagTerminal:
 		c.addYaku(YakuHonrouto)
-	case maskTerminal | maskHonor | maskChi:
+	case calc.TagPon | calc.TagChi | calc.TagHonor | calc.TagTerminal:
 		c.addYaku(YakuChanta)
-	case maskMiddle, maskMiddle | maskChi:
-		c.addYaku(YakuTanyao)
+	default:
+		if tags&(calc.TagMiddle|calc.TagTerminal|calc.TagHonor) == calc.TagMiddle {
+			c.addYaku(YakuTanyao)
+		}
 	}
 }
 
@@ -399,8 +392,8 @@ func (c *calculator) trySeq() {
 	forSanshoku := make(map[int]int)
 	forItsu := make(map[tile.Type]int)
 
-	for _, v := range c.seq {
-		first := v.Base()
+	for _, v := range c.helpers.melds.chi {
+		first := v.Tile()
 		typ := first.Type()
 		number := first.Number()
 		switch typ {
@@ -436,17 +429,9 @@ func (c *calculator) trySeq() {
 	}
 }
 
-func (c *calculator) allInstances() tile.Instances {
-	x := make(tile.Instances, 0, 14)
-	for _, m := range c.melds {
-		x = append(x, m.Instances()...)
-	}
-	x = append(x, c.ctx.Tile)
-	return x
-}
-
 func (c *calculator) tryGreenYakuman() {
-	for _, v := range c.allInstances() {
+	// TODO: optimize
+	for _, v := range c.helpers.all.Instances() {
 		if !compact.GreenYakuman.Check(v.Tile()) {
 			return
 		}
@@ -455,40 +440,30 @@ func (c *calculator) tryGreenYakuman() {
 }
 
 func (c *calculator) tryGates() {
-	// already checked for color
-	tst := [9]int{-3, -1, -1, -1, -1, -1, -1, -1, -3}
-
-	winIndex := c.ctx.Tile.Tile().Number() - 1
-
-	addTst := func(m meld.Meld, shift, val int) {
-		tst[m.Base().Number()-1+shift] += val
+	if len(c.args.declared.melds) != 0 {
+		return
 	}
-
-	for _, m := range c.same {
-		addTst(m, 0, 3)
+	// Already checked for color
+	if c.helpers.all.UniqueTiles().Count() != 9 {
+		return
 	}
-	for _, m := range c.seq {
-		addTst(m, 0, 1)
-		addTst(m, 1, 1)
-		addTst(m, 2, 1)
-	}
-	addTst(c.pair.Meld(), 0, 2)
-
-	index := -1
-	for k, v := range tst {
-		switch v {
-		case 1:
-			if index > -1 {
-				return
-			}
-			index = k
-		case 0:
-		default:
-			return
+	tst := [9]int{3, 1, 1, 1, 1, 1, 1, 1, 3}
+	var is9 bool
+	if !c.helpers.all.Each(func(m compact.Mask) bool {
+		index := m.Tile().Number() - 1
+		diff := m.Count() - tst[index]
+		if diff < 0 {
+			return false
 		}
+		if diff == 1 {
+			is9 = (m.Tile() == c.args.ctx.Tile.Tile())
+			return true
+		}
+		return diff == 0
+	}) {
+		return
 	}
-
-	if index == winIndex {
+	if is9 {
 		c.addYakuman2(YakumanChuurenpooto9)
 	} else {
 		c.addYakuman(YakumanChuurenpooto)
@@ -496,25 +471,27 @@ func (c *calculator) tryGates() {
 }
 
 func (c *calculator) tryDora() {
-	for _, i := range c.allInstances() {
+	// TODO: optimize
+	for _, i := range c.helpers.all.Instances() {
 		c.tryDoraInstance(i)
 	}
 }
 
 func (c *calculator) tryDoraInstance(i tile.Instance) {
-	if c.ctx.Rules.CheckAka(i) {
+	ctx := c.args.ctx
+	if ctx.Rules.CheckAka(i) {
 		c.addBonus(YakuAkaDora)
 	}
 	t := i.Tile()
-	for _, dora := range c.ctx.DoraTiles {
+	for _, dora := range ctx.DoraTiles {
 		if t == dora {
 			c.addBonus(YakuDora)
 		}
 	}
-	if !c.ctx.shouldAddUras() {
+	if !ctx.shouldAddUras() {
 		return
 	}
-	for _, dora := range c.ctx.UraTiles {
+	for _, dora := range ctx.UraTiles {
 		if t == dora {
 			c.addBonus(YakuUraDora)
 		}
@@ -522,53 +499,55 @@ func (c *calculator) tryDoraInstance(i tile.Instance) {
 }
 
 func (c *calculator) tryFu() {
-	if c.ctx.IsTsumo {
-		if c.ctx.Rules.RinshanFu() || c.result.Yaku[YakuRinshan] == 0 {
+	ctx := c.args.ctx
+	if ctx.IsTsumo {
+		if ctx.Rules.RinshanFu() || c.result.Yaku[YakuRinshan] == 0 {
 			c.addFu(FuTsumo, 2)
 		}
 	}
-	if c.win.Interface().IsBadWait() {
-		c.addFuMeld(c.win, FuBadWait, 2)
+	if c.args.result.Last.Tags().CheckAny(calc.TagTanki | calc.TagPenchan | calc.TagKanchan) {
+		c.addFuMeld(FuBadWait, 2, c.args.result.Last)
 	}
-	if c.pair != 0 {
-		base := c.pair.Base()
-		tpe := base.Type()
+	pair := c.args.result.Pair
+	if pair != nil {
+		t := pair.Tile()
+		tpe := t.Type()
 
 		if tpe == tile.TypeDragon {
-			c.addFuMeld(c.pair.Meld(), FuPair, 2)
+			c.addFuMeld(FuPair, 2, pair)
 		} else if tpe == tile.TypeWind {
 			// Do not merge this two conditions - wind could be counted twice
 			var fu FuPoints
-			if c.ctx.SelfWind.CheckTile(base) {
+			if ctx.SelfWind.CheckTile(t) {
 				fu += 2
 			}
-			if c.ctx.RoundWind.CheckTile(base) {
+			if ctx.RoundWind.CheckTile(t) {
 				fu += 2
 			}
 			if fu > 0 {
-				c.addFuMeld(c.pair.Meld(), FuPair, fu)
+				c.addFuMeld(FuPair, fu, pair)
 			}
 		}
 	}
-	for _, m := range c.same {
+	for _, m := range c.helpers.melds.pon {
 		var base FuPoints = 2
-		t := m.Base()
+		t := m.Tile()
 		if compact.TerminalOrHonor.Check(t) {
 			base = 4
 		}
-		if c.checkClosed(m) {
+		if !m.Tags().CheckAny(calc.TagOpened) {
 			base *= 2
 		}
-		if m.IsKan() {
+		if m.Tags().CheckAny(calc.TagKan) {
 			base *= 4
 		}
-		c.addFuMeld(m, FuOther, base)
+		c.addFuMeld(FuMeld, base, m)
 	}
 }
 
 func (c *calculator) calculateResult() *Result {
 	result := c.result
-	rule := c.ctx.Rules
+	rule := c.args.ctx.Rules
 	result.setValues(YakuTsumo, 0, 1)
 
 	if !rule.OpenTanyao() {
@@ -594,12 +573,12 @@ func (c *calculator) calculateResult() *Result {
 	result.setValues(YakuShousangen, 2, 2)
 
 	if result.Yaku[YakuChiitoi] > 0 {
-		result.Fus = Fus{&FuInfo{0, FuBase7, 25}}
+		result.Fus = Fus{&FuInfo{FuBase7, 25, nil}}
 	} else if result.Yaku[YakuPinfu] > 0 {
-		if c.ctx.IsTsumo {
-			result.Fus = Fus{&FuInfo{0, FuBase, 20}}
+		if c.args.ctx.IsTsumo {
+			result.Fus = Fus{&FuInfo{FuBase, 20, nil}}
 		} else {
-			result.Fus = Fus{&FuInfo{0, FuBaseClosedRon, 30}}
+			result.Fus = Fus{&FuInfo{FuBaseClosedRon, 30, nil}}
 		}
 	} else if !result.IsClosed && len(result.Fus) == 1 {
 		c.addFu(FuNoOpenFu, 2)
@@ -625,26 +604,28 @@ func (c *calculator) calculateResult() *Result {
 }
 
 func (c *calculator) tryKokushi() bool {
-	if len(c.melds) < 12 {
-		return false
-	}
-	if c.win.IsTanki() {
+	// TODO: check by result type
+	tags := c.args.result.Last.Tags()
+	if tags.CheckAny(calc.TagKoksuhi13) {
 		c.addYakuman2(YakumanKokushi13)
-	} else {
+	} else if tags.CheckAny(calc.TagKokushi) {
 		c.addYakuman(YakumanKokushi)
+	} else {
+		return false
 	}
 	return true
 }
 
 func (c *calculator) tryLastTile() {
-	if !c.ctx.IsLastTile {
+	ctx := c.args.ctx
+	if !ctx.IsLastTile {
 		return
 	}
-	if c.ctx.IsRinshan && c.ctx.Rules.HaiteiFromLiveOnly() {
+	if ctx.IsRinshan && ctx.Rules.HaiteiFromLiveOnly() {
 		return
 	}
 
-	if c.ctx.IsTsumo {
+	if ctx.IsTsumo {
 		c.addYaku(YakuHaitei)
 	} else {
 		c.addYaku(YakuHoutei)
@@ -652,11 +633,12 @@ func (c *calculator) tryLastTile() {
 }
 
 func (c *calculator) tryTsumo() {
-	if !c.isClosed || !c.ctx.IsTsumo {
+	ctx := c.args.ctx
+	if !c.helpers.closed || !ctx.IsTsumo {
 		return
 	}
-	if c.ctx.IsFirstTake {
-		if c.ctx.SelfWind == base.WindEast {
+	if ctx.IsFirstTake {
+		if ctx.SelfWind == base.WindEast {
 			// TODO: could be mangan
 			c.addYakuman(YakumanTenhou)
 		} else {
@@ -667,13 +649,14 @@ func (c *calculator) tryTsumo() {
 }
 
 func (c *calculator) tryRiichi() {
-	if !c.ctx.IsRiichi {
+	ctx := c.args.ctx
+	if !ctx.IsRiichi {
 		return
 	}
-	if c.ctx.shouldAddIpatsu() {
+	if ctx.shouldAddIpatsu() {
 		c.addYaku(YakuIppatsu)
 	}
-	if c.ctx.IsDaburi {
+	if ctx.IsDaburi {
 		c.addYaku(YakuDaburi)
 	} else {
 		c.addYaku(YakuRiichi)
@@ -681,5 +664,5 @@ func (c *calculator) tryRiichi() {
 }
 
 func (c *calculator) isChitoi() bool {
-	return c.isClosed && len(c.melds) == 7
+	return c.args.result.Type == tempai.TypePairs
 }

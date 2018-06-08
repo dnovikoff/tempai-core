@@ -4,9 +4,9 @@ package yaku
 
 import "strconv"
 
-const _Fu_name = "FuNoneFuBaseFuBaseClosedRonFuBase7FuSetFuTsumoFuOtherFuNoOpenFuFuBadWaitFuPair"
+const _Fu_name = "FuNoneFuBaseFuBaseClosedRonFuBase7FuSetFuTsumoFuMeldFuNoOpenFuFuBadWaitFuPair"
 
-var _Fu_index = [...]uint8{0, 6, 12, 27, 34, 39, 46, 53, 63, 72, 78}
+var _Fu_index = [...]uint8{0, 6, 12, 27, 34, 39, 46, 52, 62, 71, 77}
 
 func (i Fu) String() string {
 	if i < 0 || i >= Fu(len(_Fu_index)-1) {

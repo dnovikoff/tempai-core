@@ -1,38 +1,46 @@
 package yaku
 
 import (
+	"github.com/dnovikoff/tempai-core/compact"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/hand/tempai"
-	"github.com/dnovikoff/tempai-core/meld"
 )
 
-func Win(tempai tempai.IndexedResult, ctx *Context) *Result {
-	current := tempai[ctx.Tile.Tile()]
-
-	if len(current) == 0 {
-		return nil
-	}
+func Win(results *tempai.TempaiResults, ctx *Context, declaredTiles compact.Instances) *Result {
+	isRon := ctx.isRon()
 	top := 0
-	var res *Result
-	for _, v := range current {
-		waiting := append(meld.Melds{}, v...)
-		winMeld := waiting.Win(ctx.Tile.Tile())
-		if winMeld.IsNull() {
-			return nil
+	var ret *Result
+	for _, v := range results.Results {
+		win := v.Last.Complete(ctx.Tile.Tile())
+		if win == nil {
+			continue
 		}
-		result := calculate(ctx, waiting)
-		if result == nil {
-			return nil
+		if isRon {
+			win = calc.Open(win)
 		}
-
-		if len(result.Yakuman) > 0 {
+		args := &args{
+			ctx:    ctx,
+			result: v,
+			hand:   results.Hand,
+			declared: declared{
+				melds: results.Declared,
+				tiles: declaredTiles,
+			},
+			win: win,
+		}
+		res := calculate(args)
+		if res == nil {
+			continue
+		}
+		if len(res.Yakuman) > 0 {
 			top = 14
-			return result
+			return res
 		}
-		sum := int(result.Fus.Sum()) + int(result.Yaku.Sum()*1000)
+		sum := int(res.Fus.Sum()) + int(res.Yaku.Sum()*1000)
 		if sum > top && sum > 1000 {
-			res = result
+			ret = res
 			top = sum
 		}
 	}
-	return res
+	return ret
 }

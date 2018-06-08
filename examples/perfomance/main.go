@@ -1,8 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
+	"runtime/pprof"
 	"sort"
 	"time"
 
@@ -18,7 +22,7 @@ func shuffle(r *rand.Rand, x sort.Interface) {
 }
 
 func testShanten() {
-	const repeat = 100000
+	repeat := *fCount
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -37,11 +41,11 @@ func testShanten() {
 	fmt.Println("================== Test shanten")
 	fmt.Printf("Repeat: %v\n", repeat)
 	fmt.Printf("Elapsed: %v\n", elapsed)
-	fmt.Printf("Estemated speed: %v per second\n", repeat/elapsed.Seconds())
+	fmt.Printf("Estemated speed: %v per second\n", float64(repeat)/elapsed.Seconds())
 }
 
 func testTempai() {
-	const repeat = 100000
+	repeat := *fCount
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -63,12 +67,12 @@ func testTempai() {
 	fmt.Println("================== Test tempai")
 	fmt.Printf("Repeat: %v\n", repeat)
 	fmt.Printf("Elapsed: %v\n", elapsed)
-	fmt.Printf("Estemated speed: %v per second\n", repeat/elapsed.Seconds())
+	fmt.Printf("Estemated speed: %v per second\n", float64(repeat)/elapsed.Seconds())
 	fmt.Printf("Tempai hand count: %v\n", cnt)
 }
 
 func testEffective() {
-	const repeat = 10000
+	repeat := (*fCount) / 10
 	data := make([]compact.Instances, repeat)
 	// prepare
 	source := rand.NewSource(123)
@@ -87,11 +91,37 @@ func testEffective() {
 	fmt.Println("================== Test effectivity")
 	fmt.Printf("Repeat: %v\n", repeat)
 	fmt.Printf("Elapsed: %v\n", elapsed)
-	fmt.Printf("Estemated speed: %v per second\n", repeat/elapsed.Seconds())
+	fmt.Printf("Estemated speed: %v per second\n", float64(repeat)/elapsed.Seconds())
 }
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var fShanten = flag.Bool("shanten", false, "shanten test")
+var fTempai = flag.Bool("tempai", false, "tempai test")
+var fEff = flag.Bool("eff", false, "effective test")
+var fCount = flag.Int("count", 10000, "Count of tests")
+
 func main() {
-	testShanten()
-	testTempai()
-	testEffective()
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	if !(*fShanten || *fTempai || *fEff) {
+		*fShanten = true
+		*fTempai = true
+		*fEff = true
+	}
+	if *fShanten {
+		testShanten()
+	}
+	if *fTempai {
+		testTempai()
+	}
+	if *fEff {
+		testEffective()
+	}
 }

@@ -60,7 +60,7 @@ const (
 	TerminalOrHonor = Terminal | Honor
 
 	AllTiles = TileEnd - 1
-	Middle   = AllTiles ^ TerminalOrHonor
+	Middle   = (AllTiles ^ TerminalOrHonor) & AllTiles
 
 	GreenYakuman = Sou2 | Sou3 | Sou4 | Sou6 | Sou8 | Green
 )

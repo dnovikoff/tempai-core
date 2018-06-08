@@ -3,11 +3,10 @@ package yaku
 import (
 	"testing"
 
-	"github.com/dnovikoff/tempai-core/compact"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
@@ -25,18 +24,12 @@ func TestYakumanTenhouu(t *testing.T) {
 }
 
 func TestYakumanChuren9(t *testing.T) {
-	tester := newYakuTester(t, "1112345678999p")
-	str := "YakumanChuurenpooto9:2"
-
-	assert.Equal(t, str, tester.ron(tile.Pin1).String(), tile.Pin1.String())
-	assert.Equal(t, str, tester.ron(tile.Pin2).String(), tile.Pin2.String())
-	assert.Equal(t, str, tester.ron(tile.Pin3).String(), tile.Pin3.String())
-	assert.Equal(t, str, tester.ron(tile.Pin4).String(), tile.Pin4.String())
-	assert.Equal(t, str, tester.ron(tile.Pin5).String(), tile.Pin5.String())
-	assert.Equal(t, str, tester.ron(tile.Pin6).String(), tile.Pin6.String())
-	assert.Equal(t, str, tester.ron(tile.Pin7).String(), tile.Pin7.String())
-	assert.Equal(t, str, tester.ron(tile.Pin8).String(), tile.Pin8.String())
-	assert.Equal(t, str, tester.ron(tile.Pin9).String(), tile.Pin9.String())
+	for tl := tile.Pin1; tl <= tile.Pin9; tl++ {
+		t.Run(tl.String(), func(t *testing.T) {
+			tester := newYakuTester(t, "1112345678999p")
+			assert.Equal(t, "YakumanChuurenpooto9:2", tester.ron(tl).String())
+		})
+	}
 }
 
 func TestYakumanChuren1(t *testing.T) {
@@ -60,27 +53,31 @@ func TestYakumanChuren1(t *testing.T) {
 func TestYakumanKokushi13(t *testing.T) {
 	tester := newYakuTester(t, "19s19p19m1234567z")
 	for i := tile.TileBegin; i < tile.TileEnd; i++ {
-		win := tester.ron(i)
-		if compact.TerminalOrHonor.Check(i) {
-			require.NotNil(t, win, i.String())
-			assert.Equal(t, "YakumanKokushi13:2", win.String())
-		} else {
-			assert.Nil(t, win, i.String(), i.String())
-		}
+		t.Run(i.String(), func(t *testing.T) {
+			win := tester.ron(i)
+			if compact.TerminalOrHonor.Check(i) {
+				require.NotNil(t, win)
+				assert.Equal(t, "YakumanKokushi13:2", win.String())
+			} else {
+				assert.Nil(t, win, i.String())
+			}
+		})
 	}
 }
 
-func TestYakumanKokushi1(t *testing.T) {
+func TestYakumanKokushiOne(t *testing.T) {
 	tester := newYakuTester(t, "19s19p1m12345677z")
-	win := tester.ron(tile.Man9)
-	assert.Equal(t, "YakumanKokushi:1", win.String())
-
 	winTile := tile.Man9
 	for i := tile.TileBegin; i < tile.TileEnd; i++ {
-		if i == winTile {
-			continue
-		}
-		assert.Nil(t, tester.ron(i), i.String())
+		t.Run(i.String(), func(t *testing.T) {
+			win := tester.ron(i)
+			if i == winTile {
+				require.NotNil(t, win)
+				assert.Equal(t, "YakumanKokushi:1", win.String())
+			} else {
+				assert.Nil(t, win)
+			}
+		})
 	}
 }
 
