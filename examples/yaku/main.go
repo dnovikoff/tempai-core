@@ -18,14 +18,14 @@ func main() {
 	}
 	winTile := generator.Instance(tile.Sou5)
 
-	results := tempai.Calculate(tiles).Index()
+	results := tempai.Calculate(tiles)
 	ctx := &yaku.Context{
 		Tile:      winTile,
 		Rules:     yaku.RulesEMA(),
 		IsTsumo:   true,
 		IsChankan: true,
 	}
-	yakuResult := yaku.Win(results, ctx)
+	yakuResult := yaku.Win(results, ctx, nil)
 	fmt.Printf("%v\n", yakuResult.Yaku.String())
 	fmt.Printf("Value: %v.%v\n", yakuResult.Sum(), yakuResult.Fus.Sum())
 }

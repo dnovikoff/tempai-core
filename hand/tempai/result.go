@@ -2,51 +2,100 @@ package tempai
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/meld"
-	"github.com/dnovikoff/tempai-core/tile"
+	"github.com/dnovikoff/tempai-core/hand/calc"
 )
 
+//go:generate stringer -type=Type
+type Type int
+
+const (
+	TypeNone Type = iota
+	TypeRegular
+	TypePairs
+	TypeKokushi
+)
+
+type TempaiResult struct {
+	Type  Type
+	Pair  calc.Meld
+	Melds calc.Melds
+	Last  calc.Meld
+	Waits compact.Tiles
+}
+
+type TempaiResults struct {
+	Hand     compact.Instances
+	Declared calc.Melds
+	Results  []*TempaiResult
+}
+
+func GetWaits(in *TempaiResults) compact.Tiles {
+	if in == nil {
+		return 0
+	}
+	c := compact.Tiles(0)
+	for _, v := range in.Results {
+		c |= v.Waits
+	}
+	return c
+}
+
 type result struct {
-	Melds TempaiMelds
-
-	declared meld.Melds
+	original  compact.Instances
+	tmp       compact.Instances
+	results   []*TempaiResult
+	validator calc.Validator
 }
 
-func (*result) CheckMinuses(minuses int) bool {
-	return true
-}
-
-func (r *result) Record(melds meld.Melds, tiles compact.Instances, totals compact.Totals) {
-	if len(r.declared)+len(melds) != 4 {
-		return
-	}
-	last := meld.ExtractLastMeld(tiles)
-	if last == 0 {
-		return
-	}
-
-	// Validate
-	if last.Waits().Each(func(t tile.Tile) bool {
-		if !totals.IsFull(t) {
-			return false
+func (r *result) Record(in *calc.ResultData) {
+	switch in.Sets {
+	case 3:
+		if in.Pair == nil {
+			return
 		}
-		return true
-	}) {
+	case 4:
+	default:
 		return
 	}
-
-	ret := make(meld.Melds, 0, 5)
-	ret = append(ret, r.declared...)
-	ret = append(ret, melds...)
-	ret = append(ret, last)
-
-	r.Melds = append(r.Melds, ret)
-}
-
-func getMeldsInstances(in meld.Melds) compact.Instances {
-	ret := compact.NewInstances()
-	for _, v := range in {
-		v.AddTo(ret)
+	var last calc.Meld
+	i := in.Left
+	t1 := i[0]
+	if in.Pair == nil {
+		last = calc.Tanki(t1)
+	} else {
+		t2 := i[1]
+		if t1 == t2 {
+			last = calc.PonPart(t1)
+		} else {
+			diff := t2 - t1
+			switch diff {
+			case 1:
+				last = calc.ChiPart1(t1)
+			case 2:
+				last = calc.ChiPart2(t1)
+			}
+		}
 	}
-	return ret
+	if last == nil {
+		return
+	}
+	if !in.Validate(last) {
+		return
+	}
+	waits := compact.Tiles(0)
+	for _, v := range last.Waits() {
+		if !in.Validator.Empty(v) {
+			waits |= compact.FromTile(v)
+		}
+	}
+	if waits.IsEmpty() {
+		return
+	}
+	r.results = append(r.results, &TempaiResult{
+		Type:  TypeRegular,
+		Melds: in.Closed.Clone(),
+		Pair:  in.Pair,
+		Last:  last,
+		Waits: waits,
+	})
 }

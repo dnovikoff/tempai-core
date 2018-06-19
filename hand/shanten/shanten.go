@@ -3,7 +3,6 @@ package shanten
 import (
 	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/hand/calc"
-	"github.com/dnovikoff/tempai-core/meld"
 )
 
 func Calculate(tiles compact.Instances, options ...calc.Option) Results {
@@ -23,13 +22,28 @@ func CalculateRegular(tiles compact.Instances, options ...calc.Option) *Result {
 	return calculateRegular(tiles, opts)
 }
 
+func StartMelds(tiles compact.Instances) calc.Option {
+	return calc.StartMelds(startMelds(tiles))
+}
+
+var shantenMelds = calc.CreateAll()
+
+func startMelds(tiles compact.Instances) calc.Melds {
+	melds := shantenMelds.Clone()
+	return calc.FilterMelds(tiles, melds)
+}
+
 func calculateRegular(tiles compact.Instances, opts *calc.Options) *Result {
 	results := calcResult{
 		opened: opts.Opened,
 		Result: Result{Value: 8},
 	}
 	opts.Results = &results
-	calc.Calculate(meld.AllShantenMelds, tiles, opts)
+	melds := opts.StartMelds
+	if melds == nil {
+		melds = startMelds(tiles)
+	}
+	calc.Calculate(melds, tiles, opts)
 	return &results.Result
 }
 

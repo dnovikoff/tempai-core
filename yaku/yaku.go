@@ -89,7 +89,7 @@ const (
 	FuBase7
 	FuSet
 	FuTsumo
-	FuOther
+	FuMeld
 	FuNoOpenFu
 	FuBadWait
 	FuPair

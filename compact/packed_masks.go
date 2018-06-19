@@ -4,8 +4,7 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-// Using 32 implementation, because gopherjs supports only 53 bits
-type PackedMasks uint32
+type PackedMasks uint64
 
 func SinglePackedMasks(mask Mask, index uint) PackedMasks {
 	return PackedMasks(mask.Mask() << (4 * index))

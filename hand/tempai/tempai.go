@@ -3,105 +3,141 @@ package tempai
 import (
 	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/hand/calc"
-	"github.com/dnovikoff/tempai-core/meld"
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
-func CalculatePairs(tiles compact.Instances) meld.Melds {
-	var wait meld.Meld
-	pairs := make(meld.Melds, 0, 7)
-	tiles.Each(func(m compact.Mask) bool {
-		c := m.Count()
-		if c == 1 {
-			wait = meld.NewTanki(m.First()).Meld()
-		} else if c > 1 {
-			pairs = append(pairs, meld.NewPairFromMask(m).Meld())
-		} else {
+func calculatePairs(tiles compact.Instances) *TempaiResult {
+	var wait calc.Meld
+	pairs := make(calc.Melds, 0, 7)
+	if !tiles.Each(func(m compact.Mask) bool {
+		switch m.Count() {
+		case 1:
+			wait = calc.Tanki(m.Tile())
+		case 2:
+			head := calc.Pair(m.Tile())
+			pairs = append(pairs, head)
+		default:
 			return false
 		}
 		return true
-	})
-	if wait.IsNull() || len(pairs) != 6 {
+	}) {
 		return nil
 	}
-	return append(pairs, wait)
+	if wait == nil || len(pairs) != 6 {
+		return nil
+	}
+
+	return &TempaiResult{
+		Type:  TypePairs,
+		Melds: pairs,
+		Last:  wait,
+		Waits: wait.CompactWaits(),
+	}
 }
 
-func CalculateKokushi(tiles compact.Instances) meld.Melds {
-	if tiles.Count() != 13 {
-		return nil
-	}
-	melds := make(meld.Melds, 0, 14)
-	tanki := make(meld.Melds, 0, 14)
-
-	var hole meld.Meld
-	var pair meld.Meld
-	for _, t := range compact.TerminalOrHonor.Tiles() {
-		mask := tiles.GetMask(t)
-		first := mask.First()
-		switch mask.Count() {
-		case 0:
-			hole = meld.NewHole(t).Meld()
+func calculateKokushi(tiles compact.Instances) *TempaiResult {
+	pair := tile.TileNull
+	mask := compact.TerminalOrHonor
+	if !tiles.Each(func(m compact.Mask) bool {
+		t := m.Tile()
+		if !compact.TerminalOrHonor.Check(t) {
+			return false
+		}
+		mask = mask.Unset(t)
+		switch m.Count() {
 		case 1:
-			tanki = append(tanki, meld.NewTanki(first).Meld())
-			melds = append(melds, meld.NewOne(first).Meld())
 		case 2:
-			pair = meld.NewPairFromMask(mask).Meld()
+			if pair != tile.TileNull {
+				return false
+			}
+			pair = t
 		default:
-			return nil
+			return false
 		}
-	}
-
-	if hole.IsNull() {
-		if !pair.IsNull() || len(tanki) != 13 {
-			return nil
-		}
-		return tanki
-	}
-	if pair.IsNull() || len(melds) != 11 {
+		return true
+	}) {
 		return nil
 	}
-	return append(melds, pair, hole)
-}
-
-func CalculateRegular(closed compact.Instances, options ...calc.Option) TempaiMelds {
-	opts := calc.GetOptions(options...)
-	return calculateRegular(closed, opts)
-}
-
-func calculateRegular(closed compact.Instances, opts *calc.Options) TempaiMelds {
-	if opts.Opened*3+closed.Count() != 13 {
-		return nil
+	res := &TempaiResult{
+		Type: TypeKokushi,
 	}
-	x := &result{declared: opts.Melds}
+	if mask.IsEmpty() {
+		res.Last = calc.Kokushi13()
+	} else {
+		res.Last = calc.KokushiMeld(pair, mask.Tiles()[0])
+	}
+	res.Waits = res.Last.CompactWaits()
+	return res
+}
+
+func StartMelds(tiles compact.Instances) calc.Option {
+	return calc.StartMelds(startMelds(tiles))
+}
+
+var tempaiMelds = calc.CreateComplete()
+
+func startMelds(tiles compact.Instances) calc.Melds {
+	return calc.FilterMelds(tiles, tempaiMelds)
+}
+
+func calculateRegular(ret *TempaiResults, opts *calc.Options) bool {
+	if !opts.Forms.Check(calc.Regular) {
+		return false
+	}
+	if opts.Opened*3+ret.Hand.CountBits() != 13 {
+		return false
+	}
+	x := &result{
+		original: ret.Hand,
+		tmp:      compact.NewInstances(),
+	}
 	opts.Results = x
-	calc.Calculate(meld.AllTempaiMelds, closed, opts)
-	return x.Melds
-}
-
-func Calculate(closed compact.Instances, options ...calc.Option) TempaiMelds {
-	opts := calc.GetOptions(options...)
-	return calculate(closed, opts)
-}
-
-func calculate(closed compact.Instances, opts *calc.Options) (ret TempaiMelds) {
-	x := calculateRegular(closed, opts)
-	if len(x) > 0 {
-		ret = x
+	melds := opts.StartMelds
+	if melds == nil {
+		melds = startMelds(ret.Hand)
 	}
-	if len(opts.Melds) > 0 {
-		return
+	calc.Calculate(melds, ret.Hand, opts)
+	if len(x.results) == 0 {
+		return false
+	}
+	ret.Results = append(ret.Results, x.results...)
+	return true
+}
+
+func Calculate(closed compact.Instances, options ...calc.Option) *TempaiResults {
+	opts := calc.GetOptions(options...)
+	ret := calculate(closed, opts)
+	if len(ret.Results) == 0 {
+		return nil
+	}
+	return ret
+}
+
+func calculate(closed compact.Instances, opts *calc.Options) *TempaiResults {
+	ret := &TempaiResults{
+		Hand:     closed,
+		Declared: opts.Declared,
+	}
+	calculateRegular(ret, opts)
+	if opts.Opened != 0 {
+		return ret
 	}
 	// Pairs should be calcluated after regular hand
 	// because of ryanpeiko
-	melds := CalculatePairs(closed)
-	if len(melds) > 0 {
-		return append(ret, melds)
+
+	if opts.Forms.Check(calc.Pairs) {
+		res := calculatePairs(closed)
+		if res != nil {
+			ret.Results = append(ret.Results, res)
+		}
 	}
-	melds = CalculateKokushi(closed)
-	if len(melds) > 0 {
-		return TempaiMelds{melds}
+	if opts.Forms.Check(calc.Kokushi) {
+		res := calculateKokushi(closed)
+		if res != nil {
+			ret.Results = append(ret.Results, res)
+		}
 	}
-	return
+	return ret
 }
 
 func CheckTempai(closed compact.Instances, options ...calc.Option) bool {
@@ -112,13 +148,13 @@ func CheckTempai(closed compact.Instances, options ...calc.Option) bool {
 func checkTempai(closed compact.Instances, opts *calc.Options) bool {
 	// TODO: optimize
 	x := calculate(closed, opts)
-	return len(x) > 0
+	return len(x.Results) > 0
 }
 
 // TODO: solve with effectivity
 func GetTempaiTiles(closed compact.Instances, options ...calc.Option) compact.Tiles {
 	opts := calc.GetOptions(options...)
-	if len(opts.Melds)*3+closed.Count() != 14 {
+	if opts.Opened*3+closed.CountBits() != 14 {
 		return 0
 	}
 	result := compact.Tiles(0)

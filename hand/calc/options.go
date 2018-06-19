@@ -2,20 +2,36 @@ package calc
 
 import (
 	"github.com/dnovikoff/tempai-core/compact"
-	"github.com/dnovikoff/tempai-core/meld"
 )
 
+type Form int
+
+const (
+	Regular Form = 1 << iota
+	Pairs
+	Kokushi
+)
+
+func (f Form) Check(x Form) bool {
+	return (f & x) == x
+}
+
 type Options struct {
-	Opened  int
-	Used    compact.Instances
-	Melds   meld.Melds
-	Results Results
+	Opened   int
+	Used     compact.Instances
+	Results  Results
+	Declared Melds
+	Forms    Form
+
+	StartMelds Melds
 }
 
 type Option func(*Options)
 
 func GetOptions(opts ...Option) *Options {
-	var r Options
+	r := Options{
+		Forms: Kokushi | Pairs | Regular,
+	}
 	for _, opt := range opts {
 		opt(&r)
 	}
@@ -44,13 +60,22 @@ func SetResults(x Results) Option {
 	}
 }
 
-func Melds(melds meld.Melds) Option {
-	used := compact.NewInstances()
-	melds.AddTo(used)
+func Declared(melds Melds) Option {
 	opened := len(melds)
 	return func(c *Options) {
-		c.Melds = melds
-		c.Opened = opened
-		Used(used)(c)
+		c.Declared = melds
+		c.Opened += opened
+	}
+}
+
+func Forms(x Form) Option {
+	return func(c *Options) {
+		c.Forms = x
+	}
+}
+
+func StartMelds(m Melds) Option {
+	return func(c *Options) {
+		c.StartMelds = m
 	}
 }
