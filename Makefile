@@ -18,5 +18,5 @@ generate: gobin/stringer
 
 build:
 	mkdir -p build
-	GOBIN=$(shell pwd)/build go install ./examples/...
+	GOBIN=$(shell pwd)/build go install ./examples/performance/...
 
