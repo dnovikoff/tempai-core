@@ -71,7 +71,7 @@ func (i Instances) String() string {
 	return i.Tiles().String()
 }
 
-// Clone clones the instances avoiding grow. It results in perfomance grow
+// Clone clones the instances avoiding grow.
 func (i Instances) Clone() Instances {
 	x := make(Instances, len(i))
 	for k, v := range i {
