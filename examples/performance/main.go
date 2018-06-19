@@ -17,8 +17,36 @@ import (
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
-func shuffle(r *rand.Rand, x sort.Interface) {
-	r.Shuffle(x.Len(), func(i, j int) { x.Swap(i, j) })
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var fShanten = flag.Bool("shanten", false, "shanten test")
+var fTempai = flag.Bool("tempai", false, "tempai test")
+var fEff = flag.Bool("eff", false, "effective test")
+var fCount = flag.Int("count", 10000, "Count of tests")
+
+func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	if !(*fShanten || *fTempai || *fEff) {
+		*fShanten = true
+		*fTempai = true
+		*fEff = true
+	}
+	if *fShanten {
+		testShanten()
+	}
+	if *fTempai {
+		testTempai()
+	}
+	if *fEff {
+		testEffective()
+	}
 }
 
 func testShanten() {
@@ -94,34 +122,6 @@ func testEffective() {
 	fmt.Printf("Estemated speed: %v per second\n", float64(repeat)/elapsed.Seconds())
 }
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-var fShanten = flag.Bool("shanten", false, "shanten test")
-var fTempai = flag.Bool("tempai", false, "tempai test")
-var fEff = flag.Bool("eff", false, "effective test")
-var fCount = flag.Int("count", 10000, "Count of tests")
-
-func main() {
-	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		pprof.StartCPUProfile(f)
-		defer pprof.StopCPUProfile()
-	}
-	if !(*fShanten || *fTempai || *fEff) {
-		*fShanten = true
-		*fTempai = true
-		*fEff = true
-	}
-	if *fShanten {
-		testShanten()
-	}
-	if *fTempai {
-		testTempai()
-	}
-	if *fEff {
-		testEffective()
-	}
+func shuffle(r *rand.Rand, x sort.Interface) {
+	r.Shuffle(x.Len(), func(i, j int) { x.Swap(i, j) })
 }

@@ -116,10 +116,6 @@ func (c *calculator) push(m Meld) bool {
 }
 
 func (c *calculator) subRun(parts Melds) {
-	cnt := c.Sets
-	if c.Pair != nil {
-		cnt++
-	}
 	if c.Sets > 4 {
 		return
 	} else if c.Sets == 4 {

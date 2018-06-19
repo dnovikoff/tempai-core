@@ -1,4 +1,4 @@
-package main
+package shanten_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/dnovikoff/tempai-core/hand/shanten"
 )
 
-func main() {
+func ExampleCalculate() {
 	generator := compact.NewTileGenerator()
 	tiles, err := generator.CompactFromString("3567m5677p268s277z")
 	if err != nil {
@@ -26,4 +26,12 @@ func main() {
 	uke := res.Total.CalculateUkeIre(compact.NewTotals().Merge(tiles))
 	fmt.Printf("Total uke ire: %v/%v\n", uke.UniqueCount(), uke.Count())
 	fmt.Printf("Hand improves: %s\n", res.Total.Improves.Tiles())
+	// Output:
+	// Hand is 3567m5677p268s277z
+	// Regular shanten value is: 2
+	// Pairs shanten value is: 4
+	// Kokushi shanten value is: 10
+	// Total shanten value is: 2
+	// Total uke ire: 19/66
+	// Hand improves: 123458m456789p12347s27z
 }

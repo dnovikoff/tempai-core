@@ -52,7 +52,7 @@ Shanten, Tempai and effectivity calculators support different forms separatly or
 You can also take into considiration any number of visible tiles to affect results.
 Calculating hands with opened melds is also supported.
 
-`go run ./examples/shanten/main.go`
+`examples/shanten/shanten_test.go`
 
 ```go
 generator := compact.NewTileGenerator()
@@ -85,7 +85,7 @@ Hand improves: 123458m456789p12347s27z
 
 Tempai results could be transformed into yaku results -> han/fu value -> score values
 
-`go run ./examples/tempai/main.go`
+`examples/tempai/tempai_test.go`
 
 ```go
 generator := compact.NewTileGenerator()
@@ -105,7 +105,7 @@ Waits are 469p
 
 Calculating Uke-Ure value for hand.
 
-`go run ./examples/effective/main.go`
+`examples/effective/effective_test.go`
 
 ```go
 generator := compact.NewTileGenerator()
@@ -138,7 +138,7 @@ Configuration options includes:
 Included rulesets for: EMA, JPML-A, JPLML-B, Tenhou.
 You can also configure your own ruleset
 
-`go run ./examples/score/main.go`
+`examples/score/score_test.go`
 
 ```go
 s := score.GetScore(score.RulesEMA(), 4, 22, 0)
@@ -176,7 +176,7 @@ Configuration options includes:
 Included rulesets for: EMA, JPML-A, JPLML-B, Tenhou with red fives.
 You can also configure your own ruleset
 
-`go run ./examples/yaku/main.go`
+`examples/yaku/yaku_test.go`
 
 ```go
 generator := compact.NewTileGenerator()
@@ -202,25 +202,25 @@ Value: 3.20
 ```
 
 ### Perfomance
-There is an `examples/perfomance` folder with some mesaurement program.
+There is an `examples/performance` folder with some mesaurement program.
 I've already made some code improvements, based on profiling for simular test code.
 Although there could be more space for improve, the results on my machine seems quite fine to start with.
 
-` go run ./examples/perfomance/main.go`
+` go run ./examples/performance/main.go`
 
 Output:
 ```
 ================== Test shanten
 Repeat: 10000
-Elapsed: 293.791605ms
-Estemated speed: 34037.7322898658 per second
+Elapsed: 255.822276ms
+Estemated speed: 39089.637369968514 per second
 ================== Test tempai
 Repeat: 10000
-Elapsed: 149.649275ms
-Estemated speed: 66822.9097668532 per second
-Tempai hand count: 4910
+Elapsed: 122.52142ms
+Estemated speed: 81618.38150423003 per second
+Tempai hand count: 4826
 ================== Test effectivity
 Repeat: 1000
-Elapsed: 324.172207ms
-Estemated speed: 3084.780182898283 per second
+Elapsed: 255.058354ms
+Estemated speed: 3920.6714240773313 per second
 ```

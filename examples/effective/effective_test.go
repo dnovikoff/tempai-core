@@ -1,4 +1,4 @@
-package main
+package effective_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/dnovikoff/tempai-core/hand/effective"
 )
 
-func main() {
+func ExampleCalculate() {
 	generator := compact.NewTileGenerator()
 	// https://tempai.net/en/eff/5677m4456899p25s3z
 	tiles, err := generator.CompactFromString("5677m4456899p25s3z")
@@ -20,4 +20,8 @@ func main() {
 	best := results.Sorted(tiles).Best()
 	fmt.Printf("Best to drop is %v\n", best.Tile)
 	fmt.Printf("Best shanten: %v\n", best.Shanten.Total.Value)
+	// Output:
+	// Hand is 5677m4456899p25s3z
+	// Best to drop is 3z
+	// Best shanten: 3
 }

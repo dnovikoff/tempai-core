@@ -1,4 +1,4 @@
-package main
+package yaku_test
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/dnovikoff/tempai-core/yaku"
 )
 
-func main() {
+func ExampleWin() {
 	generator := compact.NewTileGenerator()
 	tiles, err := generator.CompactFromString("33z123m456p66778s")
 	if err != nil {
@@ -28,4 +28,7 @@ func main() {
 	yakuResult := yaku.Win(results, ctx, nil)
 	fmt.Printf("%v\n", yakuResult.Yaku.String())
 	fmt.Printf("Value: %v.%v\n", yakuResult.Sum(), yakuResult.Fus.Sum())
+	// Output:
+	// YakuChankan: 1, YakuPinfu: 1, YakuTsumo: 1
+	// Value: 3.20
 }
