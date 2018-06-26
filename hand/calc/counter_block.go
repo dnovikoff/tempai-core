@@ -11,8 +11,8 @@ func (b *counterBlock) get(i uint) int {
 	return (int(*b) >> (i * 3)) & 7
 }
 
-func (b *counterBlock) invert() {
-	for i := uint(0); i < 9; i++ {
+func (b *counterBlock) invert(cnt uint) {
+	for i := uint(0); i < cnt; i++ {
 		b.set(i, 4-b.get(i))
 	}
 }

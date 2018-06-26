@@ -33,12 +33,12 @@ func Calculate(startMelds Melds, tiles compact.Instances, opts *Options) {
 
 func newCalculator(tiles compact.Instances, opts *Options) *calculator {
 	c := &calculator{}
-	c.hand = countersFromInstances(tiles)
+	c.hand = CountersFromInstances(tiles)
 	c.buf = make(tile.Tiles, 14)
 	c.stack = newMeldStack(4)
 	c.options = opts
 	tmp := compact.NewInstances().Merge(c.options.Used).Merge(tiles)
-	c.Validator.c = countersFromInstances(tmp)
+	c.Validator.c = CountersFromInstances(tmp)
 	c.Validator.c.Invert()
 	for _, v := range opts.Declared {
 		if !v.Extract(c.Validator.c) {
@@ -143,14 +143,14 @@ func (c *calculator) subRun(parts Melds) {
 }
 
 func FilterMelds(tiles compact.Instances, m Melds) Melds {
-	c := countersFromInstances(tiles)
+	c := CountersFromInstances(tiles)
 	x := make(Melds, 0, len(m))
 	tmp := NewCounters()
-	tmp.copyFrom(c)
+	tmp.CopyFrom(c)
 	for _, v := range m {
 		if v.Extract(tmp) {
 			x = append(x, v)
-			tmp.copyFrom(c)
+			tmp.CopyFrom(c)
 		}
 	}
 	return x
@@ -177,11 +177,11 @@ func newState() *state {
 }
 
 func (s *state) save(c *calculator) {
-	s.data.copyFrom(c.hand)
+	s.data.CopyFrom(c.hand)
 	s.sets = c.Sets
 }
 
 func (s *state) recover(c *calculator) {
-	c.hand.copyFrom(s.data)
+	c.hand.CopyFrom(s.data)
 	c.Sets = s.sets
 }

@@ -3,6 +3,8 @@ package calc
 import (
 	"testing"
 
+	"github.com/dnovikoff/tempai-core/compact"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/dnovikoff/tempai-core/tile"
@@ -30,8 +32,18 @@ func TestCounters(t *testing.T) {
 
 func TestCountersInvert(t *testing.T) {
 	b := NewCounters()
+	assert.True(t, b.Empty())
 	b.Invert()
+	assert.False(t, b.Empty())
 	for tl := tile.TileBegin; tl < tile.TileEnd; tl++ {
-		assert.Equal(t, 4, b.Get(tl))
+		t.Run("Get"+tl.String(), func(t *testing.T) {
+			assert.Equal(t, 4, b.Get(tl))
+		})
 	}
+	assert.Equal(t, compact.AllTiles, b.Tiles())
+	for tl := tile.TileBegin; tl < tile.TileEnd; tl++ {
+		b.Set(tl, 0)
+	}
+	t.Log(b)
+	assert.True(t, b.Empty())
 }

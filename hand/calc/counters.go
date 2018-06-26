@@ -7,7 +7,7 @@ import (
 
 type Counters []counterBlock
 
-func (c Counters) copyFrom(x Counters) {
+func (c Counters) CopyFrom(x Counters) {
 	for k, v := range x {
 		c[k] = v
 	}
@@ -42,6 +42,31 @@ func (c Counters) Get(t tile.Tile) int {
 	return c[b].get(i)
 }
 
+func (c Counters) Tiles() compact.Tiles {
+	var out compact.Tiles
+	for bi, b := range c {
+		n := 0
+		for b > 0 {
+			v := int(b & 7)
+			if v != 0 {
+				out = out.Set(tile.TileBegin + tile.Tile(bi*9+n))
+			}
+			n++
+			b >>= 3
+		}
+	}
+	return out
+}
+
+func (c Counters) Empty() bool {
+	for _, v := range c {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func (c Counters) write(buf tile.Tiles) tile.Tiles {
 	index := 0
 	for bi, b := range c {
@@ -60,9 +85,11 @@ func (c Counters) write(buf tile.Tiles) tile.Tiles {
 }
 
 func (c Counters) Invert() {
-	for k := range c {
-		c[k].invert()
+	i := len(c)
+	for k := range c[:i-1] {
+		c[k].invert(9)
 	}
+	c[i-1].invert(7)
 }
 
 func split(t tile.Tile) (int, uint) {
@@ -70,7 +97,7 @@ func split(t tile.Tile) (int, uint) {
 	return int(t / 9), uint(t % 9)
 }
 
-func countersFromInstances(i compact.Instances) Counters {
+func CountersFromInstances(i compact.Instances) Counters {
 	x := NewCounters()
 	i.Each(func(mask compact.Mask) bool {
 		x.Set(mask.Tile(), mask.Count())
