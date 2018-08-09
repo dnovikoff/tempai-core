@@ -8,10 +8,16 @@ import (
 func Calculate(tiles compact.Instances, options ...calc.Option) Results {
 	opts := calc.GetOptions(options...)
 	res := Results{}
-	res.Regular = calculateRegular(tiles, opts)
+	if opts.Forms.Check(calc.Regular) {
+		res.Regular = calculateRegular(tiles, opts)
+	}
 	if opts.Opened == 0 {
-		res.Pairs = CalculatePairs(tiles)
-		res.Kokushi = CalculateKokushi(tiles)
+		if opts.Forms.Check(calc.Pairs) {
+			res.Pairs = CalculatePairs(tiles)
+		}
+		if opts.Forms.Check(calc.Kokushi) {
+			res.Kokushi = CalculateKokushi(tiles)
+		}
 	}
 	res.Total = res.Regular.clone().merge(res.Pairs).merge(res.Kokushi)
 	return res
@@ -75,19 +81,32 @@ func CalculateKokushi(tiles compact.Instances) *Result {
 }
 
 func CalculatePairs(tiles compact.Instances) *Result {
-	value := 6
+	if tiles.CountBits() != 13 {
+		return nil
+	}
 	improves := compact.Tiles(0)
+	pairs := 0
+	single := 0
+	allTiles := compact.AllTiles
 	tiles.Each(func(m compact.Mask) bool {
 		c := m.Count()
 		if c == 1 {
+			single++
 			improves = improves.Set(m.Tile())
-		} else if c > 1 {
-			value--
+		} else {
+			allTiles = allTiles.Unset(m.Tile())
+			pairs++
 		}
 		return true
 	})
+	pairsLeft := 7 - pairs
+	if single > pairsLeft {
+		single = pairsLeft
+	} else if single < pairsLeft {
+		improves = allTiles
+	}
 	return &Result{
-		Value:    value,
+		Value:    13 - pairs*2 - single,
 		Improves: improves,
 	}
 }

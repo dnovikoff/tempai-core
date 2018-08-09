@@ -111,6 +111,27 @@ func TestMonocolorBug(t *testing.T) {
 	assert.Equal(t, "3467m", uke.UniqueTiles().Tiles().String())
 }
 
+func TestPairsImproves(t *testing.T) {
+	for _, v := range []struct {
+		Hand    string
+		Value   int
+		Impoves compact.Tiles
+	}{
+		{"1122334455667z", 0, compact.Red},
+		{"1122334455666z", 1, compact.AllTiles.Sub(compact.Honor).Merge(compact.Red)},
+		{"1111222233334z", 6, compact.AllTiles.Sub(compact.East | compact.South | compact.West)},
+		{"123456789p1234z", 6, compact.Wind | compact.Pin},
+	} {
+		t.Run(v.Hand, func(t *testing.T) {
+			tiles := testCompact(t, v.Hand)
+			res := Calculate(tiles)
+			m := res.Pairs
+			assert.Equal(t, v.Value, m.Value)
+			assert.Equal(t, v.Impoves, m.Improves)
+		})
+	}
+}
+
 func testCompact(t *testing.T, str string) compact.Instances {
 	tg := compact.NewTileGenerator()
 	tiles, err := tg.CompactFromString(str)

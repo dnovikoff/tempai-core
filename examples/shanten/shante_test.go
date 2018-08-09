@@ -10,11 +10,13 @@ import (
 
 func ExampleCalculate() {
 	generator := compact.NewTileGenerator()
-	tiles, err := generator.CompactFromString("3567m5677p268s277z")
+	tiles, err := generator.CompactFromString("3567m5677p268s77z")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// We tell the calculator, that there are 0 opened melds.
+	if tiles.CountBits() != 13 {
+		log.Fatal("Expected 13 tiles, but got", tiles.CountBits())
+	}
 	res := shanten.Calculate(tiles)
 	fmt.Printf("Hand is %s\n", tiles.Instances())
 
@@ -27,11 +29,11 @@ func ExampleCalculate() {
 	fmt.Printf("Total uke ire: %v/%v\n", uke.UniqueCount(), uke.Count())
 	fmt.Printf("Hand improves: %s\n", res.Total.Improves.Tiles())
 	// Output:
-	// Hand is 3567m5677p268s277z
+	// Hand is 3567m5677p268s77z
 	// Regular shanten value is: 2
 	// Pairs shanten value is: 4
-	// Kokushi shanten value is: 10
+	// Kokushi shanten value is: 11
 	// Total shanten value is: 2
-	// Total uke ire: 19/66
-	// Hand improves: 123458m456789p12347s27z
+	// Total uke ire: 18/63
+	// Hand improves: 123458m456789p12347s7z
 }
