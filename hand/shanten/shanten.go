@@ -7,6 +7,7 @@ import (
 
 func Calculate(tiles compact.Instances, options ...calc.Option) Results {
 	opts := calc.GetOptions(options...)
+	calc.Used(tiles)(opts)
 	res := Results{}
 	if opts.Forms.Check(calc.Regular) {
 		res.Regular = calculateRegular(tiles, opts)
@@ -25,6 +26,7 @@ func Calculate(tiles compact.Instances, options ...calc.Option) Results {
 
 func CalculateRegular(tiles compact.Instances, options ...calc.Option) *Result {
 	opts := calc.GetOptions(options...)
+	calc.Used(tiles)(opts)
 	return calculateRegular(tiles, opts)
 }
 

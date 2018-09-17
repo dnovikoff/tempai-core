@@ -179,11 +179,11 @@ func GetScoreByBase(r Rules, base MoneyBase, special yaku.Limit, han yaku.HanPoi
 	return score
 }
 
-func GetYakumanScore(r Rules, mul int, honba Honba) (score Score) {
+func GetYakumanScore(r Rules, mul int, honba Honba) Score {
 	return GetScoreByBase(r, MoneyBase(mul)*8000, yaku.LimitYakuman, 0, 0, honba)
 }
 
-func GetScore(r Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) (score Score) {
+func GetScore(r Rules, han yaku.HanPoints, fu yaku.FuPoints, honba Honba) Score {
 	base, special := calculateScoreBase(r, han, fu)
 	return GetScoreByBase(r, base, special, han, fu, honba)
 }

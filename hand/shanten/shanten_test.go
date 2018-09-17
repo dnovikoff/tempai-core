@@ -11,27 +11,41 @@ import (
 )
 
 func TestShantenSimple(t *testing.T) {
-	for _, v := range []struct {
+	type testParams struct {
 		hand     string
 		expected int
-	}{
-		{"11558899s11223z", 0},
+		opts     []calc.Option
+	}
+	c := func(hand string, expected int, opts ...calc.Option) testParams {
+		return testParams{
+			hand:     hand,
+			expected: expected,
+			opts:     opts,
+		}
+	}
 
-		{"8m1367p4566677s1z", 2},
-		{"123456789s1122z", 0},
-		{"44p456678s44777z", 0},
+	for _, v := range []testParams{
+		c("11558899s11223z", 0),
+
+		c("8m1367p4566677s1z", 2),
+		c("123456789s1122z", 0),
+		c("44p456678s44777z", 0),
 
 		// 13
-		{"19s19p19m1234456z", 0},
-		{"19s19p19m1234567z", 0},
-		{"19s19p18m1234567z", 1},
-		{"19s29p18m1234567z", 2},
+		c("19s19p19m1234456z", 0),
+		c("19s19p19m1234567z", 0),
+		c("19s19p18m1234567z", 1),
+		c("19s29p18m1234567z", 2),
 		// This leads to 7 pairs
-		{"27s29p28m1134777z", 4},
+		c("27s29p28m1134777z", 4),
+
+		c("344s45p22334444m", 1),
 	} {
 		t.Run(v.hand, func(t *testing.T) {
-			results := testGetShantent(t, v.hand)
-			assert.Equal(t, v.expected, results.Total.Value)
+			results := testGetShantent(t, v.hand, v.opts...)
+			if !assert.Equal(t, v.expected, results.Total.Value) {
+				t.Log(results.Total.Improves.Tiles().String())
+			}
 		})
 	}
 }
@@ -111,7 +125,7 @@ func TestMonocolorBug(t *testing.T) {
 	assert.Equal(t, "3467m", uke.UniqueTiles().Tiles().String())
 }
 
-func TestPairsImproves(t *testing.T) {
+func TestImprovesPair(t *testing.T) {
 	for _, v := range []struct {
 		Hand    string
 		Value   int
@@ -127,7 +141,25 @@ func TestPairsImproves(t *testing.T) {
 			res := Calculate(tiles)
 			m := res.Pairs
 			assert.Equal(t, v.Value, m.Value)
-			assert.Equal(t, v.Impoves, m.Improves)
+			assert.Equal(t, v.Impoves.Tiles().String(), m.Improves.Tiles().String())
+		})
+	}
+}
+
+func TestImprovesTotal(t *testing.T) {
+	for _, v := range []struct {
+		Hand    string
+		Value   int
+		Impoves compact.Tiles
+	}{
+		{"344s45p22334444m", 1, compact.Man1 | compact.Pin3 | compact.Pin6 | compact.Sou2 | compact.Sou4 | compact.Sou5},
+	} {
+		t.Run(v.Hand, func(t *testing.T) {
+			tiles := testCompact(t, v.Hand)
+			res := Calculate(tiles, calc.Used(tiles))
+			m := res.Total
+			assert.Equal(t, v.Value, m.Value)
+			assert.Equal(t, v.Impoves.Tiles().String(), m.Improves.Tiles().String())
 		})
 	}
 }
@@ -139,10 +171,10 @@ func testCompact(t *testing.T, str string) compact.Instances {
 	return tiles
 }
 
-func testGetShantent(t *testing.T, str string) Results {
+func testGetShantent(t *testing.T, str string, opts ...calc.Option) Results {
 	tiles := testCompact(t, str)
-	require.Equal(t, 13, tiles.CountBits())
-	return Calculate(tiles)
+	require.Equal(t, 13, tiles.CountBits()+calc.GetOptions(opts...).Opened*3)
+	return Calculate(tiles, opts...)
 }
 
 // TODO:

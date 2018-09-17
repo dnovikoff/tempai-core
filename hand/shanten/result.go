@@ -83,9 +83,7 @@ func (r *calcResult) Record(in *calc.ResultData) {
 
 	if in.Pair == nil {
 		for _, t := range in.Left {
-			if !in.Validator.Empty(t) {
-				improves = improves.Set(t)
-			}
+			improves = improves.Set(t)
 		}
 	}
 
@@ -111,6 +109,13 @@ func (r *calcResult) Record(in *calc.ResultData) {
 			return true
 		})
 		r.checked |= toCheck
+	}
+
+	// Cleanup
+	for x := tile.TileBegin; x < tile.TileEnd; x++ {
+		if in.Validator.Empty(x) {
+			improves = improves.Unset(x)
+		}
 	}
 
 	r.add(value, improves)

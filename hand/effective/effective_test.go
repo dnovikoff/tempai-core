@@ -85,6 +85,15 @@ func TestEffectivePairsBug3(t *testing.T) {
 	assert.Equal(t, 6, results[tile.North].Pairs.Value)
 }
 
+func TestEffectiveBug4(t *testing.T) {
+	tg := compact.NewTileGenerator()
+	tiles, err := tg.CompactFromString("344s45p222334444m")
+	require.NoError(t, err)
+	results := Calculate(tiles)
+	require.NotNil(t, results)
+	assert.Equal(t, "1m36p245s", results[tile.Man2].Total.Improves.Tiles().String())
+}
+
 func testEffectiveBest(t *testing.T, in string) string {
 	tg := compact.NewTileGenerator()
 	tiles, err := tg.CompactFromString(in)
