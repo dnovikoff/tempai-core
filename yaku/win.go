@@ -32,7 +32,7 @@ func Win(results *tempai.TempaiResults, ctx *Context, declaredTiles compact.Inst
 		if res == nil {
 			continue
 		}
-		if len(res.Yakuman) > 0 {
+		if len(res.Yakumans) > 0 {
 			top = 14
 			return res
 		}

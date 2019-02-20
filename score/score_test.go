@@ -174,12 +174,11 @@ func TestResultCounting(t *testing.T) {
 func TestResultCountingYakuman(t *testing.T) {
 	r := RulesEMA()
 	r.IsYakumanSum = false
-	r.IsYakumanDouble = false
 	result := &yaku.Result{
-		Yakuman: yaku.YakumanSet{
-			yaku.YakumanDaisangen: 1,
-			yaku.YakumanDaisuushi: 2,
-			yaku.YakumanTsuiisou:  1,
+		Yakumans: yaku.Yakumans{
+			yaku.YakumanDaisangen,
+			yaku.YakumanDaisuushi,
+			yaku.YakumanTsuiisou,
 		},
 	}
 
@@ -192,7 +191,6 @@ func TestResultCountingYakuman(t *testing.T) {
 	}, GetScoreByResult(r, result, 0))
 
 	r.IsYakumanSum = true
-	r.IsYakumanDouble = false
 	assert.Equal(t, Score{
 		PayRon:         32000 * 3,
 		PayRonDealer:   48000 * 3,
@@ -202,7 +200,8 @@ func TestResultCountingYakuman(t *testing.T) {
 	}, GetScoreByResult(r, result, 0))
 
 	r.IsYakumanSum = true
-	r.IsYakumanDouble = true
+	r.DoubleYakumans = DefaultDoubleYakumans()
+
 	assert.Equal(t, Score{
 		PayRon:         32000 * 4,
 		PayRonDealer:   48000 * 4,
@@ -212,7 +211,6 @@ func TestResultCountingYakuman(t *testing.T) {
 	}, GetScoreByResult(r, result, 0))
 
 	r.IsYakumanSum = false
-	r.IsYakumanDouble = true
 	assert.Equal(t, Score{
 		PayRon:         32000 * 2,
 		PayRonDealer:   48000 * 2,

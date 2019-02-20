@@ -18,7 +18,7 @@ func TestYakuRinshanWin(t *testing.T) {
 	win := tester.tsumo(tile.South)
 	assert.Equal(t, "48 = 20(FuBase) + 2(FuTsumo) + 2(FuPair)[55z] + 16(FuMeld)[9999s+] + 8(FuMeld)[222z]", win.Fus.String())
 	assert.Equal(t, "2 = YakuNanSelf: 1, YakuRinshan: 1", win.String())
-	assert.Equal(t, 0, len(win.Yakuman))
+	assert.Equal(t, 0, len(win.Yakumans))
 
 	tester.ctx.IsRinshan = false
 	win = tester.tsumo(tile.South)

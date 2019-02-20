@@ -1,21 +1,25 @@
 package score
 
+import (
+	"github.com/dnovikoff/tempai-core/yaku"
+)
+
 type Money int
 
 type Rules interface {
 	ManganRound() bool
 	KazoeYakuman() bool
-	YakumanDouble() bool
+	IsDoubleYakuman(yaku.Yakuman) bool
 	YakumanSum() bool
 
 	Honba() Money
 }
 
 type RulesStruct struct {
-	IsManganRound   bool
-	IsKazoeYakuman  bool
-	IsYakumanDouble bool
-	IsYakumanSum    bool
+	IsManganRound  bool
+	IsKazoeYakuman bool
+	DoubleYakumans map[yaku.Yakuman]bool
+	IsYakumanSum   bool
 
 	HonbaValue Money
 }
@@ -30,8 +34,8 @@ func (r *RulesStruct) KazoeYakuman() bool {
 	return r.IsKazoeYakuman
 }
 
-func (r *RulesStruct) YakumanDouble() bool {
-	return r.IsYakumanDouble
+func (r *RulesStruct) IsDoubleYakuman(y yaku.Yakuman) bool {
+	return r.DoubleYakumans[y]
 }
 
 func (r *RulesStruct) YakumanSum() bool {

@@ -161,13 +161,8 @@ func (c *calculator) addFu(fu Fu, count FuPoints) {
 func (c *calculator) addFuMeld(fu Fu, count FuPoints, meld calc.Meld) {
 	c.result.Fus = append(c.result.Fus, &FuInfo{fu, count, meld})
 }
-
-func (c *calculator) addYakuman2(yaku Yakuman) {
-	c.result.Yakuman[yaku] = 2
-}
-
-func (c *calculator) addYakuman(yaku Yakuman) {
-	c.result.Yakuman[yaku] = 1
+func (c *calculator) addYakuman(y Yakuman) {
+	c.result.Yakumans = append(c.result.Yakumans, y)
 }
 
 // 1. A closed hand
@@ -230,7 +225,7 @@ func (c *calculator) tryFat() {
 	}
 	if closed == 4 {
 		if c.args.win.Tags().CheckAny(calc.TagPair) {
-			c.addYakuman2(YakumanSuuankouTanki)
+			c.addYakuman(YakumanSuuankouTanki)
 		} else {
 			c.addYakuman(YakumanSuuankou)
 		}
@@ -318,7 +313,7 @@ func (c *calculator) tryYakuhai() {
 	case dragons == ponValue*2+pairValue:
 		c.addYaku(YakuShousangen)
 	case winds == ponValue*4:
-		c.addYakuman2(YakumanDaisuushi)
+		c.addYakuman(YakumanDaisuushi)
 	case winds == ponValue*3+pairValue:
 		c.addYakuman(YakumanShousuushi)
 	}
@@ -464,7 +459,7 @@ func (c *calculator) tryGates() {
 		return
 	}
 	if is9 {
-		c.addYakuman2(YakumanChuurenpooto9)
+		c.addYakuman(YakumanChuurenpooto9)
 	} else {
 		c.addYakuman(YakumanChuurenpooto)
 	}
@@ -607,7 +602,7 @@ func (c *calculator) tryKokushi() bool {
 	// TODO: check by result type
 	tags := c.args.result.Last.Tags()
 	if tags.CheckAny(calc.TagKoksuhi13) {
-		c.addYakuman2(YakumanKokushi13)
+		c.addYakuman(YakumanKokushi13)
 	} else if tags.CheckAny(calc.TagKokushi) {
 		c.addYakuman(YakumanKokushi)
 	} else {

@@ -9,13 +9,13 @@ import (
 )
 
 type YakuSet map[Yaku]HanPoints
-type YakumanSet map[Yakuman]int
+type Yakumans []Yakuman
 
 type Result struct {
-	Yaku    YakuSet
-	Yakuman YakumanSet
-	Bonuses YakuSet
-	Fus     Fus
+	Yaku     YakuSet
+	Yakumans Yakumans
+	Bonuses  YakuSet
+	Fus      Fus
 
 	IsClosed bool
 }
@@ -24,7 +24,6 @@ func newResult() *Result {
 	return &Result{
 		Yaku:    make(YakuSet, 16),
 		Bonuses: make(YakuSet, 16),
-		Yakuman: make(YakumanSet, 16),
 	}
 }
 
@@ -37,8 +36,8 @@ func (r *Result) Sum() HanPoints {
 }
 
 func (r *Result) String() string {
-	if len(r.Yakuman) > 0 {
-		return r.Yakuman.String()
+	if len(r.Yakumans) > 0 {
+		return r.Yakumans.String()
 	}
 	if len(r.Yaku) > 0 {
 		x := r.Yaku.String()
@@ -88,11 +87,10 @@ func (y YakuSet) String() string {
 	return strings.Join(results, ", ")
 }
 
-func (ys YakumanSet) String() string {
-	results := make([]string, 0, len(ys))
-	for k, v := range ys {
-		str := fmt.Sprintf("%v:%v", k.String(), v)
-		results = append(results, str)
+func (y Yakumans) String() string {
+	results := make([]string, 0, len(y))
+	for _, v := range y {
+		results = append(results, v.String())
 	}
 	sort.Strings(results)
 	return strings.Join(results, ", ")

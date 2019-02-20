@@ -22,5 +22,4 @@ func TestInstanceStringify(t *testing.T) {
 		Man9.Instance(1),
 		East.Instance(3),
 	}.String())
-
 }

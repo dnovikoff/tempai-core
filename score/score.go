@@ -146,21 +146,20 @@ func calculateScoreBase(r Rules, han yaku.HanPoints, fu yaku.FuPoints) (MoneyBas
 
 // TODO: yakuman split for pao?
 func GetScoreByResult(r Rules, res *yaku.Result, honba Honba) Score {
-	if len(res.Yakuman) > 0 {
+	if len(res.Yakumans) > 0 {
 		mul := 1
 		if r.YakumanSum() {
-			mul = len(res.Yakuman)
+			mul = len(res.Yakumans)
 		}
-		if r.YakumanDouble() {
-			for _, v := range res.Yakuman {
-				if v > 1 {
-					if r.YakumanSum() {
-						mul++
-					} else {
-						mul = 2
-						break
-					}
-				}
+		for _, v := range res.Yakumans {
+			if !r.IsDoubleYakuman(v) {
+				continue
+			}
+			if r.YakumanSum() {
+				mul++
+			} else {
+				mul = 2
+				break
 			}
 		}
 		return GetYakumanScore(r, mul, honba)
