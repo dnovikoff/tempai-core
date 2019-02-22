@@ -95,38 +95,14 @@ func (m Mask) FirstCopyNative() tile.CopyID {
 
 func (m Mask) FirstCopy() tile.CopyID {
 	switch m & 15 {
-	case 0:
-		return -1
-	case 1:
+	case 1, 3, 5, 7, 9, 11, 13, 15:
 		return 0
-	case 2:
+	case 2, 6, 10, 14:
 		return 1
-	case 3:
-		return 0
-	case 4:
+	case 4, 12:
 		return 2
-	case 5:
-		return 0
-	case 6:
-		return 1
-	case 7:
-		return 0
 	case 8:
 		return 3
-	case 9:
-		return 0
-	case 10:
-		return 1
-	case 11:
-		return 0
-	case 12:
-		return 2
-	case 13:
-		return 0
-	case 14:
-		return 1
-	case 15:
-		return 0
 	}
 	return tile.NullCopy
 }

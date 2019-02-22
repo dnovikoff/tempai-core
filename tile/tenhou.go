@@ -41,49 +41,71 @@ func TilesToTenhouString(tiles Tiles) string {
 }
 
 func NewTilesFromString(str string) (Tiles, error) {
-	if len(str) == 0 {
-		return nil, nil
+	p := &parser{}
+	p.Parse(str)
+	if p.err != nil {
+		return nil, p.err
 	}
-	tmp := make(Tiles, 0, len(str))
-	index := 0
-	t := TileEnd
-	max := '0'
+	return p.result, nil
+}
+
+type parser struct {
+	index  int
+	max    rune
+	err    error
+	input  string
+	result []Tile
+}
+
+func (p *parser) fill(k int, t Tile) {
+	if p.index == k {
+		p.err = stackerr.Newf("Empty range at %v", p.index)
+		return
+	}
+	for _, val := range p.input[p.index:k] {
+		p.result = append(p.result, Tile(int(rune(val)-'1'))+t)
+	}
+	p.index = k + 1
+	p.max = '0'
+}
+
+func (p *parser) Parse(str string) {
+	if len(str) == 0 {
+		return
+	}
+	p.input = str
+	p.result = make(Tiles, 0, len(str))
+	p.index = 0
+	p.max = '0'
+	p.err = nil
 	for k, v := range str {
 		r := rune(v)
 		switch r {
 		case 's':
-			t = Sou1
+			p.fill(k, Sou1)
 		case 'm':
-			t = Man1
+			p.fill(k, Man1)
 		case 'p':
-			t = Pin1
+			p.fill(k, Pin1)
 		case 'z':
-			t = East
-			if max > '7' {
-				return nil, stackerr.Newf("Unexpected value '%s' for type '%s'", string(max), string(v))
+			if p.max > '7' {
+				p.err = stackerr.Newf("Unexpected value '%s' for type '%s'", string(p.max), string(v))
+			} else {
+				p.fill(k, East)
 			}
 		default:
 			if r < '1' || r > '9' {
-				return nil, stackerr.Newf("Unexpected symbol '%s' at position %v", string(v), k)
-			}
-			if r > max {
-				max = r
+				p.err = stackerr.Newf("Unexpected symbol '%s' at position %v", string(v), k)
+			} else if r > p.max {
+				p.max = r
 			}
 		}
-		if t != TileEnd {
-			if index == k {
-				return nil, stackerr.Newf("Empty range at %v", index)
-			}
-			for _, val := range str[index:k] {
-				tmp = append(tmp, Tile(int(rune(val)-'1'))+t)
-			}
-			index = k + 1
-			max = '0'
-			t = TileEnd
+		if p.err != nil {
+			return
 		}
 	}
-	if index != len(str) {
-		return nil, stackerr.Newf("Expected to end with a letter")
+	if p.index != len(str) {
+		p.err = stackerr.Newf("Expected to end with a letter")
 	}
-	return tmp, nil
+	return
 }
