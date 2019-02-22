@@ -3,9 +3,10 @@ package yaku
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/dnovikoff/tempai-core/hand/calc"
 	"github.com/dnovikoff/tempai-core/tile"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestFu(t *testing.T) {

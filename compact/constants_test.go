@@ -5,8 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dnovikoff/tempai-core/tile"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 func TestAllTiles(t *testing.T) {

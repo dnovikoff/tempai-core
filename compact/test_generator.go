@@ -1,8 +1,9 @@
 package compact
 
 import (
-	"github.com/dnovikoff/tempai-core/tile"
 	"github.com/stretchr/testify/require"
+
+	"github.com/dnovikoff/tempai-core/tile"
 )
 
 type TestGenerator struct {

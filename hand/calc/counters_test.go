@@ -3,10 +3,9 @@ package calc
 import (
 	"testing"
 
-	"github.com/dnovikoff/tempai-core/compact"
-
 	"github.com/stretchr/testify/assert"
 
+	"github.com/dnovikoff/tempai-core/compact"
 	"github.com/dnovikoff/tempai-core/tile"
 )
 
