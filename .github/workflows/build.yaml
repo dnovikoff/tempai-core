@@ -21,4 +21,11 @@ jobs:
       - name: Test
         env:
             GOPROXY: "off"
-        run: make test
+        run: make testcover
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: true
+          verbose: false
