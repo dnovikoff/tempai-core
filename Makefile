@@ -13,6 +13,9 @@ gobin/stringer: gobin
 test:
 	go test -mod vendor ./...
 
+testcover:
+	go test -mod vendor -race -coverprofile=coverage.txt -covermode=atomic ./...
+
 generate: gobin/stringer
 	PATH=$(CURDIR)/gobin:$(PATH) go generate -mod vendor ./...
 
