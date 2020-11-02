@@ -1,6 +1,6 @@
 ## About
 
-![CI](https://github.com/dnovikoff/tempai-core/workflows/CI/badge.svg?branch=master&event=push)
+[![CI](https://github.com/dnovikoff/tempai-core/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/dnovikoff/tempai-core/actions?query=workflow%3ACI)
 [![Coverage Status](https://img.shields.io/codecov/c/github/dnovikoff/tempai-core.svg)](https://codecov.io/gh/dnovikoff/tempai-core)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dnovikoff/tempai-core)](https://goreportcard.com/report/github.com/dnovikoff/tempai-core)
 
