@@ -8,15 +8,15 @@ gobin:
 	mkdir -p gobin
 
 gobin/stringer: gobin
-	go build -o ./gobin/stringer ./vendor/golang.org/x/tools/cmd/stringer
+	go build -mod vendor -o ./gobin/stringer ./vendor/golang.org/x/tools/cmd/stringer
 
 test:
-	go test ./...
+	go test -mod vendor ./...
 
 generate: gobin/stringer
-	PATH=$(CURDIR)/gobin:$(PATH) go generate ./...
+	PATH=$(CURDIR)/gobin:$(PATH) go generate -mod vendor ./...
 
 build:
 	mkdir -p build
-	GOBIN=$(shell pwd)/build go install ./examples/performance/...
+	GOBIN=$(shell pwd)/build go install -mod vendor ./examples/performance/...
 
