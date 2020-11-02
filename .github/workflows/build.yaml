@@ -22,10 +22,10 @@ jobs:
         env:
             GOPROXY: "off"
         run: make test
+        run: go test -mod vendor -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-      - name: Test Cover
+      - name: Test Cover Upload
         with:
           file: ./coverage.txt
           fail_ci_if_error: true
           verbose: true
-        run: go test -mod vendor -race -coverprofile=coverage.txt -covermode=atomic ./..
