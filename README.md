@@ -1,6 +1,6 @@
 ## About
 
-[![Build Status](https://travis-ci.org/dnovikoff/tempai-core.svg?branch=master)](https://travis-ci.org/dnovikoff/tempai-core)
+![CI](https://github.com/dnovikoff/tempai-core/workflows/CI/badge.svg?branch=master&event=push)
 [![Coverage Status](https://img.shields.io/codecov/c/github/dnovikoff/tempai-core.svg)](https://codecov.io/gh/dnovikoff/tempai-core)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dnovikoff/tempai-core)](https://goreportcard.com/report/github.com/dnovikoff/tempai-core)
 
