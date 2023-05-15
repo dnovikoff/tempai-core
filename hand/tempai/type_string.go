@@ -4,6 +4,16 @@ package tempai
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[TypeNone-0]
+	_ = x[TypeRegular-1]
+	_ = x[TypePairs-2]
+	_ = x[TypeKokushi-3]
+}
+
 const _Type_name = "TypeNoneTypeRegularTypePairsTypeKokushi"
 
 var _Type_index = [...]uint8{0, 8, 19, 28, 39}

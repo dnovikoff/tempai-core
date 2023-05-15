@@ -4,6 +4,29 @@ package yaku
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[YakumanNone-0]
+	_ = x[YakumanKokushi-1]
+	_ = x[YakumanKokushi13-2]
+	_ = x[YakumanSuukantsu-3]
+	_ = x[YakumanSuuankou-4]
+	_ = x[YakumanSuuankouTanki-5]
+	_ = x[YakumanDaisangen-6]
+	_ = x[YakumanShousuushi-7]
+	_ = x[YakumanDaisuushi-8]
+	_ = x[YakumanRyuuiisou-9]
+	_ = x[YakumanTsuiisou-10]
+	_ = x[YakumanChinrouto-11]
+	_ = x[YakumanChuurenpooto-12]
+	_ = x[YakumanChuurenpooto9-13]
+	_ = x[YakumanTenhou-14]
+	_ = x[YakumanChihou-15]
+	_ = x[YakumanRenhou-16]
+}
+
 const _Yakuman_name = "YakumanNoneYakumanKokushiYakumanKokushi13YakumanSuukantsuYakumanSuuankouYakumanSuuankouTankiYakumanDaisangenYakumanShousuushiYakumanDaisuushiYakumanRyuuiisouYakumanTsuiisouYakumanChinroutoYakumanChuurenpootoYakumanChuurenpooto9YakumanTenhouYakumanChihouYakumanRenhou"
 
 var _Yakuman_index = [...]uint16{0, 11, 25, 41, 57, 72, 92, 108, 125, 141, 157, 172, 188, 207, 227, 240, 253, 266}

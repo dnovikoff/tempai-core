@@ -4,6 +4,17 @@ package base
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[WindEast-0]
+	_ = x[WindSouth-1]
+	_ = x[WindWest-2]
+	_ = x[WindNorth-3]
+	_ = x[WindEnd-4]
+}
+
 const _Wind_name = "WindEastWindSouthWindWestWindNorthWindEnd"
 
 var _Wind_index = [...]uint8{0, 8, 17, 25, 34, 41}

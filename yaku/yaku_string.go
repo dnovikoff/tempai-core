@@ -4,6 +4,60 @@ package yaku
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[YakuNone-0]
+	_ = x[YakuRiichi-1]
+	_ = x[YakuDaburi-2]
+	_ = x[YakuIppatsu-3]
+	_ = x[YakuTsumo-4]
+	_ = x[YakuTanyao-5]
+	_ = x[YakuChanta-6]
+	_ = x[YakuJunchan-7]
+	_ = x[YakuHonrouto-8]
+	_ = x[YakuYakuhai-9]
+	_ = x[YakuHaku-10]
+	_ = x[YakuHatsu-11]
+	_ = x[YakuChun-12]
+	_ = x[YakuWindRound-13]
+	_ = x[YakuWindSelf-14]
+	_ = x[YakuTon-15]
+	_ = x[YakuNan-16]
+	_ = x[YakuSja-17]
+	_ = x[YakuPei-18]
+	_ = x[YakuTonSelf-19]
+	_ = x[YakuNanSelf-20]
+	_ = x[YakuSjaSelf-21]
+	_ = x[YakuPeiSelf-22]
+	_ = x[YakuTonRound-23]
+	_ = x[YakuNanRound-24]
+	_ = x[YakuSjaRound-25]
+	_ = x[YakuPeiRound-26]
+	_ = x[YakuChiitoi-27]
+	_ = x[YakuToitoi-28]
+	_ = x[YakuSanankou-29]
+	_ = x[YakuSankantsu-30]
+	_ = x[YakuSanshoku-31]
+	_ = x[YakuShousangen-32]
+	_ = x[YakuPinfu-33]
+	_ = x[YakuIppeiko-34]
+	_ = x[YakuRyanpeikou-35]
+	_ = x[YakuItsuu-36]
+	_ = x[YakuSanshokuDoukou-37]
+	_ = x[YakuHonitsu-38]
+	_ = x[YakuChinitsu-39]
+	_ = x[YakuDora-40]
+	_ = x[YakuUraDora-41]
+	_ = x[YakuAkaDora-42]
+	_ = x[YakuRenhou-43]
+	_ = x[YakuHaitei-44]
+	_ = x[YakuHoutei-45]
+	_ = x[YakuRinshan-46]
+	_ = x[YakuChankan-47]
+}
+
 const _Yaku_name = "YakuNoneYakuRiichiYakuDaburiYakuIppatsuYakuTsumoYakuTanyaoYakuChantaYakuJunchanYakuHonroutoYakuYakuhaiYakuHakuYakuHatsuYakuChunYakuWindRoundYakuWindSelfYakuTonYakuNanYakuSjaYakuPeiYakuTonSelfYakuNanSelfYakuSjaSelfYakuPeiSelfYakuTonRoundYakuNanRoundYakuSjaRoundYakuPeiRoundYakuChiitoiYakuToitoiYakuSanankouYakuSankantsuYakuSanshokuYakuShousangenYakuPinfuYakuIppeikoYakuRyanpeikouYakuItsuuYakuSanshokuDoukouYakuHonitsuYakuChinitsuYakuDoraYakuUraDoraYakuAkaDoraYakuRenhouYakuHaiteiYakuHouteiYakuRinshanYakuChankan"
 
 var _Yaku_index = [...]uint16{0, 8, 18, 28, 39, 48, 58, 68, 79, 91, 102, 110, 119, 127, 140, 152, 159, 166, 173, 180, 191, 202, 213, 224, 236, 248, 260, 272, 283, 293, 305, 318, 330, 344, 353, 364, 378, 387, 405, 416, 428, 436, 447, 458, 468, 478, 488, 499, 510}

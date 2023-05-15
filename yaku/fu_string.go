@@ -4,6 +4,22 @@ package yaku
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[FuNone-0]
+	_ = x[FuBase-1]
+	_ = x[FuBaseClosedRon-2]
+	_ = x[FuBase7-3]
+	_ = x[FuSet-4]
+	_ = x[FuTsumo-5]
+	_ = x[FuMeld-6]
+	_ = x[FuNoOpenFu-7]
+	_ = x[FuBadWait-8]
+	_ = x[FuPair-9]
+}
+
 const _Fu_name = "FuNoneFuBaseFuBaseClosedRonFuBase7FuSetFuTsumoFuMeldFuNoOpenFuFuBadWaitFuPair"
 
 var _Fu_index = [...]uint8{0, 6, 12, 27, 34, 39, 46, 52, 62, 71, 77}

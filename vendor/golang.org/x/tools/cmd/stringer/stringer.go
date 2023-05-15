@@ -5,7 +5,9 @@
 // Stringer is a tool to automate the creation of methods that satisfy the fmt.Stringer
 // interface. Given the name of a (signed or unsigned) integer type T that has constants
 // defined, stringer will create a new self-contained Go source file implementing
+//
 //	func (t T) String() string
+//
 // The file is created in the same package and directory as the package that defines T.
 // It has helpful defaults designed for use with go generate.
 //
@@ -74,7 +76,6 @@ import (
 	"go/format"
 	"go/token"
 	"go/types"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -164,7 +165,7 @@ func main() {
 		baseName := fmt.Sprintf("%s_string.go", types[0])
 		outputName = filepath.Join(dir, strings.ToLower(baseName))
 	}
-	err := ioutil.WriteFile(outputName, src, 0644)
+	err := os.WriteFile(outputName, src, 0644)
 	if err != nil {
 		log.Fatalf("writing output: %s", err)
 	}
@@ -215,7 +216,7 @@ type Package struct {
 // parsePackage exits if there is an error.
 func (g *Generator) parsePackage(patterns []string, tags []string) {
 	cfg := &packages.Config{
-		Mode: packages.LoadSyntax,
+		Mode: packages.NeedName | packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax,
 		// TODO: Need to think about constants in test files. Maybe write type_string_test.go
 		// in a separate pass? For later.
 		Tests:      false,
@@ -570,6 +571,7 @@ func (g *Generator) buildOneRun(runs [][]Value, typeName string) {
 }
 
 // Arguments to format are:
+//
 //	[1]: type name
 //	[2]: size of index element (8 for uint8 etc.)
 //	[3]: less than zero check (for signed types)

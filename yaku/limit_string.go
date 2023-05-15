@@ -4,6 +4,18 @@ package yaku
 
 import "strconv"
 
+func _() {
+	// An "invalid array index" compiler error signifies that the constant values have changed.
+	// Re-run the stringer command to generate them again.
+	var x [1]struct{}
+	_ = x[LimitNone-0]
+	_ = x[LimitMangan-1]
+	_ = x[LimitHaneman-2]
+	_ = x[LimitBaiman-3]
+	_ = x[LimitSanbaiman-4]
+	_ = x[LimitYakuman-5]
+}
+
 const _Limit_name = "LimitNoneLimitManganLimitHanemanLimitBaimanLimitSanbaimanLimitYakuman"
 
 var _Limit_index = [...]uint8{0, 9, 20, 32, 43, 57, 69}
