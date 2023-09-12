@@ -97,6 +97,7 @@ func (c *calculator) run() *Result {
 	ctx := c.args.ctx
 	c.result = newResult()
 
+	c.tryTsumo()
 	if c.tryKokushi() {
 		return c.calculateResult()
 	}
@@ -106,7 +107,6 @@ func (c *calculator) run() *Result {
 	}
 
 	c.tryLastTile()
-	c.tryTsumo()
 	c.tryRiichi()
 
 	if ctx.IsChankan {

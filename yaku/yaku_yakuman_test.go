@@ -23,6 +23,14 @@ func TestYakumanTenhouu(t *testing.T) {
 	assert.Equal(t, "YakumanTenhou", win.String())
 }
 
+func TestTenhouAndKokushi(t *testing.T) {
+	tester := newYakuTester(t, "19s19p19m1234567z")
+	tester.rules = RulesTenhouRed()
+	tester.ctx.IsFirstTake = true
+	win := tester.tsumo(tile.Man1)
+	assert.Equal(t, "YakumanKokushi13, YakumanTenhou", win.String())
+}
+
 func TestYakumanChuren9(t *testing.T) {
 	for tl := tile.Pin1; tl <= tile.Pin9; tl++ {
 		t.Run(tl.String(), func(t *testing.T) {
