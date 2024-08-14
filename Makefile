@@ -28,6 +28,10 @@ bench:
 	cd ./examples/bench/ && go test -bench=. -benchtime 5s -benchmem -run notest
 # go test -v ./examples/bench/ --benchtime 10000x --bench ./examples/bench/ -benchmem
 
+.PHONY: build
+build:
+	go build -o /dev/null ./...
+
 .PHONY: tidy
 tidy:
 	go mod tidy

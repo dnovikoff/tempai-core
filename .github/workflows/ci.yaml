@@ -16,7 +16,7 @@ jobs:
       - name: Build
         env:
             GOPROXY: "off"
-        run: make generate build
+        run: make build
 
       - name: Test
         env:
