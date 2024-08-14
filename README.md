@@ -201,26 +201,52 @@ YakuChankan: 1, YakuPinfu: 1, YakuTsumo: 1
 Value: 3.20
 ```
 
-### Perfomance
-There is an `examples/performance` folder with some mesaurement program.
+### Benchmarks
+Benchmarks are located at `examples/bench`.
 I've already made some code improvements, based on profiling for simular test code.
 Although there could be more space for improve, the results on my machine seems quite fine to start with.
 
-` go run ./examples/performance/main.go`
+`cd ./examples/bench/ && go test -bench=. -benchtime 5s -benchmem -run notest`
 
 Output:
 ```
-================== Test shanten
-Repeat: 10000
-Elapsed: 255.822276ms
-Estemated speed: 39089.637369968514 per second
-================== Test tempai
-Repeat: 10000
-Elapsed: 122.52142ms
-Estemated speed: 81618.38150423003 per second
-Tempai hand count: 4826
-================== Test effectivity
-Repeat: 1000
-Elapsed: 255.058354ms
-Estemated speed: 3920.6714240773313 per second
+goos: linux
+goarch: amd64
+pkg: github.com/dnovikoff/tempai-core/examples/bench
+cpu: 12th Gen Intel(R) Core(TM) i7-1260P
+BenchmarkShanten-16               419035             13633 ns/op            5924 B/op         29 allocs/op
+--- BENCH: BenchmarkShanten-16
+    bench_test.go:32: Repeat:  1
+    bench_test.go:33: RPS:  33561.55188615921
+    bench_test.go:32: Repeat:  100
+    bench_test.go:33: RPS:  60719.62470414363
+    bench_test.go:32: Repeat:  10000
+    bench_test.go:33: RPS:  69839.23838410915
+    bench_test.go:32: Repeat:  419035
+    bench_test.go:33: RPS:  73352.4715081205
+BenchmarkTempai-16                976167              6007 ns/op            3514 B/op         52 allocs/op
+--- BENCH: BenchmarkTempai-16
+    bench_test.go:58: Repeat:  1
+    bench_test.go:59: Tempai hand count:  0
+    bench_test.go:60: RPS:  30308.540946838817
+    bench_test.go:58: Repeat:  100
+    bench_test.go:59: Tempai hand count:  48
+    bench_test.go:60: RPS:  79856.06742407485
+    bench_test.go:58: Repeat:  10000
+    bench_test.go:59: Tempai hand count:  4826
+    bench_test.go:60: RPS:  119202.33090145081
+    bench_test.go:58: Repeat:  715213
+        ... [output truncated]
+BenchmarkEffective-16              48742            123743 ns/op           21308 B/op        315 allocs/op
+--- BENCH: BenchmarkEffective-16
+    bench_test.go:81: Repeat:  1
+    bench_test.go:82: RPS:  12198.543493906827
+    bench_test.go:81: Repeat:  100
+    bench_test.go:82: RPS:  8245.353351732016
+    bench_test.go:81: Repeat:  10000
+    bench_test.go:82: RPS:  8123.973175995651
+    bench_test.go:81: Repeat:  48742
+    bench_test.go:82: RPS:  8081.242170967126
+PASS
+ok      github.com/dnovikoff/tempai-core/examples/bench 24.435s
 ```

@@ -1,5 +1,5 @@
 .PHONY: all
-all: generate test build
+all: generate test
 
 .PHONY: clean
 clean:
@@ -8,8 +8,8 @@ clean:
 gobin:
 	mkdir -p gobin
 
-gobin/stringer: gobin
-	go build -mod vendor -o ./gobin/stringer ./vendor/golang.org/x/tools/cmd/stringer
+gobin/stringer: gobin go.sum go.mod
+	GOBIN=$(CURDIR)/gobin go install golang.org/x/tools/cmd/stringer@latest
 
 .PHONY: test
 test:
@@ -23,8 +23,17 @@ testcover:
 generate: gobin/stringer
 	PATH=$(CURDIR)/gobin:$(PATH) go generate -mod vendor ./...
 
+.PHONY: bench
+bench:
+	cd ./examples/bench/ && go test -bench=. -benchtime 5s -benchmem -run notest
+# go test -v ./examples/bench/ --benchtime 10000x --bench ./examples/bench/ -benchmem
+
 .PHONY: build
 build:
-	mkdir -p build
-	GOBIN=$(shell pwd)/build go install -mod vendor ./examples/performance/...
+	go build -o /dev/null ./...
 
+.PHONY: tidy
+tidy:
+	go mod tidy
+	go mod vendor
+	rm -rf build gobin

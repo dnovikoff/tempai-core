@@ -5,10 +5,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.20
+      - name: Set up Go 1.22.6
         uses: actions/setup-go@v1
         with:
-          go-version: 1.20
+          go-version: 1.22.6
 
       - name: Check out source code
         uses: actions/checkout@v1
@@ -16,7 +16,7 @@ jobs:
       - name: Build
         env:
             GOPROXY: "off"
-        run: make generate build
+        run: make build
 
       - name: Test
         env:
@@ -24,8 +24,11 @@ jobs:
         run: make testcover
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.txt
-          fail_ci_if_error: true
-          verbose: false
+          fail_ci_if_error: true # optional (default = false)
+          files: ./coverage.txt
+          flags: unittests # optional
+          token: ${{ secrets.CODECOV_TOKEN }} # required
+          verbose: false # optional (default = false)
+
