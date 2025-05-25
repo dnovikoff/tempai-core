@@ -82,8 +82,22 @@ func (r *calcResult) Record(in *calc.ResultData) {
 	fullSets := in.Sets > 3
 
 	if in.Pair == nil {
+		var tankiImproves compact.Tiles
 		for _, t := range in.Left {
-			improves = improves.Set(t)
+			tankiImproves = tankiImproves.Set(t)
+		}
+		var tankiLocked compact.Tiles
+		for _, v := range in.Closed {
+			if v.Tags().CheckAny(calc.TagPon) {
+				tankiLocked = tankiLocked.Set(v.Tile())
+			}
+		}
+		tankiLeft := tankiImproves.Sub(tankiLocked)
+		if tankiLeft.IsEmpty() {
+			value++
+			improves = improves.Merge(compact.AllTiles.Sub(tankiLocked))
+		} else {
+			improves = improves.Merge(tankiLeft)
 		}
 	}
 

@@ -116,13 +116,22 @@ func TestShantenBug1(t *testing.T) {
 	assert.Equal(t, "1369m179p19s1234567z", uke.UniqueTiles().Tiles().String())
 }
 
-func TestMonocolorBug(t *testing.T) {
-	tiles := testCompact(t, "1111222235555m")
+func TestShantenBug2(t *testing.T) {
+	tiles := testCompact(t, "23m111122223333z")
 	res := Calculate(tiles)
 	m := res.Total
-	assert.Equal(t, 1, m.Value)
+	assert.Equal(t, 2, m.Value)
 	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
-	assert.Equal(t, "3467m", uke.UniqueTiles().Tiles().String())
+	assert.Equal(t, "123456789m123456789p123456789s4567z", uke.UniqueTiles().Tiles().String())
+}
+
+func TestMonocolorBug(t *testing.T) {
+	tiles := testCompact(t, "1111222235555m1z")
+	res := Calculate(tiles)
+	m := res.Total
+	assert.Equal(t, 0, m.Value)
+	uke := m.CalculateUkeIre(compact.NewTotals().Merge(tiles))
+	assert.Equal(t, "1z", uke.UniqueTiles().Tiles().String())
 }
 
 func TestImprovesPair(t *testing.T) {

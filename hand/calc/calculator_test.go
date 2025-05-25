@@ -54,3 +54,15 @@ func TestCalculatorShanten(t *testing.T) {
 		"11m [23m (14m)] ",
 	}, tr.records)
 }
+
+func TestCalculatorShantenTankiBug(t *testing.T) {
+	tg := compact.NewTestGenerator(t)
+	hand := tg.CompactFromString("23m11112222333z")
+	tr := &testResults{}
+	opts := GetOptions(SetResults(tr), Opened(0))
+	fm := FilterMelds(hand, CreateAll())
+	Calculate(fm, hand, opts)
+	assert.Equal(t, []string{
+		"nil [23m (14m) 111z 222z 333z] 12z",
+	}, tr.records)
+}
