@@ -1,10 +1,10 @@
 module github.com/dnovikoff/tempai-core
 
-go 1.22.6
+go 1.24.3
 
 require (
 	github.com/facebookgo/stackerr v0.0.0-20150612192056-c2fcf88613f4
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (

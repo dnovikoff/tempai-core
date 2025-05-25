@@ -5,22 +5,22 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.22.6
+      - name: Set up Go 1.24.3
         uses: actions/setup-go@v1
         with:
-          go-version: 1.22.6
+          go-version: 1.24.3
 
       - name: Check out source code
         uses: actions/checkout@v1
 
       - name: Build
         env:
-            GOPROXY: "off"
+          GOPROXY: "off"
         run: make build
 
       - name: Test
         env:
-            GOPROXY: "off"
+          GOPROXY: "off"
         run: make testcover
 
       - name: Upload coverage to Codecov
